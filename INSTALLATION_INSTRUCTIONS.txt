@@ -26,8 +26,9 @@ Running the Download Manager:
   * Either, within Windows Explorer, double-click <INSTALLATION_PARENT>\ngEO-download-manager\start-dm.bat
   * Or, within a command prompt, change directory to <INSTALLATION_PARENT>\ngEO-download-manager then enter the following:    
     start-dm          <return>
-  * Once the application has started (indicated by a message of "Started @0.0.0.0:<PORT>", the Download Manager Web UI can
+  * Once the application has started (indicated by a message of "Started @0.0.0.0:0:<PORT>", the Download Manager Web UI can
     be accessed by the following URL: http://localhost:<PORT>/download-manager/
+    The default port number used by the DMTU is 8082.
        
  
 Running the Command Line App: 
