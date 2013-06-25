@@ -1,0 +1,165 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 10pt;
+}
+
+table {
+	font-size: 1em;
+}
+
+footer {
+	font-size: 0.8em;
+	width: 80px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+input:focus,input[type=search]:focus {
+	outline: none;
+	border-color: #4D90C7;
+	box-shadow: 0 0 5px #4D90C7;
+}
+
+input[type="radio"],input[type="checkbox"] {
+	vertical-align: middle;
+	margin: 0px;
+}
+
+input[type="submit"],input[type="button"] {
+	padding-top: 3px;
+	padding-bottom: 3px;
+	padding-left: 5px;
+	padding-right: 5px;
+	border-radius: 5px;
+	border: 1px solid #878787;
+	cursor: pointer;
+	background-color: #434343;
+	box-shadow: 2px 2px 2px #CCCCCC;
+	color: white;
+	font-size: 1em;
+}
+
+table.dataTable {
+	font-size: 0.9em;
+	line-height: 0.9em;
+}
+
+table.dataTable td {
+	padding: 0px 0px 0px 5px;
+	border:solid 1px #CCCCCC;
+	vertical-align:middle;
+}
+
+table.dataTable td.details{
+	padding-left: 50px;
+	padding-bottom: 10px;
+	border: 0px;
+}
+
+table.dataTable td.expand {
+	padding:0px;
+}
+
+table.dataTable td.productProgress {
+	padding: 0px;
+	border:solid 1px #CCCCCC;
+}
+
+.ui-progressbar {
+	height: 22px;
+}
+
+.productProgress .ui-widget-content {
+	border: 0px;
+}
+
+.productProgress .ui-corner-all {
+	border-radius: 0px;
+}
+
+.progress-label {
+	float: left;
+	text-align: center;
+	font-weight: bold;
+	text-shadow: 1px 1px 0 #fff;
+	font-size: 0.8em;
+	width: 100%;
+	line-height: 22px;
+}
+
+ul#actions li {
+	margin: 2px;
+	position: relative;
+	cursor: pointer;
+	float: left;
+	list-style: none;
+}
+
+.iconWarning {
+	margin: 2px;
+	cursor: help;
+	float: right;
+}
+
+/* styles related to the top bar and its elements */
+#top-bar {
+	height: 65px;
+	display: block;
+	background-color: #434343;
+	padding: 10px 10px;
+}
+
+#top-bar #title {
+	background-color: #434343;
+	width: 150px;
+	float: left;
+	color: white;
+}
+
+#top-bar #container {
+	margin-left: 170px;
+	height: 65px;
+	color: white;
+	text-align: center;
+	line-height: 65px;
+}
+
+#top-bar #statusHolder {
+	float: right;
+	line-height: 20px;
+	padding-left: 10px;
+	padding-right: 10px;
+	margin-right: 10px;
+	margin-top: 25px;
+}
+/* end of top bar styles */
+
+/* main section styles, including left nav */
+#main {
+	display: block;
+	position: relative;
+	min-height: 600px;
+}
+
+#content {
+	margin-left: 10px;
+	padding: 5px;
+}
+
+#main #content h1 {
+	text-align: center;
+	margin-bottom: 10px;
+}
+/* end of main section styles, including left nav */
+.dataTable {
+	border-collapse: collapse;
+}
+
+.errorConsole {
+	border: solid 1px #CCCCCC;
+}

@@ -1,0 +1,112 @@
+Download Manager Test Unit (DMTU) Release Note 0.4.0
+-----------------------------------
+
+Features
+-----------------------------------
+* Open source application, using widely-adopted third-party components and frameworks.
+* Supports multiple operating systems.
+* Implemented completely in Java.
+* Uses standard cross-platform build tools (Maven and Ant) to create the installation package.
+* Can be installed anywhere on a user's machine and does not require root / administrator access.
+* Fully autonomous download of products notified by a server which supports the ngEO interface (IICD-D-WS).
+* Integrates with Product Facilities through ngEO DAGICD interface.
+* Plugin system which allows users to add support for download protocols.
+* Includes generic HTTP and mock Sentinel-2 plugins.
+* Web interface provided to allow monitoring and managing of download activities, as well as editing of configuration data.
+* A user can manually download a product, either by the Web interface or by the command line application.
+* Clear activity history on completed, cancelled or failed downloads.
+* Concurrent download of products.
+
+Release History
+-----------------------------------
+0.4.0
+	DMTU-3	- Persistence of status to DB in scenarios where a download goes straight into IN_ERROR
+	DMTU-11	- Remove "downloads" folder from installation package
+	DMTU-6	- Propagate installation instructions to install package
+	DMTU-57	- Ensure DownloadManagerSetTime is being passed through in MonitoringURL Operation
+	DMTU-63	- Potential clock synchronisation issue for DownloadManagerSetTime
+	DMTU-58	- Ensure DownloadManagerSetTime is being passed through in DataAccessMonitoring Operation
+	DMTU-27	- Supply the download status in the CLI
+	DMTU-59	- Initialise DataAcessRequestMonitoring on server startup
+	DMTU-69	- Support a DAR with multiple products
+	DMTU-25	- Integration with ngEO Web Server
+	DMTU-10	- Increase field size for download directory on first startup and advanced config pages
+	DMTU-54	- Generate unique download manager identifier
+	DMTU-1	- Download appears as "running", but progress appears to be stalled
+	DMTU-5	- The version number of the CLI is "FIXME_getversion"
+	DMTU-24	- Update installation process - demo feedback 22nd May
+	DMTU-79	- Update installation instructions to include DMTU Home Page URL
+	DMTU-2	- "The file download should be completed, but there are still bytes to be read" error when downloading a product
+0.3.2
+	First release (limited distribution)
+
+Requirements not currently implemented (requirement ref: DMTU-URD)
+-----------------------------------
+
+DMTU-REQ-16 - Web interface protection
+DMTU-REQ-29 - Priority for manual downloads
+DMTU-REQ-30 - Browser helper application
+
+Limitations
+----------------------------------
+
+DMTU-REQ-2   -	Testing for Windows XP/Vista/8, and MacOS required. However the DMTU has been built to be flexible in deployment across multiple platforms.
+DMTU-REQ-4   -	Javadoc, open source licence and validation report not available at this time.
+DMTU-REQ-8   -	UM-SSO is not implemented at this time.
+DMTU-REQ-8   -	"User order" not honoured in Monitoring URL operation.
+DMTU-REQ-8   -	Time remaining for a product download is not specified to the Web Server at this time.
+DMTU-REQ-8   -	PAUSED, CANCELLED and COMPLETED monitoring status supplied in DataAccessRequestMonitoring operation are not honoured.
+DMTU-REQ-9   -	Schema handling of HTTP 403 not implemented; confirmation of schema response required.
+DMTU-REQ-9   -	Handling of HTTP 303s not implemented at this time.
+DMTU-REQ-9   -	Parallel downloading (multiple sources for one file in a metalink) not supported. If multiple sources are provided for a particular file, only the first is used.
+DMTU-REQ-9   -	Only one file is downloaded at a time for a product.
+DMTU-REQ-9   -	UM-SSO is not implemented at this time.
+DMTU-REQ-9   -	Temporary and configuration directories are not used by the generic plugin; no configuration of this plugin is possible at this time.
+DMTU-REQ-9   -	Downloaded Files are currently not being used by the DMTU as output to product termination log.
+DMTU-REQ-9   -   No configuration of this plugin is possible at this time.
+DMTU-REQ-11  -	Plugins are detected only on server startup. 
+DMTU-REQ-11  -	Adding a plugin via a GUI is not supported.
+DMTU-REQ-17  -	Changes to the number of parallel download threads will only be honoured on application restart.
+DMTU-REQ-17  -	Port number for the web interface can be configured but is not honoured.
+DMTU-REQ-18  -	As a result of conforming to the plugin interface, there is no provision for providing the total size of download, the number of files or the estimated time remaining.
+DMTU-REQ-26  -	This setting refers to the product download threads. A product download will only download one file at time (in a metalink scenario).
+DMTU-REQ-23  -   Callback mechanism supports very basic commands at present
+DMTU-REQ-27  -	Download log does not supply the following information at this time:
+					* Name of the Data Access Request (URL?)
+					* Start date/time of first download request
+					* Start date/time of actual download
+					* Stop date/time of download
+					* Path of the saved product if completed (not specified by plugin interface)"
+DMTU-REQ-28  -	Commands "add" and "status" are the only commands available through the CLI.
+DMTU-REQ-28  -	The DMTU have been started by something other than the CLI before any CLI commands can be serviced by the DMTU.
+DMTU-REQ-28  -	A list of products to be downloaded via a file parameter is yet to be implemented.
+             -  There is no ability to prioritise the download of a product at this time. The product downloads are handled as as queue (FIFO). 
+                If any product download is paused and then resumed, the download will lose its place in the queue.
+             -  DMTU only allows for integration with one ngEO Web Server
+
+Assumptions
+-----------------------------------
+
+*  The restriction on the number of parallel download threads refer to the product download threads, rather than individual files. 
+   This is because the interfaces between the DMTU and the plugins do not allow the management of downloads at the file level.
+*  If one file within a product metalink causes an error, the product download will be in error and no other files will be downloaded.
+*  Every URL supplied for a file within a metalink is assumed to be available when the metalink is retrieved i.e. an HTTP 200 response code will be supplied if queried for the file size.
+   Any non HTTP 200 response code will immediately set the product download in error.
+*  At any one time, only one user will be performing First Startup Configuration; likewise for the Advanced Configuration.
+*  If the download manager is shut down, and a product is in the process of being downloaded, the progress can be persisted but the 
+   resumption of the file download depends entirely on the plugin checking the location it expects the file to be and resuming if possible.
+*  If a download is cancelled, all progress is lost - the plugin will tidy up after a cancel command has been sent to it.
+*  Download Options for a product URL are asummed to be provided by the Web Server within the URL itself.
+*  For any product for which the download directory has been specified by the Web Server, the download directory name will not be prefixed with a ".", because it is likely that products within a DAR will share the same download directory.
+   This is implied by DMTU-REQ-24.
+
+Known Issues
+-----------------------------------
+
+DMTU-4  - Pause and resume buttons sometimes do not respond in the Web UI.
+DMTU-70 - Limitation: notification of product download from WEBS not handled correctly
+DMTU-16 - Cancelled products cannot be started
+DMTU-80 - DAGICD: No requirement for handling HTTP 301/302 status codes
+DMTU-8  - Double clicking the FirstStartupConfig page's "Save and Register" button causes a blow-up
+DMTU-62 - Name of downloaded file may be poor in absence of Content-Disposition HTTP response header
+DMTU-65 - Progress bar in UI can indicate less than 100% when Product Status is "Completed"

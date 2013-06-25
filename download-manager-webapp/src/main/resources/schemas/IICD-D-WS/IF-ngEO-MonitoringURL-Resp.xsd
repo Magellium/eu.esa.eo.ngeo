@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by Gerhard Triebnig (EOX IT Services GmbH) -->
+<schema xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://ngeo.eo.esa.int/iicd-d-ws/1.0"
+	elementFormDefault="qualified" attributeFormDefault="unqualified" version="0.4">
+	<include schemaLocation="IF-ngEO-D-WS_common.xsd" />
+	<element name="MonitoringURL-Resp">
+		<annotation>
+			<documentation>Response provided by the Web Server</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="UserOrder">
+					<annotation>
+						<documentation>
+							An order specified, by a user in the Web Client, which changes the behaviour of the Download Manager against this instance of the Web Server.
+							STOP IMMEDIATELY: ngEO-D makes stop assignment to all Product Access URLs ever retrieved from the respective Monitoring URL and performs a kill operation to all the related ongoing and scheduled/paused Product downloads
+							STOP: ngEO-D stops looking for further Product Access URLs at the respective Monitoring URL, purges scheduled/paused Product downloads, but continues ongoing downloading activities until these are finished.
+						</documentation>
+					</annotation>
+					<simpleType>
+						<restriction base="string">
+							<enumeration value="STOP" />
+							<enumeration value="STOP_IMMEADIATELY" />
+						</restriction>
+					</simpleType>
+				</element>
+				<sequence>
+					<element name="RefreshPeriod" type="unsignedLong">
+						<annotation>
+							<documentation>
+								Time to be waited before performing a new Monitoring URL request.
+								This time is expressed as a duration in no. of seconds
+							</documentation>
+						</annotation>
+					</element>
+					<choice>
+						<element ref="ngeo:error" />
+						<element name="MonitoringURLList">
+							<annotation>
+								<documentation>
+									List of monitoring URLs to be tracked by the Download Manager.
+									List can be empty if there are no Products ready for download
+								</documentation>
+							</annotation>
+							<complexType>
+								<sequence>
+									<element name="MonitoringURL" type="anyURI" minOccurs="0"
+										maxOccurs="unbounded" />
+								</sequence>
+							</complexType>
+						</element>
+					</choice>
+				</sequence>
+			</choice>
+		</complexType>
+	</element>
+</schema>

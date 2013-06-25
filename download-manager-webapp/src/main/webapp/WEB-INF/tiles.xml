@@ -1,0 +1,24 @@
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+
+<tiles-definitions>
+	<definition name="commonPage" template="/WEB-INF/views/template.jsp">
+		<put-attribute name="top-bar" value="/WEB-INF/fragments/top-bar.jsp" />
+	</definition>
+
+	<definition name="home" extends="commonPage">
+		<put-attribute name="content" value="/WEB-INF/views/home.jsp" />
+		<put-attribute name="page-title" value="Download Manager Test Unit" />
+	</definition>
+
+	<definition name="firstStartupConfig" extends="commonPage">
+		<put-attribute name="content" value="/WEB-INF/views/dmsetup.jsp" />
+		<put-attribute name="page-title" value="Download Manager Test Unit - First Starup Configuration" />
+	</definition>
+
+	<definition name="advancedConfig" extends="commonPage">
+		<put-attribute name="content" value="/WEB-INF/views/advancedconfig.jsp" />
+		<put-attribute name="page-title" value="Download Manager Test Unit - Advanced Configuration" />
+	</definition>
+</tiles-definitions>

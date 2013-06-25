@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>int_.esa.eo.ngeo</groupId>
+		<artifactId>download-manager-parent</artifactId>
+		<version>0.4.0</version>
+	</parent>
+	
+	<properties>
+		<java-version>1.7</java-version>
+		<org.springframework-version>3.1.4.RELEASE</org.springframework-version>
+		<org.aspectj-version>1.6.9</org.aspectj-version>
+	</properties>
+
+	<artifactId>download-manager-webapp</artifactId>
+	<name>Download Manager webapp</name>
+	<packaging>war</packaging>
+	<dependencies>
+
+	
+	<!-- Copy of um-sso client library JAR dependency and its dependencies, as plugins will depend upon the um-sso JAR -->
+	<dependency>
+		<groupId>com.siemens.pse.umsso</groupId>
+		<artifactId>umsso_client</artifactId>
+		<version>0.0.1</version>
+	</dependency>
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.1</version>
+    </dependency>
+	<dependency>
+		<groupId>commons-configuration</groupId>
+		<artifactId>commons-configuration</artifactId>
+		<version>1.3</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.htmlparser</groupId>
+	    <artifactId>htmlparser</artifactId>
+	    <version>1.6</version>
+	</dependency> 
+	<!--  Technically the um-sso JAR depends upon swixml but, given that I'm not sure that I've found the required 
+		  version in a public Maven repository, the hope is that this is dependency only exists in scenarios that we won't exercise -->
+<!-- 	<dependency> -->
+<!-- 	    <groupId>org.swixml</groupId> -->
+<!-- 	    <artifactId>swixml</artifactId> -->
+<!-- 	    <version>1.5</version> -->
+<!-- 	</dependency> -->
+
+
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-exec</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.eclipse.jetty</groupId>
+		  <artifactId>jetty-webapp</artifactId>
+		  <version>7.4.4.v20110707</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.mortbay.jetty</groupId>
+		  <artifactId>jsp-2.1-glassfish</artifactId>
+		  <version>2.1.v20100127</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.7</version>
+		</dependency>
+            	
+		<!-- Download Manager Plugin Interface -->
+		<dependency>
+			<groupId>int_.esa.eo.ngeo</groupId>
+			<artifactId>download-manager-plugin-interface</artifactId>
+			<version>0.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>int_.esa.eo.ngeo</groupId>
+			<artifactId>download-manager-plugin-development-kit</artifactId>
+			<version>0.4.0</version>
+		</dependency>
+
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework-version}</version>
+			
+			<!--  See http://stackoverflow.com/questions/12394385/maven-spring-project-givinig-me-org-slf4j-spi-locationawarelogger-error#14533846 -->
+<!-- 			<exclusions> -->
+<!-- 				Exclude Commons Logging in favor of SLF4j -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>commons-logging</groupId> -->
+<!-- 					<artifactId>commons-logging</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 			</exclusions> -->
+			
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+		<!-- QuartzJobBean in spring-context-support.jar -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+		<!-- Spring + Quartz need transaction -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+
+		<!-- Quartz framework -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>1.8.6</version>
+		</dependency>
+
+		<!-- Used for JSON view resolver -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+
+		<!-- AspectJ -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${org.aspectj-version}</version>
+		</dependency>
+
+		<!-- Logging -->
+		
+		<!-- Commented out, per http://stackoverflow.com/questions/12394385/maven-spring-project-givinig-me-org-slf4j-spi-locationawarelogger-error#14533846 -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.slf4j</groupId> -->
+<!-- 			<artifactId>slf4j-api</artifactId> -->
+<!-- 			<version>${org.slf4j-version}</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.slf4j</groupId> -->
+<!-- 			<artifactId>jcl-over-slf4j</artifactId> -->
+<!-- 			<version>${org.slf4j-version}</version> -->
+<!-- 			<scope>runtime</scope> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.slf4j</groupId> -->
+<!-- 			<artifactId>slf4j-log4j12</artifactId> -->
+<!-- 			<version>${org.slf4j-version}</version> -->
+<!-- 			<scope>runtime</scope> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.slf4j</groupId> -->
+<!-- 			<artifactId>slf4j-ext</artifactId> -->
+<!-- 			<version>${org.slf4j-version}</version> -->
+<!-- 		</dependency> -->
+
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mail</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.jms</groupId>
+					<artifactId>jms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jdmk</groupId>
+					<artifactId>jmxtools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jmx</groupId>
+					<artifactId>jmxri</artifactId>
+				</exclusion>
+			</exclusions>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.1.0.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+
+		<!-- Database dependencies -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>4.2.1.Final</version>
+		</dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>4.2.1.Final</version>
+        </dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>5.0.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator-annotation-processor</artifactId>
+			<version>5.0.1.Final</version>
+		</dependency>
+                        
+		<!-- spring-orm provides the entityManager (@Persistence) and the TransactionManager 
+			(@Transactional) -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.2.9</version>
+		</dependency>
+		
+		<!-- Security -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-jsp</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		
+		<!-- @Inject -->
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+
+		<!-- Servlet -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<!-- Test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.7</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>1.9.5</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>		
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>install-umsso-jar-locally</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>${basedir}/lib/umsso_client-0.0.1.jar</file>
+							<groupId>com.siemens.pse.umsso</groupId>
+							<artifactId>umsso_client</artifactId>
+							<version>0.0.1</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+            <plugin> <!-- http://simplericity.com/2009/11/10/1257880778509.html -->
+	            <groupId>org.simplericity.jettyconsole</groupId>
+	            <artifactId>jetty-console-maven-plugin</artifactId>
+	            <version>1.45</version>
+	            <executions>
+	                <execution>
+	                    <goals>
+	                        <goal>createconsole</goal>
+	                    </goals>
+	                </execution>
+	            </executions>
+	
+	            <configuration>
+	            	<backgroundImage>${basedir}/src/main/jettyconsole/magellium.png</backgroundImage>
+	                <additionalDependencies>
+	                    <additionalDependency>
+	                        <artifactId>jetty-console-requestlog-plugin</artifactId>
+	                    </additionalDependency>
+	                    <additionalDependency>
+	                        <artifactId>jetty-console-gzip-plugin</artifactId>
+	                    </additionalDependency>
+	                    <additionalDependency>
+	                        <artifactId>jetty-console-ajp-plugin</artifactId>
+	                    </additionalDependency>
+	                    <additionalDependency>
+	                        <artifactId>jetty-console-startstop-plugin</artifactId>
+	                    </additionalDependency>
+	                </additionalDependencies>
+	            </configuration>
+	        </plugin>
+        	<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>maven-jetty-plugin</artifactId>
+				<version>6.1.26</version>
+			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-shade-plugin</artifactId> -->
+<!-- 				<version>2.0</version> -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<phase>package</phase> -->
+<!-- 						<goals> -->
+<!-- 							<goal>shade</goal> -->
+<!-- 						</goals> -->
+<!-- 						<configuration> -->
+<!-- 							<transformers> -->
+<!-- 				                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
+<!-- 				                  <mainClass>Main</mainClass> -->
+<!-- 				                </transformer> -->
+<!-- 				                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
+<!-- 				                  <resource>META-INF/spring.handlers</resource> -->
+<!-- 				                </transformer> -->
+<!-- 				                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
+<!-- 				                  <resource>META-INF/spring.schemas</resource> -->
+<!-- 				                </transformer> -->
+<!-- 							</transformers> -->
+<!-- 						</configuration> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 			</plugin> -->
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<additionalProjectnatures>
+						<projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+					</additionalProjectnatures>
+					<additionalBuildcommands>
+						<buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+					</additionalBuildcommands>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<compilerArgument>-Xlint:all</compilerArgument>
+					<showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<version>0.8.3</version>
+				<configuration>
+					<schemaDirectory>src/main/resources/schemas</schemaDirectory>
+					<schemaIncludes>
+						<include>IICD-D-WS/IF-ngEO-D-WS_common.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-DMRegistrationMgmnt_Requ.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-DMRegistrationMgmnt_Resp.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-MonitoringURL-Requ.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-MonitoringURL-Resp.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-DataAccessMonitoring-Requ.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-DataAccessMonitoring-Resp.xsd</include>
+					</schemaIncludes>
+					<bindingDirectory>src/main/resources/jaxb</bindingDirectory>
+					<cleanPackageDirectories>true</cleanPackageDirectories>
+					<removeOldOutput>true</removeOldOutput>
+					<forceRegenerate>true</forceRegenerate>
+					<verbose>true</verbose>
+					<args>
+						<!-- removes jaxb header which contains a timestamp - makes comparing 
+							generation after a change of xsd very difficult -->
+						<arg>-no-header</arg>
+						<!-- treat input as XML schema -->
+						<arg>-xmlschema</arg>
+					</args>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jaxb-generate</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>generate-sources</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- <plugin> -->
+			<!-- <artifactId>maven-war-plugin</artifactId> -->
+			<!-- <version>2.1</version> -->
+			<!-- <configuration> -->
+			<!-- <archive> -->
+			<!-- <manifest> -->
+			<!-- <addDefaultImplementationEntries>true</addDefaultImplementationEntries> -->
+			<!-- <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries> -->
+			<!-- </manifest> -->
+			<!-- </archive> -->
+			<!-- <archiveClasses>true</archiveClasses> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-install-plugin
+										</artifactId>
+										<versionRange>
+											[2.3.1,)
+										</versionRange>
+										<goals>
+											<goal>install-file</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

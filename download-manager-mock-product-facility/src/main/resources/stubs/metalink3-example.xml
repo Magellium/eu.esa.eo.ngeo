@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metalink xmlns="http://www.metalinker.org/"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.metalinker.org/ http://www.metalinker.org/schema/3.0/metalink.xsd">
+  <files>
+    <file name="SkypeSetup.exe">
+      <resources>
+        <url type="http">http://www.skype.com/go/getskype</url>
+      </resources>
+    </file>
+    <file name="Spotify%20Installer.exe">
+      <resources>
+        <url type="http">http://download.spotify.com/Spotify%20Installer.exe</url>
+      </resources>
+    </file>
+  </files>
+</metalink>

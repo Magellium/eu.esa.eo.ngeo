@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by Gerhard Triebnig (EOX IT Services GmbH) -->
+<schema xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ngeo.eo.esa.int/iicd-d-ws/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<include schemaLocation="IF-ngEO-D-WS_common.xsd"/>
+	<element name="DMRegistrationMgmnt-Requ">
+		<annotation>
+			<documentation>Data provided by a Download Manager to a Web Server when requesting registration (at first contact)
+
+The URL to where this request goes is a configuration parameter set within the Download Manager installation</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element ref="ngeo:DownloadManagerId"/>
+				<element name="DownloadManagerFriendlyName" type="string" minOccurs="0">
+					<annotation>
+						<documentation>Any human-oriented name of the Download Manager
+
+Entered by the user during Download Manager installation</documentation>
+					</annotation>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+</schema>

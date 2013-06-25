@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ngeo:DataAccessMonitoring-Resp
+	xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ngeo.eo.esa.int/iicd-d-ws/1.0 IF-ngEO-DataAccessMonitoring-Resp_0.3.xsd">
+	<ngeo:MonitoringStatus>IN_PROGRESS</ngeo:MonitoringStatus>
+	<ngeo:ProductAccessList>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://localhost:8080/download-manager-mock-product-facility/metalink</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://localhost:8080/download-manager-mock-product-facility/idle</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://www.ubuntu.com/start-download?distro=desktop&amp;bits=32&amp;release=latest</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+			<ngeo:ProductDownloadDirectory>ProductDirectory1</ngeo:ProductDownloadDirectory>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/technology/epp/downloads/release/juno/SR2/eclipse-jee-juno-SR2-win32-x86_64.zip</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+			<ngeo:ProductDownloadDirectory>ProductDirectory1</ngeo:ProductDownloadDirectory>
+		</ngeo:ProductAccess>
+	</ngeo:ProductAccessList>
+</ngeo:DataAccessMonitoring-Resp>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://ngeo.eo.esa.int/schema/ngEOBadRequestResponse"
+    elementFormDefault="qualified" version="1.0"
+    xmlns:ngEO="http://ngeo.eo.esa.int/schema/ngEOBadRequestResponse">
+    <xs:element name="BadRequestResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="URL" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>The requested Product URL</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="ResponseMessage" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                <xs:element minOccurs="0" name="ErrorsList">
+                    <xs:annotation>
+                        <xs:documentation>List of errors found on the requested Product URL</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded" minOccurs="1">
+                            <xs:element name="AttributeError" type="ngEO:AttributeErrorType"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="AttributeErrorType">
+        <xs:sequence maxOccurs="1" minOccurs="1">
+            <xs:element name="AttributeName" type="xs:string"/>
+            <xs:element name="AttributeValue" type="xs:string" minOccurs="0"/>
+            <xs:element name="ExpectedAttributeValue" type="xs:string" minOccurs="0"/>
+            <xs:element name="ErrorMessage" type="xs:string" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

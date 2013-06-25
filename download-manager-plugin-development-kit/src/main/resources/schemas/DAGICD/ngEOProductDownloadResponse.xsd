@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://ngeo.eo.esa.int/schema/ngEOProductDownloadResponse"
+    elementFormDefault="qualified" version="1.0"
+    xmlns:ngEO="http://ngeo.eo.esa.int/schema/ngEOProductDownloadResponse">
+    <xs:element name="ProductDownloadResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="ResponseCode" type="ngEO:ProductDownloadResponseType"/>
+                <xs:element minOccurs="0" name="ResponseMessage" type="xs:string"/>
+                <xs:element minOccurs="0" name="RetryAfter">
+                    <xs:annotation>
+                        <xs:documentation>Number of seconds suggested before another request</xs:documentation>
+                    </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:positiveInteger">
+                            <xs:minInclusive value="1"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element minOccurs="0" name="ETA" type="xs:dateTime">
+                    <xs:annotation>
+                        <xs:documentation>Estimated completion time</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element minOccurs="0" name="CompletionPercentage">
+                    <xs:annotation>
+                        <xs:documentation>Task completion percentage</xs:documentation>
+                    </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:unsignedShort">
+                            <xs:maxInclusive value="100"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="ProductDownloadResponseType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ACCEPTED"/>
+            <xs:enumeration value="IN_PROGRESS"/>
+            <xs:enumeration value="SUSPENDED"/>
+            <xs:enumeration value="ERROR"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

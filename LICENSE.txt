@@ -1,0 +1,1 @@
+FIXME: Add licence content here; ngEO Download Manager is required to be released under an open source licence

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<!-- FIXME: mvn package doesn't work sometimes (always?); use "mvn clean package" instead. -->
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>int_.esa.eo.ngeo</groupId>
+	<artifactId>download-manager-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>0.4.0</version>
+	<name>Download Manager Parent Project</name>
+
+	<properties>
+		<org.slf4j-version>1.7.5</org.slf4j-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+
+
+	<modules>
+		<module>download-manager-plugin-interface</module>
+		<module>download-manager-plugin-development-kit</module>
+		<module>download-manager-webapp</module>
+		<module>download-manager-command-line</module>
+		<module>download-manager-mock-product-facility</module>
+		<module>download-manager-mock-web-server</module>
+		<!-- <module>download-manager-distribution</module> -->
+		<module>download-manager-plugin-generic</module>
+		<module>download-manager-plugin-mock-sentinel2</module>
+	</modules>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- <plugin> -->
+				<!-- <groupId>org.apache.maven.plugins</groupId> -->
+				<!-- <artifactId>maven-compiler-plugin</artifactId> -->
+				<!-- <configuration> -->
+				<!-- <source>1.7</source> -->
+				<!-- <target>1.7</target> -->
+				<!-- </configuration> -->
+				<!-- </plugin> -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9</version>
+				</plugin>
+				<!-- <plugin> -->
+				<!-- <artifactId>maven-assembly-plugin</artifactId> -->
+				<!-- <version>2.4</version> -->
+				<!-- <configuration> -->
+				<!-- <descriptors> -->
+				<!-- <descriptor>src/assemble/download-manager-assembly-descriptor.xml</descriptor> -->
+				<!-- </descriptors> -->
+				<!-- </configuration> -->
+				<!-- </plugin> -->
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.7</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>

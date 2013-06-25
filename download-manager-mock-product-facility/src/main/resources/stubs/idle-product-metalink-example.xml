@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metalink xmlns="http://www.metalinker.org/"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.metalinker.org/ http://www.metalinker.org/schema/3.0/metalink.xsd">
+  <files>
+    <file name="apache-maven-3.0.5-bin.zip">
+      <resources>
+        <url type="http">http://mirrors.enquira.co.uk/apache/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.zip</url>
+      </resources>
+    </file>
+  </files>
+</metalink>

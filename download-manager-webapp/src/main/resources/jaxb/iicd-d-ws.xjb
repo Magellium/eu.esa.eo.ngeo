@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jxb:bindings version="1.0" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:com.fnf="http://www.fnf.com/xes">
+    <jxb:bindings schemaLocation="../schemas/IICD-D-WS/IF-ngEO-D-WS_common.xsd">
+        <jxb:globalBindings fixedAttributeAsConstantProperty="true" localScoping="toplevel" />
+	    <jxb:schemaBindings>
+		    <jxb:package name="int_.esa.eo.ngeo.iicd_d_ws._1" />
+	    </jxb:schemaBindings>
+        <jxb:bindings node="//xs:element[@name='errorDescription']//xs:simpleType" >
+            <jxb:typesafeEnumClass name="ErrorDescription"/>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:simpleType[@name='productAccessStatusType']" >
+            <jxb:typesafeEnumClass name="ProductAccessStatus"/>
+        </jxb:bindings>
+    </jxb:bindings>
+    
+	<jxb:bindings schemaLocation="../schemas/IICD-D-WS/IF-ngEO-DataAccessMonitoring-Requ.xsd">
+        <jxb:bindings node="//xs:element[@name='productDownloadStatus']//xs:simpleType" >
+            <jxb:typesafeEnumClass name="ProductDownloadStatus"/>
+        </jxb:bindings>
+    </jxb:bindings>
+
+	<jxb:bindings schemaLocation="../schemas/IICD-D-WS/IF-ngEO-DataAccessMonitoring-Resp.xsd">
+        <jxb:bindings node="//xs:element[@name='MonitoringStatus']//xs:simpleType" >
+            <jxb:typesafeEnumClass name="MonitoringStatus"/>
+        </jxb:bindings>
+    </jxb:bindings>
+
+	<jxb:bindings schemaLocation="../schemas/IICD-D-WS/IF-ngEO-MonitoringURL-Resp.xsd">
+        <jxb:bindings node="//xs:element[@name='UserOrder']//xs:simpleType" >
+            <jxb:typesafeEnumClass name="UserOrder"/>
+        </jxb:bindings>
+    </jxb:bindings>
+
+</jxb:bindings>

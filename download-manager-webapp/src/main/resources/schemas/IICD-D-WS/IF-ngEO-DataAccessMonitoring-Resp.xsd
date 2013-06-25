@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mit XMLSpy v2011 rel. 3 sp1 (x64) (http://www.altova.com) von Gerhard Triebnig (EOX IT Services GmbH) bearbeitet -->
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by Gerhard Triebnig (EOX IT Services GmbH) -->
+<schema xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ngeo.eo.esa.int/iicd-d-ws/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0.5">
+	<include schemaLocation="IF-ngEO-D-WS_common.xsd"/>
+	<element name="DataAccessMonitoring-Resp">
+		<annotation>
+			<documentation>Response provided by the Web Server to a Download Manager accessing to a monitoringURL in order to retreive a list of products to be downloaded</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element ref="ngeo:error"/>
+				<sequence>
+					<element name="MonitoringStatus">
+						<annotation>
+							<documentation>
+								Status of the monitoring request for a Standing Order or Data Access Requests:
+								IN-PROGRESS - for unpaused or resumed Data Access.
+								COMPLETED - for completed Data Access. In this case, a product list is not present.
+								PAUSED - paused by the user. In this case, a product list is not present.
+								CANCELLED - cancelled by the user. In this case, a product list is not present.
+								The resumption of a particular Data Access, as well as PAUSED and CANCELLED commands, are initiated by a user of the Web Client.								
+							</documentation>
+						</annotation>
+						<simpleType>
+							<restriction base="string">
+								<enumeration value="IN_PROGRESS"/>
+								<enumeration value="COMPLETED"/>
+								<enumeration value="PAUSED"/>
+								<enumeration value="CANCELLED"/>
+							</restriction>
+						</simpleType>
+					</element>
+					<element name="ProductAccessList" minOccurs="0">
+						<annotation>
+							<documentation>
+								List of product URLs associated to a status
+								List is not present if no product is to be retrieved
+							</documentation>
+						</annotation>
+						<complexType>
+							<sequence>
+								<element name="ProductAccess" minOccurs="0" maxOccurs="unbounded">
+									<annotation>
+										<documentation>
+											Product URL associated with a status
+											Provided only if status has changed since last time stamp
+										</documentation>
+									</annotation>
+									<complexType>
+										<sequence>
+											<element ref="ngeo:ProductAccessURL"/>
+											<element name="ProductAccessStatus" type="ngeo:productAccessStatusType" />
+											<element name="DownloadNotified" minOccurs="0">
+												<annotation>
+													<documentation>Confirmation of the product download notification. Date of notification supplied.</documentation>
+												</annotation>
+											</element>
+											<element name="ProductDownloadDirectory" type="string" minOccurs="0">
+												<annotation>
+													<documentation>overwrites DM configuration for download directory</documentation>
+												</annotation>
+											</element>
+										</sequence>
+									</complexType>
+								</element>
+							</sequence>
+						</complexType>
+					</element>
+				</sequence>
+			</choice>
+		</complexType>
+	</element>
+</schema>

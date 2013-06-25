@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by Gerhard Triebnig (EOX IT Services GmbH) -->
+<schema xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ngeo.eo.esa.int/iicd-d-ws/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!-- ======================================= -->
+	<!-- Download Manager -->
+	<!-- ======================================= -->
+	<element name="DownloadManagerId" type="ngeo:downloadManagerIdType">
+		<annotation>
+			<documentation>Universally unique identifier (UUID)</documentation>
+		</annotation>
+	</element>
+	<simpleType name="downloadManagerIdType">
+		<annotation>
+			<documentation>DownloadManager Identifier (xsd type)</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="[0-9a-fA-F]{32}"/>
+		</restriction>
+	</simpleType>
+	<element name="DownloadManagerSetTime" type="dateTime">
+		<annotation>
+			<documentation>URLs are provided  which became available after a historical point in time </documentation>
+		</annotation>
+	</element>
+	<!--=======================================-->
+	<!-- Product related data -->
+	<!--=======================================-->
+	<element name="ProductAccessURL" type="anyURI"/>
+	<simpleType name="productAccessStatusType">
+		<annotation>
+			<documentation>
+				URLs are provided either when products are READY or when READY and ACCESSED
+				
+				READY whenever the product is ready to be downloaded
+				READ_ACCESSED whenever the product authorization access has been already requested at least once
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="READY"/>
+			<enumeration value="READY_ACCESSED"/>
+		</restriction>
+	</simpleType>
+	<!-- ======================================= -->
+	<!--Generic structure to report errors-->
+	<!-- ======================================= -->
+	<element name="error">
+		<annotation>
+			<documentation>Error description</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="errorCode" type="string">
+					<annotation>
+						<documentation>Code of the error</documentation>
+					</annotation>
+				</element>
+				<element name="errorDescription">
+					<annotation>
+						<documentation>Human-oriented description of the error</documentation>
+					</annotation>
+					<simpleType>
+						<restriction base="string">
+							<enumeration value="Authorization Error"/>
+							<enumeration value="Registration Error"/>
+							<enumeration value="Monitoring Service Error"/>
+							<enumeration value="Product-URL Service Error"/>
+						</restriction>
+					</simpleType>
+				</element>
+				<element name="errorDetail" type="string" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+</schema>

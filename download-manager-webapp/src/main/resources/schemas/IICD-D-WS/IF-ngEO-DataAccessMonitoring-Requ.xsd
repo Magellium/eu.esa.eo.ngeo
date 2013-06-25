@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by Gerhard Triebnig (EOX IT Services GmbH) -->
+<schema xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ngeo.eo.esa.int/iicd-d-ws/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<include schemaLocation="IF-ngEO-D-WS_common.xsd"/>
+	<element name="DataAccessMonitoring-Requ">
+		<annotation>
+			<documentation>Data provided by a Download Manager to a Web Server.
+
+The URL to where this request goes is a monitoringURL contained in the monitoringURL-Response</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element ref="ngeo:DownloadManagerId"/>
+				<element name="productAccessSubsetting" minOccurs="0">
+					<annotation>
+						<documentation>- all products
+- only READY products
+- only products after a set time
+- only READY products after a  
+  set time</documentation>
+					</annotation>
+					<complexType>
+						<sequence>
+							<element ref="ngeo:DownloadManagerSetTime" minOccurs="0"/>
+							<element name="readyProductsOrAll" default="READY" minOccurs="0" type="ngeo:productAccessStatusType" />
+						</sequence>
+					</complexType>
+				</element>
+				<element name="ProductDownloadNotificationList" minOccurs="0" maxOccurs="1">
+					<complexType>
+						<sequence>
+							<element name="ProductDownloadNotification" minOccurs="0" maxOccurs="unbounded">
+								<complexType>
+									<sequence>
+										<element name="productAccessURL" type="anyURI" />
+										<element name="productDownloadStatus">
+											<simpleType>
+												<restriction base="string">
+													<enumeration value="NOT_STARTED"/>
+													<enumeration value="DOWNLOADING"/>
+													<enumeration value="COMPLETED"/>
+													<enumeration value="ERROR"/>
+												</restriction>
+											</simpleType>
+										</element>
+										<element name="productDownloadMessage" type="string">
+											<annotation>
+												<documentation>Human readable notification message associated with Download Status parameter value</documentation>
+											</annotation>
+										</element>
+										<element name="productDownloadProgress" minOccurs="0">
+											<simpleType>
+												<restriction base="int">
+													<minInclusive value="0"/>
+													<maxInclusive value="100"/>
+												</restriction>
+											</simpleType>
+										</element>
+										<element name="productDownloadSize" minOccurs="0" maxOccurs="1">
+											<simpleType>
+												<restriction base="int">
+													<minInclusive value="0"/>
+													<maxInclusive value="2147483647"/>
+												</restriction>
+											</simpleType>
+										</element>
+									</sequence>
+								</complexType>
+							</element>
+						</sequence>
+					</complexType>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+</schema>

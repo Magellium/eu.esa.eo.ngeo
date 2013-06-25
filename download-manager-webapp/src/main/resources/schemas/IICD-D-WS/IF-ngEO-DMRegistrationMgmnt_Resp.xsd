@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by Gerhard Triebnig (EOX IT Services GmbH) -->
+<schema xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ngeo.eo.esa.int/iicd-d-ws/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<include schemaLocation="IF-ngEO-D-WS_common.xsd"/>
+	<element name="DMRegistrationMgmnt-Resp">
+		<annotation>
+			<documentation>Response provided by the Web Server</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element ref="ngeo:error"/>
+				<element name="MonitoringServiceUrl" type="anyURI" />
+			</choice>
+		</complexType>
+	</element>
+</schema>

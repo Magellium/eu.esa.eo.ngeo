@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://ngeo.eo.esa.int/schema/ngEOMissingProductResponse"
+    elementFormDefault="qualified" version="1.0"
+    xmlns:ngEO="http://ngeo.eo.esa.int/schema/ngEOMissingProductResponse">
+    <xs:element name="MissingProductResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="URL" type="xs:string"/>
+                <xs:element maxOccurs="1" minOccurs="1" name="ResponseMessage" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

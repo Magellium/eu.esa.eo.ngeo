@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ngEO:ProductDownloadResponse xmlns:ngEO="http://ngeo.eo.esa.int/schema/ngEOProductDownloadResponse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ngeo.eo.esa.int/schema/ngEOProductDownloadResponse ../../main/resources/schemas/DAGICD/ngEOProductDownloadResponse.xsd ">
+  <ngEO:ResponseCode>ACCEPTED</ngEO:ResponseCode>
+  <ngEO:RetryAfter>5</ngEO:RetryAfter>
+</ngEO:ProductDownloadResponse>

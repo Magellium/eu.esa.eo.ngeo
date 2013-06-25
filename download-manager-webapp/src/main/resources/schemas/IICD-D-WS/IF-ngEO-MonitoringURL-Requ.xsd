@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by Gerhard Triebnig (EOX IT Services GmbH) -->
+<schema xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ngeo.eo.esa.int/iicd-d-ws/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<include schemaLocation="IF-ngEO-D-WS_common.xsd"/>
+	<element name="MonitoringURL-Requ">
+		<annotation>
+			<documentation>Data provided by a Download Manager to a Web Server when accessing to a "data acccess monitoring" URL.
+
+The Monitoring Service URL to where this request goes is received from the Web Server during registration</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element ref="ngeo:DownloadManagerId"/>
+				<element ref="ngeo:DownloadManagerSetTime" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+</schema>

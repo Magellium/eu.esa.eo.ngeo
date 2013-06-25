@@ -1,0 +1,103 @@
+<project name="Download Manager - zipping the artifacts" default="zip" basedir=".">
+
+
+	<property name="win_x64"    value="win_x64"/>
+	<property name="win_i586"   value="win_i586"/>
+	<property name="linux_x64"  value="linux_x64"/>
+	<property name="linux_i586" value="linux_i586"/>
+	<property name="macosx_x64" value="macosx_x64"/>
+
+	<!-- TODO: This version number needs to be tied in with the whole system ( DMTU-7 ) -->
+	<property name="version" value="0.4.0"/>
+
+	<property name="target"  value="${win_x64}"/>
+	<property name="dist"    value="target/dist"/>
+	<property name="dm.home" value="${dist}/ngEO-download-manager"/>
+	<property name="bin"     value="${dm.home}/bin"/>
+	<property name="plugins" value="${dm.home}/plugins"/>
+	<property name="logs"    value="${dm.home}/logs"/>
+	<property name="jre"     value="${dm.home}/jre"/>
+	<property name="conf"    value="${dm.home}/conf"/>
+	<property name="webapp.name" value="download-manager-webapp-jetty-console.war" />
+	<property name="non.user.modifiable.settings.defaults" value="non-user-modifiable-settings-defaults.properties"/>
+	<property     name="user.modifiable.settings.defaults"     value="user-modifiable-settings-defaults.properties"/>
+	<property name="zipfilename" value="target/download-manager_${version}_${target}.zip"/>
+
+	<target name="help" description="Gives help on how to generate a binary distribution suitable for a particular machine architecture and OS">
+		<echo>Commands:</echo>
+		<echo message="   ant                      (Defaults to ${win_x64})"/>
+		<echo message="   ant -Dtarget=${win_x64}"/>
+		<echo message="   ant -Dtarget=${win_i586}"/>
+		<echo message="   ant -Dtarget=${linux_x64}"/>
+		<echo message="   ant -Dtarget=${linux_i586}"/>
+		<echo message="   ant -Dtarget=${macosx_x64}"/>
+	</target>
+
+	<target name="zip" depends="dist" description="Main target; creates a ZIP file that encapsulates everything that must be delivered to the customer">
+		<zip destfile="${zipfilename}"
+			basedir="${dist}"
+		/>
+	</target>
+
+	<target name="dist"
+		description="Create a file/folder structure that includes everything that must be delivered to the customer">
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${bin}"/>
+		<mkdir dir="${plugins}"/>
+		<mkdir dir="${logs}"/>
+		<mkdir dir="${conf}"/>
+		<mkdir dir="${jre}"/>
+		<copy todir="${bin}">
+			<fileset dir="download-manager-webapp/target"                  includes="${webapp.name}"/>
+			<fileset dir="download-manager-command-line/target"            includes="download-manager-command-line-*.jar"/>
+		</copy>
+		<copy todir="${plugins}/">
+			<fileset dir="download-manager-plugin-generic/target"  includes="download-manager-plugin-generic-*.jar"/>
+			<fileset dir="download-manager-plugin-mock-sentinel2/target"  includes="download-manager-plugin-mock-sentinel2-*.jar"/>
+		</copy>
+
+		<!-- Bundle a JRE -->
+		<condition property="jre.archive" value="jre-7u21-windows-x64.tar.gz">
+			<equals casesensitive="false" arg1="${target}" arg2="${win_x64}"/>
+		</condition>
+		<condition property="jre.archive" value="jre-7u21-windows-i586.tar.gz">
+			<equals casesensitive="false" arg1="${target}" arg2="${win_i586}"/>
+		</condition>
+		<condition property="jre.archive" value="jre-7u21-linux-x64.tar.gz">
+			<equals casesensitive="false" arg1="${target}" arg2="${linux_x64}"/>
+		</condition>
+		<condition property="jre.archive" value="jre-7u21-linux-i586.tar.gz">
+			<equals casesensitive="false" arg1="${target}" arg2="${linux_i586}"/>
+		</condition>
+		<condition property="jre.archive" value="jre-7u21-macosx-x64.tar.gz">
+			<equals casesensitive="false" arg1="${target}" arg2="${macosx_x64}"/>
+		</condition>
+		
+		<!-- We empty the JRE directory, to cater for the scenario where a user wants to create distributables for multiple
+		  target architectures/OS's in "quick" succession -->
+		<delete includeemptydirs="true">
+			<fileset dir="${jre}" includes="**/*" />
+		</delete>
+		<untar src="jre/${jre.archive}" dest="${jre}" compression="gzip" />
+
+		<copy todir="${dm.home}">
+			<fileset dir="."  includes="start-dm.bat"/>
+			<fileset dir="."  includes="start-dm.sh"/>
+			<fileset dir="."  includes="start-dm-cli.bat"/>
+			<fileset dir="."  includes="INSTALLATION_INSTRUCTIONS.txt"/>
+			<fileset dir="."  includes="LICENSE.txt"/>
+		</copy>
+
+
+		<unzip src="${bin}/${webapp.name}" dest="${conf}">
+			<patternset>
+				<include name="WEB-INF/classes/META-INF/${non.user.modifiable.settings.defaults}"/>
+				<include name="WEB-INF/classes/META-INF/${user.modifiable.settings.defaults}"/>
+			</patternset>
+			<mapper type="flatten"/>
+		</unzip>
+		<move file="${conf}/${non.user.modifiable.settings.defaults}" tofile="${conf}/nonUserModifiableSettingsPersistentStore.properties"/>
+		<move file="${conf}/${user.modifiable.settings.defaults}"     tofile="${conf}/userModifiableSettingsPersistentStore.properties"/>
+	</target>
+
+</project>
