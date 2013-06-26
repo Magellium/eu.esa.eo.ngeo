@@ -32,7 +32,7 @@
 				URLs are provided either when products are READY or when READY and ACCESSED
 				
 				READY whenever the product is ready to be downloaded
-				READ_ACCESSED whenever the product authorization access has been already requested at least once
+				READY_ACCESSED whenever the product authorization access has been already requested at least once
 			</documentation>
 		</annotation>
 		<restriction base="string">
