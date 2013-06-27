@@ -14,6 +14,8 @@ import com.siemens.pse.umsso.client.UmssoCLCoreImpl;
 import com.siemens.pse.umsso.client.UmssoCLEnvironment;
 import com.siemens.pse.umsso.client.UmssoCLException;
 import com.siemens.pse.umsso.client.UmssoCLInput;
+import com.siemens.pse.umsso.client.UmssoUserCredentials;
+import com.siemens.pse.umsso.client.UmssoVisualizerCallback;
 
 /**
  * Testing has shown that this class can be used to access a resource that is NOT protected by UM-SSO.
@@ -29,24 +31,15 @@ import com.siemens.pse.umsso.client.UmssoCLInput;
  *   	<li>UmssoCLOutput.isResourceAccessed() is redundant; a client can infer this from HTTPMethod.getStatusCode()</li>
  *   </ul>
  *   
- * TODO: Install SSL certificates, as per SIE-EOOP_UMSSO_JCL_TN_2.1.1.doc. <p/>
+ * Note that this class depends on the truststore containing the appropriate server certificate(s), as per SIE-EOOP_UMSSO_JCL_TN_2.1.1.doc. <p/>
  */
 public class UmSsoHttpClient {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UmSsoHttpClient.class);
-	private static boolean isHappyToRiskBufferingWholeOfResponseBody = false;
+	private static boolean isHappyToRiskBufferingWholeOfResponseBody = true;
+	private CommandLineCallback commandLineCallback;
 	
-//	private String proxyLocation;
-//	private int proxyPort;
-//	private String proxyUser;
-//	private String proxyPassword;
-
-	
-	public UmSsoHttpClient(String proxyLocation, int proxyPort, String proxyUser, String proxyPassword) {
-//		this.proxyLocation = proxyLocation;
-//		this.proxyPort = proxyPort;
-//		this.proxyUser = proxyUser;
-//		this.proxyPassword = proxyPassword;
-
+	public UmSsoHttpClient(String umssoUsername, String umssoPassword, String proxyLocation, int proxyPort, String proxyUser, String proxyPassword) {
+		commandLineCallback = new CommandLineCallback(umssoUsername, umssoPassword);
 		UmssoCLCore clCore = UmssoCLCoreImpl.getInstance();
 		if (!StringUtils.isEmpty(proxyLocation)) {
 			if (!StringUtils.isEmpty(proxyUser)) {
@@ -76,7 +69,7 @@ public class UmSsoHttpClient {
 			}
 		}
 		else {			
-					UmssoCLInput input = new UmssoCLInput(method, null); // 2nd arg is null because we don't need a visualizer callback
+					UmssoCLInput input = new UmssoCLInput(method, commandLineCallback);  
 			
 					/* UmssoCLOutput output = */ clCore.processHttpRequest(input);
 			
@@ -104,4 +97,16 @@ public class UmSsoHttpClient {
 		}
 	}
 
+	private class CommandLineCallback implements UmssoVisualizerCallback {
+		private UmssoUserCredentials umssoUserCredentials;
+		
+		public CommandLineCallback(String umssoUsername, String umssoPassword) {
+			umssoUserCredentials = new UmssoUserCredentials(umssoUsername, umssoPassword.toCharArray());
+		}
+		
+		public UmssoUserCredentials showLoginForm(String message, String spResourceUrl, String idpUrl) {
+			return umssoUserCredentials;
+		}
+
+	}
 }
