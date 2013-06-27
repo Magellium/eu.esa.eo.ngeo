@@ -36,7 +36,8 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	public void login(HttpClient httpClient, String umSsoUsername, String umSsoPassword) {
 		GetMethod loginMethod = null;
 	    try {
-		    String loginUrl = String.format("http://5.9.173.44/ngeo/login?format=xml&username=%s&password=%s", umSsoUsername, umSsoPassword);
+	    	// TODO: We should consider abstracting the following hard-coded configuration in a way that supports the existence of multiple environments.
+		    String loginUrl = String.format("http://5.9.173.37/ngeo/login?format=xml&username=%s&password=%s", umSsoUsername, umSsoPassword);
 		    LOGGER.debug(String.format("loginUrl: %s", loginUrl));
 			loginMethod = new GetMethod(loginUrl);
 		    int httpResponseCode = httpClient.executeMethod(loginMethod);
