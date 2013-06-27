@@ -32,11 +32,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
 import org.metalinker.FileType;
 import org.metalinker.MetalinkType;
 import org.metalinker.ResourcesType.Url;
@@ -88,7 +86,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 	private UmSsoHttpClient umSsoHttpClient;
 		
 	public HTTPDownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener,
-			String proxyLocation, int proxyPort, String proxyUser, String proxyPassword) {
+			String proxyLocation, int proxyPort, String proxyUser, String proxyPassword, String umssoUsername, String umssoPassword) {
 		this.productURI = productURI;
 		this.downloadDir = downloadDir;
 		this.productDownloadListeners = new ArrayList<IProductDownloadListener>();
@@ -97,7 +95,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 		this.productResponseParser = new ProductResponseParser();
 		this.filesToDownloadList = new ArrayList<>();
 		this.completedFileLocations = new ArrayList<>();
-		umSsoHttpClient = new UmSsoHttpClient(proxyLocation, proxyPort, proxyUser, proxyPassword);
+		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyLocation, proxyPort, proxyUser, proxyPassword);
 	}
 	
 	private String filterIllegalFileNameChars(String input) {
@@ -130,8 +128,8 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 		try {
 			String productUrl = productURI.toURL().toString();
 			LOGGER.debug("About to construct UmSsoHttpClient");
-			productDownloadHeaders = new HeadMethod(productUrl);
-			new HttpClient().executeMethod(productDownloadHeaders);
+			productDownloadHeaders = new GetMethod(productUrl);
+			umSsoHttpClient.executeHttpRequest(productDownloadHeaders);
 			int responseCode = productDownloadHeaders.getStatusCode();
 			switch (responseCode) {
 			case HttpURLConnection.HTTP_OK: // 200
@@ -234,9 +232,9 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 		}
 	}
 	
-	private HttpMethod retrieveDownloadDetailsBody(String productUrl) throws HttpException, IOException {
+	private HttpMethod retrieveDownloadDetailsBody(String productUrl) throws HttpException, IOException, UmssoCLException {
 		HttpMethod httpMethod = new GetMethod(productUrl);
-		new HttpClient().executeMethod(httpMethod);
+		umSsoHttpClient.executeHttpRequest(httpMethod);
 		
 		return httpMethod;
 	}
@@ -246,9 +244,9 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 
 		URL fileDownloadLinkURL = new URL(fileDownloadLink);
 
-		HeadMethod httpMethod = null; 
+		GetMethod httpMethod = null; 
 		try {
-			httpMethod = new HeadMethod(fileDownloadLinkURL.toString());
+			httpMethod = new GetMethod(fileDownloadLinkURL.toString());
 			umSsoHttpClient.executeHttpRequest(httpMethod);
 						
 			int metalinkFileResponseCode = httpMethod.getStatusCode();

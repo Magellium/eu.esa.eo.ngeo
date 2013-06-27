@@ -10,6 +10,7 @@ import java.io.File;
 import java.net.URI;
 
 public class HTTPDownloadPlugin implements IDownloadPlugin {
+	
 	public IDownloadPluginInfo initialize(File tmpRootDir, File pluginCfgRootDir)
 			throws DMPluginException {
 		//It is the responsibility of the plugin to create the temporary directory and plugin directory which it requires.
@@ -29,7 +30,8 @@ public class HTTPDownloadPlugin implements IDownloadPlugin {
 			IProductDownloadListener downloadListener, String proxyLocation,
 			int proxyPort, String proxyUser, String proxyPassword)
 			throws DMPluginException {
-		return new HTTPDownloadProcess(productURI, downloadDir, downloadListener, proxyLocation, proxyPort, proxyUser, proxyPassword);
+		
+		return new HTTPDownloadProcess(productURI, downloadDir, downloadListener, proxyLocation, proxyPort, proxyUser, proxyPassword, user, password);
 	}
 
 }
