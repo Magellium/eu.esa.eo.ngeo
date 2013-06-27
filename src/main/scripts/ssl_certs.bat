@@ -16,8 +16,11 @@ set KEYSTORE_FILENAME_P12=%APP_NAME%.p12
 set KEYSTORE_FILENAME_JKS=%APP_NAME%.jks
 set KEYSTORE_PASSWORD=whatever
 set GMV_TEST_IDP_CERTIFICATE_FILEPATH=..\resources\certs\umsso.pem
+
+
+REM NB: The following is probably partly mis-named; although Ian obtained it using Firefox, it's surely a reference to the *SP's* certificate. 
 set GMV_TEST_IDP_CERTIFICATE_FILEPATH_FROM_BROWSER=..\resources\certs\webs.novalocal.crt
-set GMV_TEST_LDAP_CERTIFICATE_FILEPATH=..\resources\certs\servercrt.pem
+
 
 echo ---------------------------------------------------------------------------------------------------------------------------------------------------
 echo Generate the client truststore file
@@ -39,12 +42,11 @@ REM @echo ON
 %KEYTOOL_EXE% -genkeypair -dname "cn=CLIENT" -alias truststorekey -keyalg RSA -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -keypass whatever -storepass %KEYSTORE_PASSWORD% || goto :error
 REM @echo OFF
 
-echo You are about to be prompted for the keystore password three times; type '%KEYSTORE_PASSWORD%' each time.
+echo You are about to be prompted for the keystore password twice; type '%KEYSTORE_PASSWORD%' each time.
 REM The following keytool command rejects non-X509 certificates
 REM @echo ON
 %KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %GMV_TEST_IDP_CERTIFICATE_FILEPATH%               -alias IDP  || goto :error
 %KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %GMV_TEST_IDP_CERTIFICATE_FILEPATH_FROM_BROWSER%  -alias IDP2 || goto :error
-REM Not needed: %KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %GMV_TEST_LDAP_CERTIFICATE_FILEPATH%              -alias LDAP || goto :error
 REM @echo OFF
 
 echo ---------------------------------------------------------------------------------------------------------------------------------------------------
