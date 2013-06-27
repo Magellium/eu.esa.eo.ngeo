@@ -44,7 +44,7 @@ REM The following keytool command rejects non-X509 certificates
 REM @echo ON
 %KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %GMV_TEST_IDP_CERTIFICATE_FILEPATH%               -alias IDP  || goto :error
 %KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %GMV_TEST_IDP_CERTIFICATE_FILEPATH_FROM_BROWSER%  -alias IDP2 || goto :error
-%KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %GMV_TEST_LDAP_CERTIFICATE_FILEPATH%              -alias LDAP || goto :error
+REM Not needed: %KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %GMV_TEST_LDAP_CERTIFICATE_FILEPATH%              -alias LDAP || goto :error
 REM @echo OFF
 
 echo ---------------------------------------------------------------------------------------------------------------------------------------------------
