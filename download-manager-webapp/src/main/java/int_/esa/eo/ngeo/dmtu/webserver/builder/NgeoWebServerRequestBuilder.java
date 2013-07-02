@@ -60,7 +60,7 @@ public class NgeoWebServerRequestBuilder {
 			productAccessSubsetting.setDownloadManagerSetTime(buildXMLGregorianCalendar(calendar));
 		}
 		if(productAccessStatus == null) {
-			productAccessStatus = ProductAccessStatus.READY;
+			productAccessStatus = ProductAccessStatus.READY_ACCESSED;
 		}
 		productAccessSubsetting.setReadyProductsOrAll(productAccessStatus);
 		
