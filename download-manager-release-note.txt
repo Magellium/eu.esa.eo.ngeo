@@ -1,4 +1,4 @@
-Download Manager Test Unit (DMTU) Release Note 0.4.0
+Download Manager Test Unit (DMTU) Release Note 0.4.1
 -----------------------------------
 
 Features
@@ -19,6 +19,17 @@ Features
 
 Release History
 -----------------------------------
+0.4.1
+    DMTU-15 - set DM_HOME automatically
+    DMTU-26 - UM-SSO integration
+    DMTU-18 - Provide a success message when executing the "add" command
+    DMTU-44 - DMTU-REQ-9: Proxy details are now honoured by the generic plugin.
+    DMTU-76 - Include bash script for executing CLI applicaiton
+    DMTU-82 - DataAccessMonitoring change readyProductsOrAll value to "READY_ACCESSED" instead of "READY"            
+            - Updated default port in batch / shell script to 80. Updated installation instructions to reflect this change.
+            - Included support for HTTPS (updated generic plugin)
+            - Improved build process for os specific files
+            - Unix installation package now built as .tar.gz
 0.4.0
 	DMTU-3	- Persistence of status to DB in scenarios where a download goes straight into IN_ERROR
 	DMTU-11	- Remove "downloads" folder from installation package
@@ -37,6 +48,7 @@ Release History
 	DMTU-24	- Update installation process - demo feedback 22nd May
 	DMTU-79	- Update installation instructions to include DMTU Home Page URL
 	DMTU-2	- "The file download should be completed, but there are still bytes to be read" error when downloading a product
+    DMTU-29 - DMTU-REQ-23: Callback mechanism
 0.3.2
 	First release (limited distribution)
 
@@ -83,6 +95,7 @@ DMTU-REQ-28  -	A list of products to be downloaded via a file parameter is yet t
              -  There is no ability to prioritise the download of a product at this time. The product downloads are handled as as queue (FIFO). 
                 If any product download is paused and then resumed, the download will lose its place in the queue.
              -  DMTU only allows for integration with one ngEO Web Server
+             -  Proxy details are only being honoured when use of the JCL client is enabled.
 
 Assumptions
 -----------------------------------
@@ -110,3 +123,7 @@ DMTU-80 - DAGICD: No requirement for handling HTTP 301/302 status codes
 DMTU-8  - Double clicking the FirstStartupConfig page's "Save and Register" button causes a blow-up
 DMTU-62 - Name of downloaded file may be poor in absence of Content-Disposition HTTP response header
 DMTU-65 - Progress bar in UI can indicate less than 100% when Product Status is "Completed"
+DMTU-60 - Siemens UM-SSO Java Client Library buffers whole of each HTTP response body in memory
+DMTU-85 - Siemens' UM-SSO JCL version 2.1.3 fails when an attempt is made to use the HTTP HEAD method
+        - As a result of the two above UM-SSO JCL issues, it is recommended to download files of no larger than 100Mb in size.
+          There will also be a short delay before downloading of products.

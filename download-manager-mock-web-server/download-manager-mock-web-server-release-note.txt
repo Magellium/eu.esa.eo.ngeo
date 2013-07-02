@@ -1,4 +1,4 @@
-Download Manager Test Unit (DMTU) Mock Web Server Release Note 0.4.0
+Download Manager Test Unit (DMTU) Mock Web Server Release Note 0.4.1
 -----------------------------------
 
 The Download Manager Test Unit application mandates registration with an ngEO Web Server before use.
@@ -15,7 +15,7 @@ SSO		-	Single Signon
 
 Features
 -----------------------------------
-All paths provided are relative to the context path of the deployed WAR e.g. download-manager-mock-web-server-0.4.0/register
+All paths provided are relative to the context path of the deployed WAR e.g. download-manager-mock-web-server/register
 
 * 	Registration (/register)
 	- Provides a mock registration of the DMTU
@@ -34,18 +34,26 @@ All paths provided are relative to the context path of the deployed WAR e.g. dow
 The supply features allow for better control of supply for DARs / products in demonstration situations, and are one-off commands.
 In order to reset these features i.e. to not provide the DAR / products, the web server application must be restarted.
 
+Release History
+-----------------------------------
+0.4.1
+    - WAR file no longer contains version number in filename. The version can be found in the manifest.
+0.4.0
+    - First public release
+
+
 How to use
 -----------------------------------
 	Note that the hostnames and port numbers described below will vary depending on the set-up of the application server.
 	All stubs referred to can be found in the WEB-INF/classes/stubs folder once the application is deployed.
 
-* 	Deploy the download-manager-mock-web-server-0.4.0.war to an application server (e.g. tomcat).
+* 	Deploy the download-manager-mock-web-server.war to an application server (e.g. tomcat).
 * 	To ensure that the mock web server is successfully deployed, access the following URL from your web browser:
-	http://localhost/download-manager-mock-web-server-0.4.0
+	http://localhost/download-manager-mock-web-server
 	A "Welcome!" message should be shown in the browser.
 *   In order for a DMTU to use this mock web server, the NGEO_WEB_SERVER_URL setting in
 	conf/nonUserModifiableSettingsPersistentStore.properties needs to be changed to the following:
-	http://localhost/download-manager-mock-web-server-0.4.0/register
+	http://localhost/download-manager-mock-web-server/register
 *	Restart the Download Manager Test Unit (to pick up the settings change), and fill in the details on the first startup
 	configuration page.
 	The SSO username / password are not used by the mock web server, consequently any credentials can be supplied

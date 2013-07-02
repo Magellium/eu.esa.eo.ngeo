@@ -23,7 +23,7 @@ Installing:
 
 Running the Download Manager:
 
-  * Either, within the file explorer for the installation OS, double-click ngEO-download-manager\start-dm.sh
+  * Either, within the file explorer, double-click ngEO-download-manager\start-dm.sh
   * Or, within a command prompt, change directory to ngEO-download-manager then enter the following:    
     start-dm.sh          <return>
   * Once the application has started (indicated by a message of "Started @0.0.0.0:0:80", the Download Manager Web UI can
@@ -32,6 +32,6 @@ Running the Download Manager:
  
 Running the Command Line App: 
 
-  * Either, within the file explorer for the installation OS, double-click ngEO-download-manager\start-dm-cli.sh
+  * Either, within the file explorer, double-click ngEO-download-manager\start-dm-cli.sh
     Or, within a command prompt, change directory to ngEO-download-manager then enter the following:
     start-dm-cli.sh      <return>

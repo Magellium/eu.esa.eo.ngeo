@@ -27,7 +27,7 @@ public class DmtuCliBannerProvider extends DefaultBannerProvider
 	}
 
 	public String getVersion() {
-		return "0.4.0";
+		return "0.4.1";
 	}
 
 	public String getWelcomeMessage() {

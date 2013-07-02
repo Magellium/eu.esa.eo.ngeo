@@ -7,8 +7,7 @@
 	<property name="linux_i586" value="linux_i586"/>
 	<property name="macosx_x64" value="macosx_x64"/>
 
-	<!-- TODO: This version number needs to be tied in with the whole system ( DMTU-7 ) -->
-	<property name="version" value="0.4.0"/>
+	<property name="version" value="0.4.1"/>
 
 	<property name="target"       value="${win_x64}"/>
 	<property name="dist.base"    value="target/dist"/>
@@ -66,12 +65,12 @@
 		<mkdir dir="${conf}"/>
 		<mkdir dir="${jre}"/>
 		<copy todir="${bin}">
-			<fileset dir="download-manager-webapp/target"                  includes="${webapp.name}"/>
-			<fileset dir="download-manager-command-line/target"            includes="download-manager-command-line-*.jar"/>
+			<fileset dir="download-manager-webapp/target"                  	includes="${webapp.name}"/>
+			<fileset dir="download-manager-command-line/target"            	includes="download-manager-command-line.jar"/>
 		</copy>
 		<copy todir="${plugins}/">
-			<fileset dir="download-manager-plugin-generic/target"  includes="download-manager-plugin-generic-*.jar"/>
-			<fileset dir="download-manager-plugin-mock-sentinel2/target"  includes="download-manager-plugin-mock-sentinel2-*.jar"/>
+			<fileset dir="download-manager-plugin-generic/target"  			includes="download-manager-plugin-generic-*.jar"/>
+			<fileset dir="download-manager-plugin-mock-sentinel2/target"  	includes="download-manager-plugin-mock-sentinel2-*.jar"/>
 		</copy>
 
 		<!-- determine Windows or Unix based environment -->
