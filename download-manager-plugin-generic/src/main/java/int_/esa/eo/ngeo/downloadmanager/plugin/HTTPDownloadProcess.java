@@ -233,8 +233,15 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 	}
 	
 	private HttpMethod retrieveDownloadDetailsBody(String productUrl) throws HttpException, IOException, UmssoCLException {
-		HttpMethod httpMethod = new GetMethod(productUrl);
-		umSsoHttpClient.executeHttpRequest(httpMethod);
+		HttpMethod httpMethod = null;
+		try {
+			httpMethod = new GetMethod(productUrl);
+			umSsoHttpClient.executeHttpRequest(httpMethod);
+		} finally {
+			if (httpMethod != null) {
+				httpMethod.releaseConnection();
+			}
+		}
 		
 		return httpMethod;
 	}
@@ -256,8 +263,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 			}else{
 				throw new DMPluginException(String.format("Unable to retrieve metalink file details from file URL %s", fileDownloadLink));
 			}
-		}
-		finally {
+		} finally {
 			if (httpMethod != null) {
 				httpMethod.releaseConnection();
 			}
