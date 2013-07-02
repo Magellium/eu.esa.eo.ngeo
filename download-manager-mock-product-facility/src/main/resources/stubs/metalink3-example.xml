@@ -3,9 +3,9 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.metalinker.org/ http://www.metalinker.org/schema/3.0/metalink.xsd">
   <files>
-    <file name="SkypeSetup.exe">
+    <file name="npp.6.4.1.bin.zip">
       <resources>
-        <url type="http">http://www.skype.com/go/getskype</url>
+        <url type="http">http://download.tuxfamily.org/notepadplus/6.4.1/npp.6.4.1.bin.zip</url>
       </resources>
     </file>
     <file name="Spotify%20Installer.exe">
