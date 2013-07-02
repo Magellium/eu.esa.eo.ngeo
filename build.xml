@@ -1,4 +1,4 @@
-<project name="Download Manager - zipping the artifacts" default="zip" basedir=".">
+<project name="Download Manager - zipping the artifacts" default="build-installation" basedir=".">
 
 
 	<property name="win_x64"    value="win_x64"/>
@@ -10,22 +10,25 @@
 	<!-- TODO: This version number needs to be tied in with the whole system ( DMTU-7 ) -->
 	<property name="version" value="0.4.0"/>
 
-	<property name="target"  value="${win_x64}"/>
-	<property name="dist"    value="target/dist"/>
-	<property name="dm.home" value="${dist}/ngEO-download-manager"/>
-	<property name="bin"     value="${dm.home}/bin"/>
-	<property name="plugins" value="${dm.home}/plugins"/>
-	<property name="logs"    value="${dm.home}/logs"/>
-	<property name="jre"     value="${dm.home}/jre"/>
-	<property name="conf"    value="${dm.home}/conf"/>
-	<property name="webapp.name" value="download-manager-webapp-jetty-console.war" />
+	<property name="target"       value="${win_x64}"/>
+	<property name="dist.base"    value="target/dist"/>
+	<property name="dist.name"    value="ngEO-download-manager"/>
+	<property name="dm.home"      value="${dist.base}/${dist.name}"/>
+	<property name="os.files"     value="os_files"/>
+	<property name="bin"          value="${dm.home}/bin"/>
+	<property name="plugins"      value="${dm.home}/plugins"/>
+	<property name="logs"         value="${dm.home}/logs"/>
+	<property name="jre"          value="${dm.home}/jre"/>
+	<property name="conf"         value="${dm.home}/conf"/>
+	<property name="webapp.name"  value="download-manager-webapp-jetty-console.war" />
 	<property name="non.user.modifiable.settings.defaults" value="non-user-modifiable-settings-defaults.properties"/>
 	<property     name="user.modifiable.settings.defaults"     value="user-modifiable-settings-defaults.properties"/>
 	<property name="zipfilename" value="target/download-manager_${version}_${target}.zip"/>
+	<property name="targzfilename" value="target/download-manager_${version}_${target}.tar.gz"/>
 
 	<target name="help" description="Gives help on how to generate a binary distribution suitable for a particular machine architecture and OS">
 		<echo>Commands:</echo>
-		<echo message="   ant                      (Defaults to ${win_x64})"/>
+		<echo message="   ant (Defaults to ${win_x64})"/>
 		<echo message="   ant -Dtarget=${win_x64}"/>
 		<echo message="   ant -Dtarget=${win_i586}"/>
 		<echo message="   ant -Dtarget=${linux_x64}"/>
@@ -33,15 +36,30 @@
 		<echo message="   ant -Dtarget=${macosx_x64}"/>
 	</target>
 
-	<target name="zip" depends="dist" description="Main target; creates a ZIP file that encapsulates everything that must be delivered to the customer">
-		<zip destfile="${zipfilename}"
-			basedir="${dist}"
-		/>
+	<target name="build-installation" depends="dist,zip,tar" />
+
+	<target name="zip" description="Main target; creates a ZIP file that encapsulates everything that must be delivered to the customer" if="build.windows">
+		<zip destfile="${zipfilename}" basedir="${dist.base}" />
+	</target>
+
+	<target name="tar" description="Main target; creates a tar.gz file that encapsulates everything that must be delivered to the customer" if="build.unix">
+		<tar compression="gzip" destfile="${targzfilename}">
+			<tarfileset dir="${dist.base}" filemode="755">
+				<include name="${dist.name}/start-dm*.sh" />
+				<include name="${dist.name}/jre/jre1.7.0_21/bin/*" />
+			</tarfileset>
+			<tarfileset dir="${dist.base}">
+				<include name="${dist.name}/**/**" />
+				<include name="${dist.name}/*" />
+				<exclude name="${dist.name}/start-dm*.sh" />
+				<exclude name="${dist.name}/jre/jre1.7.0_21/bin/*" />
+			</tarfileset>
+		</tar>
 	</target>
 
 	<target name="dist"
 		description="Create a file/folder structure that includes everything that must be delivered to the customer">
-		<mkdir dir="${dist}"/>
+		<mkdir dir="${dist.base}"/>
 		<mkdir dir="${bin}"/>
 		<mkdir dir="${plugins}"/>
 		<mkdir dir="${logs}"/>
@@ -55,6 +73,21 @@
 			<fileset dir="download-manager-plugin-generic/target"  includes="download-manager-plugin-generic-*.jar"/>
 			<fileset dir="download-manager-plugin-mock-sentinel2/target"  includes="download-manager-plugin-mock-sentinel2-*.jar"/>
 		</copy>
+
+		<!-- determine Windows or Unix based environment -->
+		<condition property="build.windows" value="true">
+			<or>
+				<equals casesensitive="false" arg1="${target}" arg2="${win_x64}"/>
+				<equals casesensitive="false" arg1="${target}" arg2="${win_i586}"/>
+			</or>
+		</condition>
+		<condition property="build.unix" value="true">
+			<or>
+				<equals casesensitive="false" arg1="${target}" arg2="${linux_x64}"/>
+				<equals casesensitive="false" arg1="${target}" arg2="${linux_i586}"/>
+				<equals casesensitive="false" arg1="${target}" arg2="${macosx_x64}"/>
+			</or>
+		</condition>
 
 		<!-- Bundle a JRE -->
 		<condition property="jre.archive" value="jre-7u21-windows-x64.tar.gz">
@@ -80,14 +113,31 @@
 		</delete>
 		<untar src="jre/${jre.archive}" dest="${jre}" compression="gzip" />
 
+		<!-- Establish which run scripts to include -->
+		<condition property="os.location" value="${os.files}/windows">
+			<or>
+				<equals casesensitive="false" arg1="${target}" arg2="${win_x64}"/>
+				<equals casesensitive="false" arg1="${target}" arg2="${win_i586}"/>
+			</or>
+		</condition>
+		<condition property="os.location" value="${os.files}/unix">
+			<or>
+				<equals casesensitive="false" arg1="${target}" arg2="${linux_x64}"/>
+				<equals casesensitive="false" arg1="${target}" arg2="${linux_i586}"/>
+				<equals casesensitive="false" arg1="${target}" arg2="${macosx_x64}"/>
+			</or>
+		</condition>
+
+		<delete>
+			<fileset dir="${dm.home}">
+				<include name="start-dm*.*" />
+				<include name="INSTALLATION_INSTRUCTIONS.txt" />
+			</fileset>
+		</delete>
 		<copy todir="${dm.home}">
-			<fileset dir="."  includes="start-dm.bat"/>
-			<fileset dir="."  includes="start-dm.sh"/>
-			<fileset dir="."  includes="start-dm-cli.bat"/>
-			<fileset dir="."  includes="INSTALLATION_INSTRUCTIONS.txt"/>
+			<fileset dir="${os.location}"  includes="*"/>
 			<fileset dir="."  includes="LICENSE.txt"/>
 		</copy>
-
 
 		<unzip src="${bin}/${webapp.name}" dest="${conf}">
 			<patternset>

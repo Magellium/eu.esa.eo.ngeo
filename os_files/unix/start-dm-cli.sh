@@ -11,4 +11,4 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 export DM_HOME=$DIR
 
 # FIXME: MacOS JRE has "Contents\Home" as parents of the JRE bin directory; that will break the following line:
-$DM_HOME/jre/jre1.7.0_21/bin/java -DDM_HOME=%DM_HOME% -jar "$DM_HOME/bin/download-manager-webapp-jetty-console.war" --headless --port 8082 --contextPath /download-manager
+$DM_HOME/jre/jre1.7.0_21/bin/java -DDM_HOME="$DM_HOME" -jar "$DM_HOME/bin/download-manager-command-line-0.4.0.jar"
