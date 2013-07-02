@@ -13,7 +13,7 @@
 			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
 		</ngeo:ProductAccess>
 		<ngeo:ProductAccess>
-			<ngeo:ProductAccessURL>http://www.ubuntu.com/start-download?distro=desktop&amp;bits=32&amp;release=latest</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com/100MB.zip</ngeo:ProductAccessURL>
 			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
 		</ngeo:ProductAccess>
 		<ngeo:ProductAccess>
@@ -22,7 +22,7 @@
 			<ngeo:ProductDownloadDirectory>ProductDirectory1</ngeo:ProductDownloadDirectory>
 		</ngeo:ProductAccess>
 		<ngeo:ProductAccess>
-			<ngeo:ProductAccessURL>http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/technology/epp/downloads/release/juno/SR2/eclipse-jee-juno-SR2-win32-x86_64.zip</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com:8080/50MB.zip</ngeo:ProductAccessURL>
 			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
 			<ngeo:ProductDownloadDirectory>ProductDirectory1</ngeo:ProductDownloadDirectory>
 		</ngeo:ProductAccess>
