@@ -208,6 +208,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 				setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
 				break;
 			case HttpURLConnection.HTTP_FORBIDDEN: //403
+				//TODO: Expand error message to indicate JCL is not being used.
 				setStatus(EDownloadStatus.IN_ERROR, "Forbidden access.");
 				break;
 			case HttpURLConnection.HTTP_NOT_FOUND: //402
