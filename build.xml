@@ -35,13 +35,13 @@
 		<echo message="   ant -Dtarget=${macosx_x64}"/>
 	</target>
 
-	<target name="build-installation" depends="dist,zip,tar" />
+	<target name="build-installation" description="Default target; Handles all steps of the build installation process (dist, zip and tar)." depends="dist,zip,tar" />
 
-	<target name="zip" description="Main target; creates a ZIP file that encapsulates everything that must be delivered to the customer" if="build.windows">
+	<target name="zip" description="Creates a ZIP file, if a Windows target has been specified, that encapsulates everything that must be delivered to the customer" if="build.windows">
 		<zip destfile="${zipfilename}" basedir="${dist.base}" />
 	</target>
 
-	<target name="tar" description="Main target; creates a tar.gz file that encapsulates everything that must be delivered to the customer" if="build.unix">
+	<target name="tar" description="Creates a tar.gz file, if a Linux or Mac OS X target has been specified, that encapsulates everything that must be delivered to the customer" if="build.unix">
 		<tar compression="gzip" destfile="${targzfilename}">
 			<tarfileset dir="${dist.base}" filemode="755">
 				<include name="${dist.name}/start-dm*.sh" />
