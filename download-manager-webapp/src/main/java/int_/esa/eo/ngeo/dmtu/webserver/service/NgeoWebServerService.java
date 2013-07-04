@@ -35,10 +35,10 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	//XXX: temporary method to integrate with Terradue's ngEO Web Server implementation
 	public void login(HttpClient httpClient, String umSsoUsername, String umSsoPassword) {
 		GetMethod loginMethod = null;
+    	// TODO: We should consider abstracting the following hard-coded configuration in a way that supports the existence of multiple environments.
+	    String loginUrl = String.format("http://5.9.173.44/ngeo/login?format=xml&username=%s&password=%s", umSsoUsername, umSsoPassword);
+	    LOGGER.debug(String.format("loginUrl: %s", loginUrl));
 	    try {
-	    	// TODO: We should consider abstracting the following hard-coded configuration in a way that supports the existence of multiple environments.
-		    String loginUrl = String.format("http://5.9.173.44/ngeo/login?format=xml&username=%s&password=%s", umSsoUsername, umSsoPassword);
-		    LOGGER.debug(String.format("loginUrl: %s", loginUrl));
 			loginMethod = new GetMethod(loginUrl);
 		    int httpResponseCode = httpClient.executeMethod(loginMethod);
 			LOGGER.debug(String.format("response code: %s", httpResponseCode));
@@ -47,7 +47,7 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 			String responseString = writer.toString();
 			LOGGER.debug(String.format("Login response: %s", responseString));
 	    } catch(Exception ex) {
-    		LOGGER.error("Can not perform login", ex);
+    		LOGGER.warn(String.format("Cannot perform the login that's temporarily necessary because of the non-UM-SSO-conformant nature of the ngEO Web Server's security. URL used was %s.%nYou can ignore this warning if you are using the mock web server.", loginUrl));
     	} finally {
     		if(loginMethod != null)
     			loginMethod.releaseConnection();
