@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -84,9 +85,11 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 	private List<File> completedFileLocations;
 	
 	private UmSsoHttpClient umSsoHttpClient;
+	
+	private Properties pluginConfig;
 		
 	public HTTPDownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener,
-			String proxyLocation, int proxyPort, String proxyUser, String proxyPassword, String umssoUsername, String umssoPassword) {
+			String proxyLocation, int proxyPort, String proxyUser, String proxyPassword, String umssoUsername, String umssoPassword, Properties pluginConfig) {
 		this.productURI = productURI;
 		this.downloadDir = downloadDir;
 		this.productDownloadListeners = new ArrayList<IProductDownloadListener>();
@@ -96,6 +99,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 		this.filesToDownloadList = new ArrayList<>();
 		this.completedFileLocations = new ArrayList<>();
 		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyLocation, proxyPort, proxyUser, proxyPassword);
+		this.pluginConfig = pluginConfig;
 	}
 	
 	private String filterIllegalFileNameChars(String input) {

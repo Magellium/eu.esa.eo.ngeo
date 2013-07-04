@@ -1,20 +1,20 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
+import int_.esa.eo.ngeo.downloadManager.plugin.PluginConfigurationLoader;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
-import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
-import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPluginInfo;
-import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadProcess;
-import int_.esa.eo.ngeo.downloadmanager.plugin.IProductDownloadListener;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Properties;
 
 public class HTTPDownloadPlugin implements IDownloadPlugin {
 	
-	public IDownloadPluginInfo initialize(File tmpRootDir, File pluginCfgRootDir)
-			throws DMPluginException {
-		//It is the responsibility of the plugin to create the temporary directory and plugin directory which it requires.
-		//This plugin does not either, so does not create these directories.
+	PluginConfigurationLoader pluginConfigurationLoader = new PluginConfigurationLoader();
+	
+	private Properties pluginConfig;
+	
+	public IDownloadPluginInfo initialize(File tmpRootDir, File pluginCfgRootDir) throws DMPluginException {
+		pluginConfig = pluginConfigurationLoader.loadPluginConfiguration(HTTPDownloadPlugin.class.getName(), pluginCfgRootDir);
 		
 		HTTPDownloadPluginInfo pluginInfo = new HTTPDownloadPluginInfo();
 		
@@ -26,12 +26,12 @@ public class HTTPDownloadPlugin implements IDownloadPlugin {
 	}
 
 	public IDownloadProcess createDownloadProcess(URI productURI,
-			File downloadDir, String user, String password,
+			File downloadDir, String umssoUsername, String umssoPassword,
 			IProductDownloadListener downloadListener, String proxyLocation,
 			int proxyPort, String proxyUser, String proxyPassword)
 			throws DMPluginException {
 		
-		return new HTTPDownloadProcess(productURI, downloadDir, downloadListener, proxyLocation, proxyPort, proxyUser, proxyPassword, user, password);
+		return new HTTPDownloadProcess(productURI, downloadDir, downloadListener, proxyLocation, proxyPort, proxyUser, proxyPassword, umssoUsername, umssoPassword, pluginConfig);
 	}
 
 }
