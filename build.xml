@@ -19,6 +19,7 @@
 	<property name="logs"         value="${dm.home}/logs"/>
 	<property name="jre"          value="${dm.home}/jre"/>
 	<property name="conf"         value="${dm.home}/conf"/>
+	<property name="conf.plugins"    value="${conf}/plugins"/>
 	<property name="webapp.name"  value="download-manager-webapp-jetty-console.war" />
 	<property name="non.user.modifiable.settings.defaults" value="non-user-modifiable-settings-defaults.properties"/>
 	<property     name="user.modifiable.settings.defaults"     value="user-modifiable-settings-defaults.properties"/>
@@ -63,6 +64,7 @@
 		<mkdir dir="${plugins}"/>
 		<mkdir dir="${logs}"/>
 		<mkdir dir="${conf}"/>
+		<mkdir dir="${conf.plugins}"/>
 		<mkdir dir="${jre}"/>
 		<copy todir="${bin}">
 			<fileset dir="download-manager-webapp/target"                  	includes="${webapp.name}"/>
@@ -147,6 +149,9 @@
 		</unzip>
 		<move file="${conf}/${non.user.modifiable.settings.defaults}" tofile="${conf}/nonUserModifiableSettingsPersistentStore.properties"/>
 		<move file="${conf}/${user.modifiable.settings.defaults}"     tofile="${conf}/userModifiableSettingsPersistentStore.properties"/>
+		<copy todir="${conf.plugins}/">
+			<fileset dir="download-manager-plugin-generic/src/main/resources"  includes="int_.esa.eo.ngeo.downloadmanager.plugin.HTTPDownloadPlugin.properties"/>
+		</copy>
 	</target>
 
 </project>
