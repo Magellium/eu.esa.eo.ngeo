@@ -7,8 +7,12 @@ import java.io.File;
 import java.net.URI;
 
 public interface IDownloadPlugin {
-	IDownloadPluginInfo initialize(File tmpRootDir, File pluginCfgRootDir)
-			throws DMPluginException;
+	
+	/**
+	 * @param tmpRootDir Note that plugins cannot rely on this directory to exist.
+	 * @param pluginCfgRootDir Note that plugins cannot rely on this directory to exist.
+	 */
+	IDownloadPluginInfo initialize(File tmpRootDir, File pluginCfgRootDir) throws DMPluginException;
 
 	void terminate() throws DMPluginException;
 
