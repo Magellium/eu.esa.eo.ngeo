@@ -30,7 +30,6 @@ Release History
     DMTU-82 - DataAccessMonitoring change readyProductsOrAll value to "READY_ACCESSED" instead of "READY"   
     DMTU-90 - Allow the use of JCL client to be configured
     DMTU-97 - Tested DMTU for Linux and make changes where required.
-            - Updated default port in batch / shell script to 80. Updated installation instructions to reflect this change.
             - Included support for HTTPS (updated generic plugin)
             - Improved build process for os specific files
             - Unix installation package now built as .tar.gz
