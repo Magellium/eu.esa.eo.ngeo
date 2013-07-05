@@ -116,13 +116,11 @@ ul#actions li {
 
 #top-bar #title {
 	background-color: #434343;
-	width: 150px;
 	float: left;
 	color: white;
 }
 
 #top-bar #container {
-	margin-left: 170px;
 	height: 65px;
 	color: white;
 	text-align: center;

@@ -58,7 +58,25 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
+	<profiles>
+        <profile>
+            <id>ngeo</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+		    </activation>
+			<properties>
+                <DM_TITLE>ngEO Download Manager Test Unit</DM_TITLE>
+                <DM_CLI_PROMPT>ngEO-D</DM_CLI_PROMPT>
+            </properties>
+        </profile>
+        <profile>
+            <id>dream</id>
+            <properties>
+                <DM_TITLE>DREAM Download Manager</DM_TITLE>
+                <DM_CLI_PROMPT>DREAM-DM</DM_CLI_PROMPT>
+            </properties>
+		</profile>
+	</profiles>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -67,5 +85,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 </project>

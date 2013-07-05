@@ -1,5 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.cli;
 
+import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.shell.core.CommandMarker;
@@ -16,12 +18,9 @@ public class DmtuCliBannerProvider extends DefaultBannerProvider
 	@CliCommand(value = { "version" }, help = "Displays current CLI version")
 	public String getBanner() {
 		StringBuilder buf = new StringBuilder();
-		buf.append("=======================================" + OsUtils.LINE_SEPARATOR);
-		buf.append("*                                     *"+ OsUtils.LINE_SEPARATOR);
-		buf.append("*            " + name() + "                 *" +OsUtils.LINE_SEPARATOR);
-		buf.append("*                                     *"+ OsUtils.LINE_SEPARATOR);
-		buf.append("=======================================" + OsUtils.LINE_SEPARATOR);
-		buf.append("Version:" + getVersion());
+		buf.append("===========================================================" + OsUtils.LINE_SEPARATOR);
+		buf.append(name() + " v" + getVersion() + OsUtils.LINE_SEPARATOR);
+		buf.append("===========================================================" + OsUtils.LINE_SEPARATOR);
 		return buf.toString();
 
 	}
@@ -36,6 +35,6 @@ public class DmtuCliBannerProvider extends DefaultBannerProvider
 	
 	@Override
 	public String name() {
-		return "DMTU CLI";
+		return ConfigurationProvider.getProperty(ConfigurationProvider.DM_TITLE) + " CLI";
 	}
 }

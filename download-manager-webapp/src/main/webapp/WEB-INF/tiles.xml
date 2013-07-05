@@ -9,16 +9,16 @@
 
 	<definition name="home" extends="commonPage">
 		<put-attribute name="content" value="/WEB-INF/views/home.jsp" />
-		<put-attribute name="page-title" value="Download Manager Test Unit" />
+		<put-attribute name="page-sub-title" value="" />
 	</definition>
 
 	<definition name="firstStartupConfig" extends="commonPage">
 		<put-attribute name="content" value="/WEB-INF/views/dmsetup.jsp" />
-		<put-attribute name="page-title" value="Download Manager Test Unit - First Starup Configuration" />
+		<put-attribute name="page-sub-title" value=" - First Starup Configuration" />
 	</definition>
 
 	<definition name="advancedConfig" extends="commonPage">
 		<put-attribute name="content" value="/WEB-INF/views/advancedconfig.jsp" />
-		<put-attribute name="page-title" value="Download Manager Test Unit - Advanced Configuration" />
+		<put-attribute name="page-sub-title" value=" - Advanced Configuration" />
 	</definition>
 </tiles-definitions>

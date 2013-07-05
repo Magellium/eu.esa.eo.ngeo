@@ -1,5 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.cli;
 
+import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.shell.plugin.support.DefaultPromptProvider;
@@ -11,13 +13,13 @@ public class DmtuCliPromptProvider extends DefaultPromptProvider {
 
 	@Override
 	public String getPrompt() {
-		return "ngEO-D:>";
+		return ConfigurationProvider.getProperty(ConfigurationProvider.DM_CLI_PROMPT) + ":>";
 	}
 
 	
 	@Override
 	public String name() {
-		return "DMTU CLI prompt provider";
+		return ConfigurationProvider.getProperty(ConfigurationProvider.DM_TITLE) + " CLI prompt provider";
 	}
 
 }

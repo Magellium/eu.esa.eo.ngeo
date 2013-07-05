@@ -5,6 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions' %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -17,7 +18,7 @@
 		<link rel="stylesheet" type="text/css" href="resources/css/styles.css" />
 		<script src="resources/js/jquery-1.9.1.min.js"></script>
 		<title>
-			<tiles:insertAttribute name="page-title"/>			
+			<spring:eval expression="@propertyConfigurer.getProperty('DM_TITLE')" /><tiles:insertAttribute name="page-sub-title"/>			
 		</title>
 	</head>
 	<body>
