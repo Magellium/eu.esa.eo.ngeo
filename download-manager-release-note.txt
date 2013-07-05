@@ -16,7 +16,7 @@ Features
 * A user can manually download a product, either by the Web interface or by the command line application.
 * Clear activity history on completed, cancelled or failed downloads.
 * Concurrent download of products.
-* Integration with UM-SSO for product downloads.
+* Integration with UM-SSO for product downloads (configurable, disabled by default).
 
 Release History
 -----------------------------------
@@ -24,9 +24,12 @@ Release History
     DMTU-15 - set DM_HOME automatically
     DMTU-26 - UM-SSO integration
     DMTU-18 - Provide a success message when executing the "add" command
+    DMTU-42 - DMTU-REQ-9: No configuration of this plugin is possible at this time.
     DMTU-44 - DMTU-REQ-9: Proxy details are now honoured by the generic plugin.
     DMTU-76 - Include bash script for executing CLI applicaiton
-    DMTU-82 - DataAccessMonitoring change readyProductsOrAll value to "READY_ACCESSED" instead of "READY"            
+    DMTU-82 - DataAccessMonitoring change readyProductsOrAll value to "READY_ACCESSED" instead of "READY"   
+    DMTU-90 - Allow the use of JCL client to be configured
+    DMTU-97 - Tested DMTU for Linux and make changes where required.
             - Updated default port in batch / shell script to 80. Updated installation instructions to reflect this change.
             - Included support for HTTPS (updated generic plugin)
             - Improved build process for os specific files
@@ -73,9 +76,7 @@ DMTU-REQ-9   -	Schema handling of HTTP 403 not implemented; confirmation of sche
 DMTU-REQ-9   -	Handling of HTTP 303s not implemented at this time.
 DMTU-REQ-9   -	Parallel downloading (multiple sources for one file in a metalink) not supported. If multiple sources are provided for a particular file, only the first is used.
 DMTU-REQ-9   -	Only one file is downloaded at a time for a product.
-DMTU-REQ-9   -	Temporary and configuration directories are not used by the generic plugin; no configuration of this plugin is possible at this time.
 DMTU-REQ-9   -	Downloaded Files are currently not being used by the DMTU as output to product termination log.
-DMTU-REQ-9   -  No configuration of the plugins is possible at this time.
 DMTU-REQ-11  -	Plugins are detected only on server startup. 
 DMTU-REQ-11  -	Adding a plugin via a GUI is not supported.
 DMTU-REQ-17  -	Changes to the number of parallel download threads will only be honoured on application restart.
