@@ -25,8 +25,8 @@ Running the Download Manager:
   * Either, within the file explorer, double-click ngEO-download-manager\start-dm.bat
   * Or, within a command prompt, change directory to ngEO-download-manager then enter the following:    
     start-dm             <return>
-  * Once the application has started (indicated by a message of "Started @0.0.0.0:0:80", the Download Manager Web UI can
-    be accessed by the following URL: http://localhost/download-manager/
+  * Once the application has started (indicated by a message of "Started @0.0.0.0:0:8082", the Download Manager Web UI can
+    be accessed by the following URL: http://localhost:8082/download-manager/
        
  
 Running the Command Line App: 
