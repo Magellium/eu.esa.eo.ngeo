@@ -24,11 +24,12 @@ import org.slf4j.LoggerFactory;
 public class Transferrer {
 	
 	private IDownloadProcess downloadProcess;
-	private static final int READ_LENGTH = 4096; //read 4k worth of bytes at a time.
+	private int readLength;
 	private static final Logger LOGGER = LoggerFactory.getLogger(Transferrer.class);
 	
-	public Transferrer(IDownloadProcess downloadProcess) {
+	public Transferrer(IDownloadProcess downloadProcess, int readLength) {
 		this.downloadProcess = downloadProcess;
+		this.readLength = readLength;
 	}
 
 	public void doTransfer(FileChannel destination, InputStream inputStream, FileDetails fileDetails, Set<DownloadProgressListener> progressListeners)
@@ -38,7 +39,7 @@ public class Transferrer {
 			source = Channels.newChannel(inputStream);
 			long bytesRead = -1;
 			while (downloadProcess.getStatus() == EDownloadStatus.RUNNING) {
-				if ((bytesRead = destination.transferFrom(source, fileDetails.getDownloadedSize(), READ_LENGTH)) == 0) {
+				if ((bytesRead = destination.transferFrom(source, fileDetails.getDownloadedSize(), readLength)) == 0) {
 					LOGGER.info(String.format("Server-side \"log jam\" affecting the download from %s?", fileDetails.getFileURL()));
 				}
 				else {

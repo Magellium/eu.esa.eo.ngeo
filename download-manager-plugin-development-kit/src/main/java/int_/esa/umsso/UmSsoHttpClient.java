@@ -35,10 +35,10 @@ import com.siemens.pse.umsso.client.UmssoVisualizerCallback;
  */
 public class UmSsoHttpClient {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UmSsoHttpClient.class);
-	private static boolean isHappyToRiskBufferingWholeOfResponseBody = true;
+	private boolean enableUmssoJclUse;
 	private CommandLineCallback commandLineCallback;
 	
-	public UmSsoHttpClient(String umssoUsername, String umssoPassword, String proxyLocation, int proxyPort, String proxyUser, String proxyPassword) {
+	public UmSsoHttpClient(String umssoUsername, String umssoPassword, String proxyLocation, int proxyPort, String proxyUser, String proxyPassword, boolean enableUmssoJclUse) {
 		commandLineCallback = new CommandLineCallback(umssoUsername, umssoPassword);
 		UmssoCLCore clCore = UmssoCLCoreImpl.getInstance();
 		if (!StringUtils.isEmpty(proxyLocation)) {
@@ -49,6 +49,7 @@ public class UmSsoHttpClient {
 				clCore.init(new UmssoCLEnvironment(proxyLocation, proxyPort));
 			}
 		}
+		this.enableUmssoJclUse = enableUmssoJclUse;
 
 		// Set HttpClient parameters if necessary (this part is optional)
 		HttpClientParams clientParams = new HttpClientParams();
@@ -56,44 +57,16 @@ public class UmSsoHttpClient {
 		clCore.getUmssoHttpClient().setParams(clientParams);
 	}
 
-	public void executeHttpRequest(HttpMethod method) throws UmssoCLException {
-
-		UmssoCLCore clCore = UmssoCLCoreImpl.getInstance();
-		
-		if (!isHappyToRiskBufferingWholeOfResponseBody) {
-			try {
-				LOGGER.warn("Making an HTTP request *without* support for UM-SSO, 'cos Siemens' UM-SSO Java Client Library buffers the whole of each response's body in memory");
-				new HttpClient().executeMethod(method);
-			} catch (IOException e) {
-				throw new RuntimeException(e); // We're not doing rigorous error handling here, 'cos we will NOT be bypassing the UM-SSO JCL in the delivered system
-			}
-		}
-		else {			
-					UmssoCLInput input = new UmssoCLInput(method, commandLineCallback);  
+	public void executeHttpRequest(HttpMethod method) throws UmssoCLException, IOException {
+		if (enableUmssoJclUse) {
+			UmssoCLInput input = new UmssoCLInput(method, commandLineCallback);  
 			
-					/* UmssoCLOutput output = */ clCore.processHttpRequest(input);
-			
-			//		HttpClient httpClient = null;
-			//		if (!output.isResourceAccessed()) {
-			//			LOGGER.debug("Resource couldn't be accessed.");
-			//			// TODO: throw an exception here?
-			//
-			//			if (output.getStatus() == UmssoLoginStatus.LOGGEDIN) {
-			//				LOGGER.debug("User logged in.");
-			//			} else if (output.getStatus() == UmssoLoginStatus.LOGINFAILED) {
-			//				LOGGER.debug("User couldn't log in.");
-			//			} else if (output.getStatus() == UmssoLoginStatus.NOTLOGGEDIN) {
-			//				LOGGER.debug("User is not logged in yet.");
-			//			} else {
-			//				LOGGER.debug("Unknown login status: " + output.getStatus());
-			//			}
-			//		}
-			
-			
-			//		method.releaseConnection(); // XXX: We leave it to our caller to do this once they have consumed the HTTP response
-			//
-			//		//Destroy the security context by cleaning all cookies
-			//		clCore.getUmssoHttpClient().getState().clearCookies(); // XXX: We leave it to our caller to consider doing this once they have consumed the HTTP response
+			UmssoCLCore clCore = UmssoCLCoreImpl.getInstance();
+			clCore.processHttpRequest(input);
+		} else {			
+			LOGGER.warn("Making an HTTP request *without* support for UM-SSO");
+			LOGGER.warn("curently the Siemens' UM-SSO Java Client Library buffers the whole of each response's body in memory");
+			new HttpClient().executeMethod(method);
 		}
 	}
 
@@ -107,6 +80,5 @@ public class UmSsoHttpClient {
 		public UmssoUserCredentials showLoginForm(String message, String spResourceUrl, String idpUrl) {
 			return umssoUserCredentials;
 		}
-
 	}
 }

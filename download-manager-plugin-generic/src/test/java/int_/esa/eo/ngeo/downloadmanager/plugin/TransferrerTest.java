@@ -25,7 +25,7 @@ public class TransferrerTest {
 	public void test() throws IOException {
 		IDownloadProcess mockDownloadProcess = mock(IDownloadProcess.class);
 		when(mockDownloadProcess.getStatus()).thenReturn(EDownloadStatus.RUNNING);
-		Transferrer transferrer = new Transferrer(mockDownloadProcess);
+		Transferrer transferrer = new Transferrer(mockDownloadProcess, 4096);
 		
 		FileChannel mockDestinationChannel = mock(FileChannel.class);
 		final long length1 = (long)HELLO.length();

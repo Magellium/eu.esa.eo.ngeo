@@ -36,6 +36,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.HeadMethod;
 import org.metalinker.FileType;
 import org.metalinker.MetalinkType;
 import org.metalinker.ResourcesType.Url;
@@ -48,8 +49,10 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 	/** May be incorrect; taken from http://stackoverflow.com/questions/5793606/how-to-filter-illegal-forbidden-filename-characters-from-users-keyboard-input-i */
 	private static final char[] ILLEGAL_FILENAME_CHARACTERS = {'/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':'};
 	
-	
-	private static final long TIMEOUT_LENGTH = 720; // 30 days
+	private static final String KEY_DOWNLOAD_THREAD_TIMEOUT_LENGTH_IN_HOURS = "DOWNLOAD_THREAD_TIMEOUT_LENGTH_IN_HOURS";
+	private static final String KEY_TRANSFERRER_READ_LENGTH = "TRANSFERRER_READ_LENGTH";
+	private static final String ENABLE_UMSSO_JCL_USE = "ENABLE_UMSSO_JCL_USE";
+
 	private static final int DISPOSITION_SUBSTRING_START_OFFSET = 10;
 	private static final Logger LOGGER = LoggerFactory.getLogger(HTTPDownloadProcess.class);
 	
@@ -87,6 +90,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 	private UmSsoHttpClient umSsoHttpClient;
 	
 	private Properties pluginConfig;
+	boolean enableUmssoJclUse;
 		
 	public HTTPDownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener,
 			String proxyLocation, int proxyPort, String proxyUser, String proxyPassword, String umssoUsername, String umssoPassword, Properties pluginConfig) {
@@ -98,8 +102,12 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 		this.productResponseParser = new ProductResponseParser();
 		this.filesToDownloadList = new ArrayList<>();
 		this.completedFileLocations = new ArrayList<>();
-		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyLocation, proxyPort, proxyUser, proxyPassword);
 		this.pluginConfig = pluginConfig;
+
+		String enableUmssoJclUseString = pluginConfig.getProperty(ENABLE_UMSSO_JCL_USE);
+		enableUmssoJclUse = Boolean.parseBoolean(enableUmssoJclUseString);
+
+		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyLocation, proxyPort, proxyUser, proxyPassword, enableUmssoJclUse);
 	}
 	
 	private String filterIllegalFileNameChars(String input) {
@@ -132,7 +140,12 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 		try {
 			String productUrl = productURI.toURL().toString();
 			LOGGER.debug("About to construct UmSsoHttpClient");
-			productDownloadHeaders = new GetMethod(productUrl);
+			//XXX: Since there is a bug with using Siemens' UM-SSO Java Client Library and HTTP HEAD, we use the GET method
+			if(enableUmssoJclUse) {
+				productDownloadHeaders = new GetMethod(productUrl);
+			}else{
+				productDownloadHeaders = new HeadMethod(productUrl);
+			}
 			umSsoHttpClient.executeHttpRequest(productDownloadHeaders);
 			int responseCode = productDownloadHeaders.getStatusCode();
 			switch (responseCode) {
@@ -238,16 +251,9 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 	}
 	
 	private HttpMethod retrieveDownloadDetailsBody(String productUrl) throws HttpException, IOException, UmssoCLException {
-		HttpMethod httpMethod = null;
-		try {
-			httpMethod = new GetMethod(productUrl);
-			umSsoHttpClient.executeHttpRequest(httpMethod);
-		} finally {
-			if (httpMethod != null) {
-				httpMethod.releaseConnection();
-			}
-		}
-		
+		HttpMethod httpMethod = new GetMethod(productUrl);
+		umSsoHttpClient.executeHttpRequest(httpMethod);
+	
 		return httpMethod;
 	}
 
@@ -299,7 +305,9 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 					
 					fileDownloadExecutor.shutdown();
 	
-					boolean threadCompleted = fileDownloadExecutor.awaitTermination(TIMEOUT_LENGTH, TimeUnit.HOURS);
+					String downloadThreadTimeoutLengthInHoursProperty = pluginConfig.getProperty(KEY_DOWNLOAD_THREAD_TIMEOUT_LENGTH_IN_HOURS);
+					Long downloadThreadTimeoutLengthInHours = Long.parseLong(downloadThreadTimeoutLengthInHoursProperty);
+					boolean threadCompleted = fileDownloadExecutor.awaitTermination(downloadThreadTimeoutLengthInHours, TimeUnit.HOURS);
 					if(!threadCompleted) {
 						setStatus(EDownloadStatus.IN_ERROR, String.format("Download for product %s timed out.", productURI.toString()));
 						fileDownloadExecutor.shutdownNow();
@@ -567,7 +575,10 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 				case HttpURLConnection.HTTP_OK:
 				case HttpURLConnection.HTTP_PARTIAL:
 					
-					Transferrer transferrer = new Transferrer(HTTPDownloadProcess.this);
+					String transferrerReadLengthProperty = pluginConfig.getProperty(KEY_TRANSFERRER_READ_LENGTH);
+					int transferrerReadLength = Integer.parseInt(transferrerReadLengthProperty);
+
+					Transferrer transferrer = new Transferrer(HTTPDownloadProcess.this, transferrerReadLength);
 					transferrer.doTransfer(destination, method.getResponseBodyAsStream(), fileDetails, progressListeners);
 					
 					EDownloadStatus downloadStatus = getDownloadStatus();
