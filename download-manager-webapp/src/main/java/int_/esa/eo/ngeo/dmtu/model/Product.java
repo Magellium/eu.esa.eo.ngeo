@@ -3,6 +3,8 @@ package int_.esa.eo.ngeo.dmtu.model;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -34,6 +36,10 @@ public class Product implements Serializable {
 	private boolean notified;
 
 	private boolean visible;
+	
+	private Timestamp startOfFirstDownloadRequest;
+	private Timestamp startOfActualDownload;
+	private Timestamp stopOfDownload;
 	
 	/*
 	 * Default constructor needed for hibernate, not used by application
@@ -104,5 +110,29 @@ public class Product implements Serializable {
 
 	public void setVisible(boolean visible) {
 		this.visible = visible;
+	}
+
+	public Date getStartOfFirstDownloadRequest() {
+		return (this.startOfFirstDownloadRequest == null) ? null : new Date(this.startOfFirstDownloadRequest.getTime());
+	}
+
+	public void setStartOfFirstDownloadRequest(Date startOfFirstDownloadRequest) {
+		this.startOfFirstDownloadRequest = new java.sql.Timestamp(startOfFirstDownloadRequest.getTime());
+	}
+
+	public Date getStartOfActualDownload() {
+		return (this.startOfActualDownload == null) ? null : new Date(this.startOfActualDownload.getTime());
+	}
+
+	public void setStartOfActualDownload(Date startOfActualDownload) {
+		this.startOfActualDownload = new java.sql.Timestamp(startOfActualDownload.getTime());
+	}
+
+	public Date getStopOfDownload() {
+		return (this.stopOfDownload == null) ? null : new Date(this.stopOfDownload.getTime());
+	}
+
+	public void setStopOfDownload(Date stopOfDownload) {
+		this.stopOfDownload = new java.sql.Timestamp(stopOfDownload.getTime());
 	}
 }

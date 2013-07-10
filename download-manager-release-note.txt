@@ -20,6 +20,12 @@ Features
 
 Release History
 -----------------------------------
+0.4.2
+    DMTU-65 - Added extra call to update the product file download status.
+    DMTU-48 - Product termination now includes start of actual download and stop of download.
+    DMTU-23 - Add header row for product download termination log
+    Modified default web interface port number to 8082.
+    Corrected schema as a result of a fix applied by the WEBS (NGEO-657).
 0.4.1
     DMTU-15 - set DM_HOME automatically
     DMTU-26 - UM-SSO integration

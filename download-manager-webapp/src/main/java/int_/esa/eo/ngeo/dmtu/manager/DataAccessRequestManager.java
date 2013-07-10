@@ -210,28 +210,30 @@ public class DataAccessRequestManager implements ProductSubject {
 		}
 		
 		retrievedDataAccessRequest.setMonitoringStatus(monitoringStatus);
-		List<ProductAccess> productAccessList = productAccessListObject.getProductAccess();
-		List<Product> newProductsAdded = new ArrayList<>();
-		for (ProductAccess productAccess : productAccessList) {
-			Product productInDar = findProductInDar(retrievedDataAccessRequest, productAccess.getProductAccessURL());
-			if(productInDar != null) {
-				//check if the product has been confirmed as notified
-				Object downloadNotified = productAccess.getDownloadNotified();
-				if(downloadNotified != null && "CONFIRMED".equals(downloadNotified)) { //XXX: this should be changed to pick up the date supplied
-					LOGGER.debug("Product download has been confirmed as notified");
-					productInDar.setNotified(true);
+		if(monitoringStatus == MonitoringStatus.IN_PROGRESS) {
+			List<ProductAccess> productAccessList = productAccessListObject.getProductAccess();
+			List<Product> newProductsAdded = new ArrayList<>();
+			for (ProductAccess productAccess : productAccessList) {
+				Product productInDar = findProductInDar(retrievedDataAccessRequest, productAccess.getProductAccessURL());
+				if(productInDar != null) {
+					//check if the product has been confirmed as notified
+					Object downloadNotified = productAccess.getDownloadNotified();
+					if(downloadNotified != null && "CONFIRMED".equals(downloadNotified)) { //XXX: this should be changed to pick up the date supplied
+						LOGGER.debug("Product download has been confirmed as notified");
+						productInDar.setNotified(true);
+					}
+				}else{
+					Product newProduct = new Product(productAccess.getProductAccessURL(), productAccess.getProductDownloadDirectory());
+					addNewProduct(retrievedDataAccessRequest, newProduct);
+					newProductsAdded.add(newProduct);
 				}
-			}else{
-				Product newProduct = new Product(productAccess.getProductAccessURL(), productAccess.getProductDownloadDirectory());
-				addNewProduct(retrievedDataAccessRequest, newProduct);
-				newProductsAdded.add(newProduct);
 			}
-		}
-		
-		retrievedDataAccessRequest.setLastResponseDate(responseDate);
-		if(newProductsAdded.size() > 0) {
-			dataAccessRequestDao.updateDataAccessRequest(retrievedDataAccessRequest);
-			notifyObservers(newProductsAdded);
+
+			retrievedDataAccessRequest.setLastResponseDate(responseDate);
+			if(newProductsAdded.size() > 0) {
+				dataAccessRequestDao.updateDataAccessRequest(retrievedDataAccessRequest);
+				notifyObservers(newProductsAdded);
+			}
 		}
 	}
 	

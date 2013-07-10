@@ -312,6 +312,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 						setStatus(EDownloadStatus.IN_ERROR, String.format("Download for product %s timed out.", productURI.toString()));
 						fileDownloadExecutor.shutdownNow();
 					}else{
+						updateProductFileDownloadStatus();
 						if(completedFileLocations.size() == filesToDownloadList.size()) {
 							if(completedFileLocations.size() > 1) { //product download is a metalink
 								try {

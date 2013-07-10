@@ -32,7 +32,7 @@ The URL to where this request goes is a monitoringURL contained in the monitorin
 							<element name="ProductDownloadNotification" minOccurs="0" maxOccurs="unbounded">
 								<complexType>
 									<sequence>
-										<element name="productAccessURL" type="anyURI" />
+										<element ref="ngeo:ProductAccessURL"/>
 										<element name="productDownloadStatus">
 											<simpleType>
 												<restriction base="string">

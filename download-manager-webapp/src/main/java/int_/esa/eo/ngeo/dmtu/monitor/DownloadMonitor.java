@@ -4,6 +4,7 @@ import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadProcessCreationException;
 import int_.esa.eo.ngeo.dmtu.exception.NoPluginAvailableException;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.dmtu.log.ProductTerminationLog;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
 import int_.esa.eo.ngeo.dmtu.manager.PluginManager;
 import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
@@ -19,15 +20,12 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadProcess;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -58,9 +56,10 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 	private ExecutorService productDownloadExecutor;
 	
 	private Map<String,Product> productToDownloadList;
+
+	private ProductTerminationLog productTerminationLog;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(DownloadMonitor.class);
-	private static final Logger PRODUCT_DOWNLOAD_TERMINATION_NOTIFICATION_LOGGER = LoggerFactory.getLogger("ProductDownloadTermination");
 
 	private static final String FILESET_MACRO_REF = "${FILESET}";
 	private static final String FILE_MACRO_REF    = "${FILE}";
@@ -75,6 +74,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 		dataAccessRequestManager.registerObserver(this);
 		this.downloadProcessList = new HashMap<>();
 		this.productToDownloadList = new HashMap<String, Product>();
+		this.productTerminationLog = new ProductTerminationLog();
 	}
 
 	@PostConstruct
@@ -161,6 +161,10 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 
 		if(previouslyKnownStatus != newStatus) {
 			LOGGER.debug(String.format("Status has changed from %s to %s, updating to database", previouslyKnownStatus, newStatus));
+			if(newStatus == EDownloadStatus.RUNNING) {
+				product.setStartOfActualDownload(new Date());
+			}
+			
 			dataAccessRequestManager.persistProductStatusChange(productUuid);
 		}
 
@@ -175,7 +179,9 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 			}
 		}
 		if(productProgress.getStatus() == EDownloadStatus.COMPLETED || productProgress.getStatus() == EDownloadStatus.CANCELLED || productProgress.getStatus() == EDownloadStatus.IN_ERROR) {
-			notifyProductDownloadTermination(product);
+			product.setStopOfDownload(new Date());
+			dataAccessRequestManager.persistProductStatusChange(productUuid);
+			productTerminationLog.notifyProductDownloadTermination(product);
 		}
 		
 		if(productProgress.getStatus() == EDownloadStatus.COMPLETED) {
@@ -244,40 +250,6 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 		return String.format("\"%s\"", absolutePath); // TODO: Handle scenarios where the OS is other than Windows.
 	}
 
-	private void notifyProductDownloadTermination(Product product) {
-		StringBuilder productNotificationString = new StringBuilder();
-		ProductProgress productProgress = product.getProductProgress();
-		EDownloadStatus productDownloadStatus = productProgress.getStatus();
-		productNotificationString.append(String.format("\"%s\"", productDownloadStatus));
-		productNotificationString.append(String.format(",\"%s\"", product.getProductAccessUrl()));
-		productNotificationString.append(String.format(",\"%s\"", "")); //TODO: Name of the data access request the product download belongs to
-		long numberOfBytesDownloaded;
-		if(productDownloadStatus == EDownloadStatus.IN_ERROR) {
-			numberOfBytesDownloaded = 0;
-		}else{
-			numberOfBytesDownloaded = productProgress.getDownloadedSize();
-		}
-		productNotificationString.append(String.format(",\"%s\"", numberOfBytesDownloaded));
-		productNotificationString.append(String.format(",\"%s\"", "")); //TODO: Start date/time of first download request (i.e. when the initial http get request is made)
-		productNotificationString.append(String.format(",\"%s\"", "")); //TODO: Start Date/Time of actual download (if the download is delayed, this time is different from the previous one)
-		productNotificationString.append(String.format(",\"%s\"", "")); //TODO: Stop Date/Time of download
-
-		if(productDownloadStatus == EDownloadStatus.COMPLETED) {
-			productNotificationString.append(String.format(",\"%s\"", "")); //TODO: The Path of the saved product (if completed)
-		}else{
-			productNotificationString.append(",");
-		}
-		
-		if(productDownloadStatus == EDownloadStatus.IN_ERROR) {
-			productNotificationString.append(String.format(",\"%s\"", productProgress.getMessage()));
-		}else{
-			productNotificationString.append(",");
-		}
-		
-		
-		PRODUCT_DOWNLOAD_TERMINATION_NOTIFICATION_LOGGER.info(productNotificationString.toString());
-	}
-	
 	/**
 	 * Thread to download a file
 	 */
