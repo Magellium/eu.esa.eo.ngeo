@@ -71,6 +71,8 @@ public class UmSsoHttpClient {
 	}
 
 	private class CommandLineCallback implements UmssoVisualizerCallback {
+		private static final int THRESHOLD_FOR_INFINITE_LOOP_DETECTION = 20;
+		private int loginFormRenditionCount = 1;
 		private UmssoUserCredentials umssoUserCredentials;
 		
 		public CommandLineCallback(String umssoUsername, String umssoPassword) {
@@ -78,6 +80,10 @@ public class UmSsoHttpClient {
 		}
 		
 		public UmssoUserCredentials showLoginForm(String message, String spResourceUrl, String idpUrl) {
+			if (loginFormRenditionCount >= THRESHOLD_FOR_INFINITE_LOOP_DETECTION) {
+				LOGGER.error(String.format("Possible infinite loop because of bad UM-SSO credentials? There have been %s consecutive unsuccessful attempts to login using these credentials.", loginFormRenditionCount));
+			}
+			loginFormRenditionCount++;
 			return umssoUserCredentials;
 		}
 	}
