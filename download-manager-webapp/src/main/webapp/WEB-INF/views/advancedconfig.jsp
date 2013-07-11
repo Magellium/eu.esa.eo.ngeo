@@ -12,9 +12,9 @@
 		<table>
 			<tr><td>SSO username : </td><td><form:input path="ssoUsername" /></td></tr>
 			<tr><td>SSO password : </td><td><form:password path="ssoPassword" showPassword="true"/></td></tr>
-			<tr><td>Name of DMTU instance : </td><td><form:input path="dmFriendlyName" size="40"/></td></tr>
+			<tr><td>Name of DM instance : </td><td><form:input path="dmFriendlyName" size="40"/></td></tr>
 			<tr><td>Download directory : </td><td><form:input path="baseDownloadFolder" size="40" /></td></tr>
-			<tr><td>DMTU web interface port no. : </td><td><form:input path="webInterfacePortNo"  size="5"/></td></tr>
+			<tr><td>DM web interface port no. : </td><td><form:input path="webInterfacePortNo"  size="5"/></td></tr>
 			<tr><td>Number of parallel product download threads : </td><td><form:input path="noOfParallelProductDownloadThreads" /></td></tr> <%-- TODO: Maybe use a control with inc/dec buttons --%>
 			<tr><td>Web proxy URL : </td><td><form:input path="webProxyUrl" /></td></tr>
 			<tr><td>Web proxy port : </td><td><form:input path="webProxyPort" /></td></tr>
