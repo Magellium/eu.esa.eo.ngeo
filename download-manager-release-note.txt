@@ -24,8 +24,11 @@ Release History
     DMTU-65 - Added extra call to update the product file download status.
     DMTU-48 - Product termination now includes start of actual download and stop of download.
     DMTU-23 - Add header row for product download termination log
-    Modified default web interface port number to 8082.
-    Corrected schema as a result of a fix applied by the WEBS (NGEO-657).
+            - Modified default web interface port number to 8082.
+            - Corrected schema as a result of a fix applied by the WEBS (NGEO-657).
+            - Fixed bug where the error message was not displayed correctly to the user; it was being displayed as "null".
+            - Displayed a friendlier network message to the user if an HTTP 400 or 402 does not provide an expected valid xml response.
+            - Updated UM-SSO login form handling - if the plugin is prompted to login more than once, the UM-SSO credentials are invalid. This message is not displayed to the user.
 0.4.1
     DMTU-15 - set DM_HOME automatically
     DMTU-26 - UM-SSO integration

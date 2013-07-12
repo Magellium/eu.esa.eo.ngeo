@@ -96,6 +96,7 @@ var DownloadMonitor = {
 	    var sOut = '<table id="productList' + aData.uuid + '" style="padding-left:30px;"><thead><tr>';
 	    sOut += '<th class="productAccessURL">Product Access URL</th>';
 	    sOut += '<th class="productStatus">Product Status</th>';
+	    sOut += '<th class="productMessage">Message</th>';
 	    sOut += '<th class="productDownloadedSize">Downloaded Size</th>';
 	    sOut += '<th class="productProgress">Progress</th>';
 	    sOut += '<th class="productActions">Actions</th>';
@@ -130,15 +131,17 @@ var DownloadMonitor = {
     		"aoColumns": [
 			              { "mData": "productAccessUrl" },
 			              { "mData": "productProgress.status" },
+			              { "mData": "productProgress.message" },
 			              { "mData": "productProgress.downloadedSize" },
 			              { "mData": "productProgress.progressPercentage" },
 			              { "mData": null }
 			          ],
 			 "aoColumnDefs": [
 				              { "sWidth": "150px", "aTargets": [ 1 ] },
-				              { "sWidth": "150px", "aTargets": [ 2 ] },
-				              { "sWidth": "200px", "aTargets": [ 3 ] },
-				              { "sWidth": "50px", "aTargets": [ 4 ] },
+				              { "bVisible": false, "aTargets": [ 2 ] },
+				              { "sWidth": "150px", "aTargets": [ 3 ] },
+				              { "sWidth": "200px", "aTargets": [ 4 ] },
+				              { "sWidth": "50px", "aTargets": [ 5 ] },
 			                 ],
              "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
  				$(nRow).attr("data-product-id",aData.uuid);
@@ -247,13 +250,17 @@ var DownloadMonitor = {
 			if(typeof productRow === 'undefined') {
 				productDataTable.fnAddData(product);
 			}else{
-				var currentProductStatus = productDataTable.fnGetData(productRow, DownloadMonitor.productProgressStatusColumnIndex);
+				productDataTable.fnUpdate(product, productRow);
+/*
+ 				var currentProductStatus = productDataTable.fnGetData(productRow, DownloadMonitor.productProgressStatusColumnIndex);
 				var newProductStatus = product.productProgress.status;
 				if(currentProductStatus != newProductStatus) {
 					productDataTable.fnUpdate(newProductStatus, productRow, DownloadMonitor.productProgressStatusColumnIndex);
 				}
+				productDataTable.fnUpdate(product.productProgress.message, productRow, DownloadMonitor.productMessageColumnIndex);
 				productDataTable.fnUpdate(product.productProgress.downloadedSize, productRow, DownloadMonitor.productProgressDownloadedSizeColumnIndex);
 				productDataTable.fnUpdate(product.productProgress.progressPercentage, productRow, DownloadMonitor.productProgressProgressPercentageColumnIndex);
+*/
 			}
 		}
 
@@ -261,7 +268,7 @@ var DownloadMonitor = {
 	getReadableFileSizeString : function(fileSizeInBytes) {
 
 	    var i = -1;
-	    var byteUnits = [' KiB', ' MiB', ' GiB', ' TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+	    var byteUnits = [' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
 	    do {
 	        fileSizeInBytes = fileSizeInBytes / 1024;
 	        i++;

@@ -59,19 +59,19 @@ public class UmSsoHttpClient {
 
 	public void executeHttpRequest(HttpMethod method) throws UmssoCLException, IOException {
 		if (enableUmssoJclUse) {
+			LOGGER.info("Making an HTTP request with support for UM-SSO");
 			UmssoCLInput input = new UmssoCLInput(method, commandLineCallback);  
 			
 			UmssoCLCore clCore = UmssoCLCoreImpl.getInstance();
 			clCore.processHttpRequest(input);
-		} else {			
+		} else {
 			LOGGER.warn("Making an HTTP request *without* support for UM-SSO");
-			LOGGER.warn("curently the Siemens' UM-SSO Java Client Library buffers the whole of each response's body in memory");
 			new HttpClient().executeMethod(method);
 		}
 	}
 
 	private class CommandLineCallback implements UmssoVisualizerCallback {
-		private static final int THRESHOLD_FOR_INFINITE_LOOP_DETECTION = 20;
+		private static final int THRESHOLD_FOR_INFINITE_LOOP_DETECTION = 2;
 		private int loginFormRenditionCount = 1;
 		private UmssoUserCredentials umssoUserCredentials;
 		
@@ -81,7 +81,8 @@ public class UmSsoHttpClient {
 		
 		public UmssoUserCredentials showLoginForm(String message, String spResourceUrl, String idpUrl) {
 			if (loginFormRenditionCount >= THRESHOLD_FOR_INFINITE_LOOP_DETECTION) {
-				LOGGER.error(String.format("Possible infinite loop because of bad UM-SSO credentials? There have been %s consecutive unsuccessful attempts to login using these credentials.", loginFormRenditionCount));
+				String errorMessage = String.format("Invalid UM-SSO credentials.", loginFormRenditionCount);
+				throw new RuntimeException(errorMessage);
 			}
 			loginFormRenditionCount++;
 			return umssoUserCredentials;

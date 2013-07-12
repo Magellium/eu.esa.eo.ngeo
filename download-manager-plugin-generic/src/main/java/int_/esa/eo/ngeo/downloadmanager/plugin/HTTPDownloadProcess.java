@@ -50,7 +50,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 	private static final char[] ILLEGAL_FILENAME_CHARACTERS = {'/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':'};
 	
 	private static final String KEY_DOWNLOAD_THREAD_TIMEOUT_LENGTH_IN_HOURS = "DOWNLOAD_THREAD_TIMEOUT_LENGTH_IN_HOURS";
-	private static final String KEY_TRANSFERRER_READ_LENGTH = "TRANSFERRER_READ_LENGTH";
+	private static final String KEY_TRANSFERRER_READ_LENGTH_IN_BYTES = "TRANSFERRER_READ_LENGTH_IN_BYTES";
 	private static final String ENABLE_UMSSO_JCL_USE = "ENABLE_UMSSO_JCL_USE";
 
 	private static final int DISPOSITION_SUBSTRING_START_OFFSET = 10;
@@ -220,9 +220,13 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 				break;
 			case HttpURLConnection.HTTP_BAD_REQUEST: //400
 				productDownloadBody = retrieveDownloadDetailsBody(productUrl);
-				BadRequestResponse badRequestResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.BAD_REQUEST);					
-				LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
-				setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
+				try {
+					BadRequestResponse badRequestResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.BAD_REQUEST);					
+					LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
+					setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
+				}catch(IOException | DMPluginException ex) {
+					setStatus(EDownloadStatus.IN_ERROR, "HTTP response code 400 (Bad Request), unable to parse response details.");
+				}
 				break;
 			case HttpURLConnection.HTTP_FORBIDDEN: //403
 				//TODO: Expand error message to indicate JCL is not being used.
@@ -230,9 +234,13 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 				break;
 			case HttpURLConnection.HTTP_NOT_FOUND: //402
 				productDownloadBody = retrieveDownloadDetailsBody(productUrl);
-				MissingProductResponse missingProductResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.MISSING_PRODUCT);					
-				LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
-				setStatus(EDownloadStatus.IN_ERROR, missingProductResponse.getResponseMessage());
+				try {
+					MissingProductResponse missingProductResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.MISSING_PRODUCT);
+					LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
+					setStatus(EDownloadStatus.IN_ERROR, missingProductResponse.getResponseMessage());
+				}catch(IOException | DMPluginException ex) {
+					setStatus(EDownloadStatus.IN_ERROR, "HTTP response code 402 (Not Found), unable to parse response details.");
+				}
 				break;
 			default:
 				setStatus(EDownloadStatus.IN_ERROR, String.format("Unexpected response, HTTP response code %s",responseCode));
@@ -576,7 +584,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 				case HttpURLConnection.HTTP_OK:
 				case HttpURLConnection.HTTP_PARTIAL:
 					
-					String transferrerReadLengthProperty = pluginConfig.getProperty(KEY_TRANSFERRER_READ_LENGTH);
+					String transferrerReadLengthProperty = pluginConfig.getProperty(KEY_TRANSFERRER_READ_LENGTH_IN_BYTES);
 					int transferrerReadLength = Integer.parseInt(transferrerReadLengthProperty);
 
 					Transferrer transferrer = new Transferrer(HTTPDownloadProcess.this, transferrerReadLength);
