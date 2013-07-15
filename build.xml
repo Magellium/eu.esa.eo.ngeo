@@ -138,6 +138,7 @@
 		<copy todir="${dm.home}">
 			<fileset dir="${os.location}"  includes="*"/>
 			<fileset dir="."  includes="LICENSE.txt"/>
+			<fileset dir="."  includes="download-manager-release-note.txt"/>
 		</copy>
 
 		<unzip src="${bin}/${webapp.name}" dest="${conf}">
