@@ -320,7 +320,6 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 						setStatus(EDownloadStatus.IN_ERROR, String.format("Download for product %s timed out.", productURI.toString()));
 						fileDownloadExecutor.shutdownNow();
 					}else{
-						updateProductFileDownloadStatus();
 						if(completedFileLocations.size() == filesToDownloadList.size()) {
 							if(completedFileLocations.size() > 1) { //product download is a metalink
 								try {
@@ -346,6 +345,8 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 						}
 						if(getDownloadStatus() == EDownloadStatus.CANCELLED) {
 							tidyUpAfterCancelledDownload();
+						}else{
+							updateProductFileDownloadStatus();
 						}
 						fileDownloadExecutor.shutdownNow();
 					}
@@ -556,7 +557,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 			FileDetails fileDetails = this.fileDetails;
 			
 			GetMethod method = new GetMethod(fileDetails.getFileURL().toString());
-			
+
 			try {
 				Path downloadPath = Paths.get(fileDetails.getDownloadPath().getAbsolutePath(), getPartiallyDownloadedFileName(fileDetails.getFileName()));
 				Path downloadPathParent = downloadPath.getParent();
@@ -624,6 +625,7 @@ public class HTTPDownloadProcess implements IDownloadProcess, DownloadProgressLi
 				setError(new DMPluginException(throwable));
 			} finally {
 				if (method != null) {
+					method.abort();
 					method.releaseConnection();
 				}
 			}
