@@ -2,14 +2,10 @@ package int_.esa.eo.ngeo.mock.webserver.controller;
 
 import int_.esa.eo.ngeo.mock.webserver.resource.FileLoader;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

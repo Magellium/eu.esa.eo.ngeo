@@ -7,18 +7,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class Sentinel2DownloadProcess implements IDownloadProcess {
 	private static final String NO_IMPLEMENTATION_EXISTS_IN_THIS_MOCK = "Mock Sentinel 2 plugin initialised, no implementation exists in this mock.";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Sentinel2DownloadProcess.class);
-	
-	private URI productURI;
-	
-	private File downloadDir;
-	
 	private EDownloadStatus downloadStatus;
 	
 	private long totalFileDownloadedSize;
@@ -30,11 +21,9 @@ public class Sentinel2DownloadProcess implements IDownloadProcess {
 	private String message;
 	
 	public Sentinel2DownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener) {
-		this.productURI = productURI;
-		this.downloadDir = downloadDir;
 		this.productDownloadListeners = new ArrayList<IProductDownloadListener>();
 		this.productDownloadListeners.add(productDownloadListener);
-		this.setDownloadStatus(EDownloadStatus.NOT_STARTED);
+		this.downloadStatus = EDownloadStatus.NOT_STARTED;
 	}
 	
 	public EDownloadStatus startDownload() throws DMPluginException {

@@ -1,11 +1,7 @@
-/**
- * 
- */
 package int_.esa.eo.ngeo.downloadmanager.exception;
 
 /**
- * @author Lewis Keen
- * This exception is used to indicate that an exception has occurred in a DM Plugin that cannot be 
+ * This exception is used to indicate that an exception has occurred in a Download Manager Plugin that cannot be 
  * rectified without further modification and restart of the application.
  * This includes unable to load configuration, unable to parse files received, etc.
  */
