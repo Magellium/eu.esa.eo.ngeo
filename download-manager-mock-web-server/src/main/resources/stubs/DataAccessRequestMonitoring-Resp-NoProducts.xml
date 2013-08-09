@@ -3,6 +3,4 @@
 	xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://ngeo.eo.esa.int/iicd-d-ws/1.0 IF-ngEO-DataAccessMonitoring-Resp_0.3.xsd">
 	<ngeo:MonitoringStatus>IN_PROGRESS</ngeo:MonitoringStatus>
-	<ngeo:ProductAccessList>
-	</ngeo:ProductAccessList>
 </ngeo:DataAccessMonitoring-Resp>
