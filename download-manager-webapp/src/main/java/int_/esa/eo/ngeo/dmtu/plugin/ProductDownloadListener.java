@@ -31,11 +31,6 @@ public class ProductDownloadListener implements IProductDownloadListener, Downlo
 			EDownloadStatus status, String message) {
 		ProductProgress productProgress = new ProductProgress(progressPercentage, downloadedSize, status, message);
 		notifyObservers(productUuid, productProgress);
-		
-//		String downloadedSizeString = (downloadedSize == null) ? "": downloadedSize.toString();
-//		String progressPercentageString = (progressPercentage == null) ? "": progressPercentage.toString();
-//		String statusString = (status == null) ? "": status.toString();
-//		LOGGER.debug(String.format("progress notification: %s (%s %%) %s, %s",downloadedSizeString,progressPercentageString,statusString,message));
 	}
 	
 	@Override
@@ -57,5 +52,10 @@ public class ProductDownloadListener implements IProductDownloadListener, Downlo
 			o.updateProgress(productUuid, productProgress);
 		}
 		
+	}
+
+	@Override
+	public void productDetails(String productName, Integer numberOfFiles, Long overallSize) {
+		// TODO Auto-generated method stub
 	}
 }
