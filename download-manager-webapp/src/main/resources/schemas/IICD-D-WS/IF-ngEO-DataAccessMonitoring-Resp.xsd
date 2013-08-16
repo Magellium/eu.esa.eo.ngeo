@@ -51,14 +51,19 @@
 										<sequence>
 											<element ref="ngeo:ProductAccessURL"/>
 											<element name="ProductAccessStatus" type="ngeo:productAccessStatusType" />
-											<element name="DownloadNotified" minOccurs="0">
+											<element name="DownloadNotified" type="dateTime" minOccurs="0">
 												<annotation>
-													<documentation>Confirmation of the product download notification. Date of notification supplied.</documentation>
+													<documentation>This field indicates that completion of the download has been
+													confirmed by the Web Server. The confirmation should be provided as a UTC formatted 
+													date/time, and will only be provided in one response per product i.e as a response
+													to the COMPLETED message sent in the request by the client.</documentation>
 												</annotation>
 											</element>
 											<element name="ProductDownloadDirectory" type="string" minOccurs="0">
 												<annotation>
-													<documentation>overwrites DM configuration for download directory</documentation>
+													<documentation>This optional field specifies a path in which this product 
+													shall be saved. The path is relative to the Download Manager root download 
+													directory.</documentation>
 												</annotation>
 											</element>
 										</sequence>

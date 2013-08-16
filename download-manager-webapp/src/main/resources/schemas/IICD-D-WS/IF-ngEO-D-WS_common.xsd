@@ -49,7 +49,7 @@
 		</annotation>
 		<complexType>
 			<sequence>
-				<element name="errorCode" type="string">
+				<element name="errorCode" type="int">
 					<annotation>
 						<documentation>Code of the error</documentation>
 					</annotation>
