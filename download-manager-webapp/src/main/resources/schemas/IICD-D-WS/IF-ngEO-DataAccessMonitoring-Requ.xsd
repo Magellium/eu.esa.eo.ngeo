@@ -58,9 +58,9 @@ The URL to where this request goes is a monitoringURL contained in the monitorin
 										</element>
 										<element name="productDownloadSize" minOccurs="0" maxOccurs="1">
 											<simpleType>
-												<restriction base="int">
+												<restriction base="long">
 													<minInclusive value="0"/>
-													<maxInclusive value="2147483647"/>
+													<maxInclusive value="9223372036854775807"/>
 												</restriction>
 											</simpleType>
 										</element>

@@ -23,14 +23,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NgeoWebServerRequestBuilder {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NgeoWebServerRequestBuilder.class);
-	
 	public DMRegistrationMgmntRequ buildDMRegistrationMgmntRequest(String downloadManagerId, String downloadManagerFriendlyName) {
 		DMRegistrationMgmntRequ dMRegistrationMgmntRequ = new DMRegistrationMgmntRequ();
 		dMRegistrationMgmntRequ.setDownloadManagerId(downloadManagerId);
@@ -158,14 +154,7 @@ public class NgeoWebServerRequestBuilder {
 		}
 		
 		Long fileSize = product.getFileSize();
-		Integer productDownloadSize;
-		if(fileSize > Long.parseLong(Integer.MAX_VALUE+"")) {
-			productDownloadSize = 0;
-			LOGGER.error(String.format("File size is greater than 2147483647 bytes, unable to send file size of %s bytes to Web Server.",fileSize.toString()));
-		}else{
-			productDownloadSize = fileSize.intValue();
-		}
-		productDownloadNotification.setProductDownloadSize(productDownloadSize);
+		productDownloadNotification.setProductDownloadSize(fileSize);
 		
 		return productDownloadNotification;
 	}
