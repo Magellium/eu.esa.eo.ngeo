@@ -145,6 +145,9 @@ var DownloadMonitor = {
 			                 ],
              "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
  				$(nRow).attr("data-product-id",aData.uuid);
+  				var fileProductStatus = $(nRow).find("td:eq(" + DownloadMonitor.productAccessURLColumnIndex + ")");
+  				fileProductStatus.html(decodeURIComponent(aData.productAccessUrl));
+  				
   				var fileProductStatus = $(nRow).find("td:eq(" + DownloadMonitor.productProgressStatusColumnIndex + ")");
  				if(aData.productProgress.status == "IN_ERROR") {
  					var iconWarning = fileProductStatus.find(".iconWarning");
