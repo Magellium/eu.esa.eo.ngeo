@@ -1,7 +1,7 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
-import int_.esa.eo.ngeo.downloadManager.plugin.PluginConfigurationLoader;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
+import int_.esa.eo.ngeo.downloadmanager.plugin.config.PluginConfigurationLoader;
 
 import java.io.File;
 import java.net.URI;
