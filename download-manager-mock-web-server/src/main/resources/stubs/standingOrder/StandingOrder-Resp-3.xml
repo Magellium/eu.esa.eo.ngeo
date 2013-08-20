@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ngeo:DataAccessMonitoring-Resp
+	xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ngeo.eo.esa.int/iicd-d-ws/1.0 IF-ngEO-DataAccessMonitoring-Resp_0.3.xsd">
+	<ngeo:MonitoringStatus>IN_PROGRESS</ngeo:MonitoringStatus>
+	<ngeo:ProductAccessList>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://localhost:8080/download-manager-mock-product-facility/metalink?ngEO_DO=%7Bprocessing:GRD,resolution:HR,swath:CO_POL,safe:Y%7D</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY_ACCESSED</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com/20MB.zip</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY_ACCESSED</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com/10MB.zip</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY_ACCESSED</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com:81/10MB.zip</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY_ACCESSED</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com:8080/10MB.zip</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+		<ngeo:ProductAccess>
+			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com/20MB.zip</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+		</ngeo:ProductAccess>
+	</ngeo:ProductAccessList>
+</ngeo:DataAccessMonitoring-Resp>

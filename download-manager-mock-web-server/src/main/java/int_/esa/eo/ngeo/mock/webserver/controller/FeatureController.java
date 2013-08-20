@@ -42,4 +42,15 @@ public class FeatureController {
 		
 		return new ResponseEntity<String>(response, responseHeaders, status);
 	}
+
+	@RequestMapping(value = "/feature/supplyStandingOrder", method = RequestMethod.GET)
+	public ResponseEntity<String> supplyStandingOrder(HttpServletResponse servletResponse) throws IOException {
+		HttpStatus status = HttpStatus.OK;
+		String response = "OK";
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		monitorController.setStandingOrderSupplied(true);
+		
+		return new ResponseEntity<String>(response, responseHeaders, status);
+	}
 }

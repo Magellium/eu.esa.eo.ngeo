@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class MonitorController {
 	private boolean darSupplied = false;
 	private boolean productsSupplied = false;
+	private boolean standingOrderSupplied = false;
+	private int standingOrderResponseEntry = 1;
 	
 	@RequestMapping(value = "/monitoringservice", method = RequestMethod.POST)
 	public ResponseEntity<String> monitorForDars(HttpServletResponse servletResponse) throws IOException {
@@ -33,6 +35,8 @@ public class MonitorController {
 		status = HttpStatus.OK;
 		if(darSupplied) {
 			response = fileLoader.loadFileAsString("/stubs/MonitoringURL-Resp.xml");
+		}else if(standingOrderSupplied) {
+			response = fileLoader.loadFileAsString("/stubs/standingOrder/MonitoringURL-Resp.xml");
 		}else{
 			response = fileLoader.loadFileAsString("/stubs/MonitoringURL-Resp-NoDARs.xml");
 		}
@@ -59,6 +63,27 @@ public class MonitorController {
 		return new ResponseEntity<String>(response, responseHeaders, status);
 	}
 
+	@RequestMapping(value = "/monitoringservice/standingOrder", method = RequestMethod.POST)
+	public ResponseEntity<String> monitorForProductsInStandingOrder() throws IOException {
+		FileLoader fileLoader = new FileLoader();
+		HttpStatus status;
+		String response;
+		HttpHeaders responseHeaders = new HttpHeaders();
+	
+		status = HttpStatus.OK;
+		if(standingOrderSupplied) {
+			response = fileLoader.loadFileAsString(String.format("/stubs/standingOrder/StandingOrder-Resp-%s.xml", standingOrderResponseEntry));
+			if(standingOrderResponseEntry < 3) {
+				standingOrderResponseEntry++;
+			}
+		}else{
+			response = fileLoader.loadFileAsString("/stubs/standingOrder/StandingOrder-Resp-1.xml");
+		}
+		responseHeaders.add("Content-Type", "application/xml; charset=utf-8");
+
+		return new ResponseEntity<String>(response, responseHeaders, status);
+	}
+
 	public boolean isDarSupplied() {
 		return darSupplied;
 	}
@@ -73,5 +98,13 @@ public class MonitorController {
 
 	public void setProductsSupplied(boolean productsSupplied) {
 		this.productsSupplied = productsSupplied;
+	}
+
+	public boolean isStandingOrderSupplied() {
+		return standingOrderSupplied;
+	}
+
+	public void setStandingOrderSupplied(boolean standingOrderSupplied) {
+		this.standingOrderSupplied = standingOrderSupplied;
 	}
 }
