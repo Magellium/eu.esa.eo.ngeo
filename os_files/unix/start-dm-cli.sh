@@ -10,5 +10,13 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 export DM_HOME=$DIR
 
+REM if an argument is provided, assume that a file with comamnds to be executed is being provided 
+if [ -z "$1" ]
+  then
+    export CMD_FILE=
+  else
+    export CMD_FILE="--cmdfile $1"
+fi
+
 # FIXME: MacOS JRE has "Contents\Home" as parents of the JRE bin directory; that will break the following line:
-$DM_HOME/jre/jre1.7.0_21/bin/java -DDM_HOME=$DM_HOME -jar "$DM_HOME/bin/download-manager-command-line.jar"
+$DM_HOME/jre/jre1.7.0_21/bin/java -DDM_HOME=$DM_HOME -jar "$DM_HOME/bin/download-manager-command-line.jar" $CMD_FILE
