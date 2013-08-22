@@ -13,6 +13,7 @@ import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
+import int_.esa.umsso.UmSsoHttpClient;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,16 +86,15 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 			throw new WebServerServiceException(String.format("Unable to parse ngEO Web Server URL %s",ngEOWebServer),e);
 		}
 
-		HttpClient httpClient = new HttpClient();
-		httpClient.getParams().setParameter("http.useragent", "ngEO Download Manager Test Unit");
+		UmSsoHttpClient umSsoHttpClient = new UmSsoHttpClient(umSsoUsername, umSsoPassword, "", -1, "", "", true);
 
 		//XXX: This should be replaced with UM-SSO when implemented
-		ngeoWebServerService.login(httpClient, umSsoUsername, umSsoPassword);
+		ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
 		
 		DMRegistrationMgmntRequ registrationMgmntRequest = ngeoWebServerRequestBuilder.buildDMRegistrationMgmntRequest(downloadManagerId, downloadManagerFriendlyName);
 		HttpMethod method = null;
 		try {
-			method = ngeoWebServerService.registrationMgmt(ngEOWebServerUrl, httpClient, registrationMgmntRequest);
+			method = ngeoWebServerService.registrationMgmt(ngEOWebServerUrl, umSsoHttpClient, registrationMgmntRequest);
 			DMRegistrationMgmntResp registrationMgmtResponse = ngeoWebServerResponseParser.parseDMRegistrationMgmntResponse(ngEOWebServerUrl, method);
 		
 			String montoringServiceUrl = registrationMgmtResponse.getMonitoringServiceUrl();

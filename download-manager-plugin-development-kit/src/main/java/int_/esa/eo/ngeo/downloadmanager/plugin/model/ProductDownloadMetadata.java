@@ -2,11 +2,16 @@ package int_.esa.eo.ngeo.downloadmanager.plugin.model;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDownloadMetadata {
 	private List<FileDownloadMetadata> fileMetadataList;
 	private Path metalinkDownloadDirectory;
+	
+	public ProductDownloadMetadata() {
+		fileMetadataList = new ArrayList<>();
+	}
 	
 	public List<FileDownloadMetadata> getFileMetadataList() {
 		return fileMetadataList;

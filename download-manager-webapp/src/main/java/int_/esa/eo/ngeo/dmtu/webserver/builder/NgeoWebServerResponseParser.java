@@ -4,6 +4,7 @@ import int_.esa.eo.ngeo.dmtu.exception.ParseException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
 import int_.esa.eo.ngeo.dmtu.jaxb.JaxbUtils;
+import int_.esa.eo.ngeo.dmtu.utils.XmlFormatter;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.Error;
@@ -42,7 +43,6 @@ public class NgeoWebServerResponseParser {
 	public <T> T handleNgEoWebServerResponse(URL serviceUrl, HttpMethod response, Class<T> resultType) throws ServiceException, ParseException {
 	    try {
 			String responseBodyAsString = response.getResponseBodyAsString();
-			LOGGER.debug(String.format("%s: %s", resultType.getName(), responseBodyAsString));
 			/* 
 			 * XXX: The handling of the "error" scenario should be part of the response object itself, not a separate element (as per the schema)
 			 * This is how Terradue are currently implementing the IICD-D-WS interface.
@@ -53,10 +53,12 @@ public class NgeoWebServerResponseParser {
 			LOGGER.debug(String.format("status code: %s",httpStatusCode));
 			switch(httpStatusCode) {
 			case HttpStatus.SC_OK:
+				LOGGER.debug(String.format("response - %s: %n%s", resultType.getName(), new XmlFormatter().format(responseBodyAsString)));
 			    T responseAsObject = jaxbUtils.deserializeAndInferSchema(responseBodyAsStream, resultType);
 
 			    return responseAsObject;
 			default:
+				LOGGER.debug(String.format("response - %s: %n%s", resultType.getName(), responseBodyAsString));
 				String httpResponseMessage = response.getStatusLine().getReasonPhrase();
 				try {
 					Error exceptionReport = jaxbUtils.deserializeAndInferSchema(responseBodyAsStream, Error.class);

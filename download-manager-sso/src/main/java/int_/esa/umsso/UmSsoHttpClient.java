@@ -1,9 +1,15 @@
 package int_.esa.umsso;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.HeadMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -57,6 +63,44 @@ public class UmSsoHttpClient {
 		clCore.getUmssoHttpClient().setParams(clientParams);
 	}
 
+	public HttpMethod executeGetRequest(URL requestUrl) throws UmssoCLException, IOException {
+		HttpMethod method = new GetMethod(requestUrl.toString());
+	    executeHttpRequest(method);
+		return method;
+	}
+
+	public HttpMethod executeHeadRequest(URL requestUrl) throws UmssoCLException, IOException {
+		HttpMethod method;
+		//XXX: Since there is a bug with using Siemens' UM-SSO Java Client Library and HTTP HEAD, we use the GET method
+		if(enableUmssoJclUse) {
+			method = new GetMethod(requestUrl.toString());
+		}else{
+			method = new HeadMethod(requestUrl.toString());
+		}
+	    executeHttpRequest(method);
+		return method;
+	}
+
+	public HttpMethod executePostRequest(URL requestUrl, ByteArrayOutputStream requestBody) throws UmssoCLException, IOException {
+		return executePostRequest(requestUrl, requestBody, null, null);
+	}
+	
+	public HttpMethod executePostRequest(URL requestUrl, ByteArrayOutputStream requestBody, String requestMimeType, String expectedResponseMimeType) throws UmssoCLException, IOException {
+	    PostMethod method = new PostMethod(requestUrl.toString());
+	    ByteArrayRequestEntity byteArrayRequestEntity = new ByteArrayRequestEntity(requestBody.toByteArray());
+	    
+	    method.setRequestEntity(byteArrayRequestEntity);
+	    if(requestMimeType != null) {
+		    method.addRequestHeader("Content-Type", requestMimeType);
+	    }
+	    if(expectedResponseMimeType != null) {
+		    method.addRequestHeader("Accept", expectedResponseMimeType);
+	    }
+
+	    executeHttpRequest(method);
+		return method;
+	}
+	
 	public void executeHttpRequest(HttpMethod method) throws UmssoCLException, IOException {
 		if (enableUmssoJclUse) {
 			LOGGER.info("Making an HTTP request with support for UM-SSO");

@@ -34,8 +34,6 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.commons.io.FileUtils;
 import org.metalinker.FileType;
 import org.metalinker.MetalinkType;
@@ -69,8 +67,6 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	private UmSsoHttpClient umSsoHttpClient;
 	
 	private Properties pluginConfig;
-	boolean enableUmssoJclUse;
-
 	private PathResolver pathResolver;
 	
 	public HTTPDownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener,
@@ -83,7 +79,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		this.pluginConfig = pluginConfig;
 
 		String enableUmssoJclUseString = pluginConfig.getProperty(ENABLE_UMSSO_JCL_USE);
-		enableUmssoJclUse = Boolean.parseBoolean(enableUmssoJclUseString);
+		boolean enableUmssoJclUse = Boolean.parseBoolean(enableUmssoJclUseString);
 
 		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyLocation, proxyPort, proxyUser, proxyPassword, enableUmssoJclUse);
 	}
@@ -103,15 +99,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		HttpMethod productDownloadHeaders = null;
 		HttpMethod productDownloadBody = null;
 		try {
-			String productUrl = productURI.toURL().toString();
 			LOGGER.debug("About to construct UmSsoHttpClient");
-			//XXX: Since there is a bug with using Siemens' UM-SSO Java Client Library and HTTP HEAD, we use the GET method
-			if(enableUmssoJclUse) {
-				productDownloadHeaders = new GetMethod(productUrl);
-			}else{
-				productDownloadHeaders = new HeadMethod(productUrl);
-			}
-			umSsoHttpClient.executeHttpRequest(productDownloadHeaders);
+			productDownloadHeaders = umSsoHttpClient.executeHeadRequest(productURI.toURL());
 			int responseCode = productDownloadHeaders.getStatusCode();
 			switch (responseCode) {
 			case HttpStatus.SC_OK:
@@ -119,7 +108,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				String contentType = productDownloadHeaders.getResponseHeader("Content-Type").getValue();
 
 				if(contentType.contains(MIME_TYPE_METALINK)) {
-					productDownloadBody = retrieveDownloadDetailsBody(productUrl);
+					productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
 					MetalinkType metalink = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.METALINK_3_0);					
 					LOGGER.debug(String.format("metalink: %s", metalink));
 
@@ -164,7 +153,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				productDownloadProgressMonitor.setStatus(EDownloadStatus.NOT_STARTED);
 				break;
 			case HttpStatus.SC_ACCEPTED:
-				productDownloadBody = retrieveDownloadDetailsBody(productUrl);
+				productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
 				ProductDownloadResponse productDownloadResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.PRODUCT_ACCEPTED);					
 				ProductDownloadResponseType productDownloadResponseCode = productDownloadResponse.getResponseCode();
 				if(productDownloadResponseCode == ProductDownloadResponseType.ACCEPTED || productDownloadResponseCode == ProductDownloadResponseType.IN_PROGRESS) {
@@ -187,7 +176,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				//TODO handle forwarded download
 				break;
 			case HttpStatus.SC_BAD_REQUEST:
-				productDownloadBody = retrieveDownloadDetailsBody(productUrl);
+				productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
 				try {
 					BadRequestResponse badRequestResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.BAD_REQUEST);					
 					LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
@@ -201,7 +190,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, "Forbidden access.");
 				break;
 			case HttpStatus.SC_NOT_FOUND:
-				productDownloadBody = retrieveDownloadDetailsBody(productUrl);
+				productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
 				try {
 					MissingProductResponse missingProductResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.MISSING_PRODUCT);
 					LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
@@ -226,11 +215,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		}
 	}
 	
-	private HttpMethod retrieveDownloadDetailsBody(String productUrl) throws HttpException, IOException, UmssoCLException {
-		HttpMethod httpMethod = new GetMethod(productUrl);
-		umSsoHttpClient.executeHttpRequest(httpMethod);
-	
-		return httpMethod;
+	private HttpMethod retrieveDownloadDetailsBody(URL productUrl) throws HttpException, IOException, UmssoCLException {
+		return umSsoHttpClient.executeGetRequest(productUrl);
 	}
 
 	private FileDownloadMetadata getFileMetadataForMetalinkEntry(String fileDownloadLink, String fileName, Path metalinkDownloadDirectory) throws DMPluginException, IOException, UmssoCLException {
@@ -238,10 +224,9 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 
 		URL fileDownloadLinkURL = new URL(fileDownloadLink);
 
-		GetMethod httpMethod = null; 
+		HttpMethod httpMethod = null; 
 		try {
-			httpMethod = new GetMethod(fileDownloadLinkURL.toString());
-			umSsoHttpClient.executeHttpRequest(httpMethod);
+			httpMethod = umSsoHttpClient.executeGetRequest(fileDownloadLinkURL);
 						
 			int metalinkFileResponseCode = httpMethod.getStatusCode();
 			if(metalinkFileResponseCode == HttpStatus.SC_OK) {

@@ -5,8 +5,8 @@ import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.exception.ParseException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
-import int_.esa.eo.ngeo.dmtu.http.HttpUtils;
 import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
+import int_.esa.eo.ngeo.dmtu.utils.HttpHeaderParser;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
@@ -14,6 +14,7 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLList;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.UserOrder;
+import int_.esa.umsso.UmSsoHttpClient;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -77,16 +78,17 @@ public class MonitoringUrlTask implements Runnable {
 			downloadManagerSetTime = convertDateTimeAsStringToGregorianCalendar(downloadManagerSetTimeAsString);
 		}
 		
+		UmSsoHttpClient umSsoHttpClient = new UmSsoHttpClient(umSsoUsername, umSsoPassword, "", -1, "", "", true);
 		//XXX: This should be replaced with UM-SSO when implemented
-		ngeoWebServerService.login(httpClient, umSsoUsername, umSsoPassword);
+		ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
 
 		MonitoringURLRequ monitoringUrlRequest = ngeoWebServerRequestBuilder.buildMonitoringURLRequest(downloadManagerId, downloadManagerSetTime);
 		UserOrder userOrder = null;
 		HttpMethod method = null;
 		try {
-			method = ngeoWebServerService.monitoringURL(monitoringServiceUrl, httpClient, monitoringUrlRequest);
+			method = ngeoWebServerService.monitoringURL(monitoringServiceUrl, umSsoHttpClient, monitoringUrlRequest);
 			MonitoringURLResp monitoringUrlResponse = ngeoWebServerResponseParser.parseMonitoringURLResponse(monitoringServiceUrl, method);
-			Date responseDate = new HttpUtils().getDateFromResponseHTTPHeaders(method);
+			Date responseDate = new HttpHeaderParser().getDateFromResponseHTTPHeaders(method);
 
 			darController.setSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
 

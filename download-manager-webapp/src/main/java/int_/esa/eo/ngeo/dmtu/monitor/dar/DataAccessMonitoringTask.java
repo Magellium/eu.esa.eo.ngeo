@@ -4,9 +4,9 @@ import int_.esa.eo.ngeo.dmtu.controller.DARController;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.exception.ParseException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
-import int_.esa.eo.ngeo.dmtu.http.HttpUtils;
 import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
 import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
+import int_.esa.eo.ngeo.dmtu.utils.HttpHeaderParser;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
@@ -14,12 +14,12 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
+import int_.esa.umsso.UmSsoHttpClient;
 
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,14 +51,13 @@ public class DataAccessMonitoringTask implements Runnable {
 	
 	public void run() {
 		LOGGER.debug("Starting DataAccessMonitoringTask");
-		HttpClient httpClient = new HttpClient();
-		httpClient.getParams().setParameter("http.useragent", "ngEO Download Manager Test Unit");
 
 		String umSsoUsername = darController.getSetting(SettingsManager.KEY_SSO_USERNAME);
 		String umSsoPassword = darController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
 
+		UmSsoHttpClient umSsoHttpClient = new UmSsoHttpClient(umSsoUsername, umSsoPassword, "", -1, "", "", true);
 		//XXX: This should be replaced with UM-SSO when implemented
-		ngeoWebServerService.login(httpClient, umSsoUsername, umSsoPassword);
+		ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
 
 		DataAccessRequest dataAccessRequest = darController.getDataAccessRequestByMonitoringUrl(darMonitoringUrl);
 		if(dataAccessRequest == null) {
@@ -69,9 +68,9 @@ public class DataAccessMonitoringTask implements Runnable {
 
 		HttpMethod method = null;
 		try {
-			method = ngeoWebServerService.dataAccessMonitoring(darMonitoringUrl, httpClient, dataAccessMonitoringRequest);
+			method = ngeoWebServerService.dataAccessMonitoring(darMonitoringUrl, umSsoHttpClient, dataAccessMonitoringRequest);
 			DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(darMonitoringUrl, method);
-			Date responseDate = new HttpUtils().getDateFromResponseHTTPHeaders(method);
+			Date responseDate = new HttpHeaderParser().getDateFromResponseHTTPHeaders(method);
 
 //			Error error = dataAccessMonitoringResponse.getError();
 //			if(error != null) {
