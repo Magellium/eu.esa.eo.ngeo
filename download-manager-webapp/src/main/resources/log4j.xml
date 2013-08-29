@@ -37,6 +37,10 @@
 		<appender-ref ref="productDownloadTerminationLog" />
 	</logger>
 	
+	<logger name="com.siemens.pse.umsso">
+		<level value="info" />
+	</logger>
+
 	<logger name="int_.esa.eo.ngeo.dmtu">
 		<level value="info" />
 	</logger>
@@ -58,7 +62,7 @@
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.dmtu.webserver.builder">
-		<level value="info" />
+		<level value="debug" />
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.dmtu.webserver.service">
@@ -66,6 +70,10 @@
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.downloadmanager.plugin">
+		<level value="info" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.downloadmanager.plugin.utils">
 		<level value="info" />
 	</logger>
 	

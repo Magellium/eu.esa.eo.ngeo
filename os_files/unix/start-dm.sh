@@ -10,7 +10,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 export DM_HOME=$DIR
 
-SYS_PROPS="-DDM_HOME=$DM_HOME -Djava.net.preferIPv4Stack=true"
+SYS_PROPS="-DDM_HOME=$DM_HOME -Djava.net.preferIPv4Stack=true" -Dlog4j.configuration="file:/%DM_HOME%/conf/log4j.xml"
 
 # FIXME: MacOS JRE has "Contents\Home" as parents of the JRE bin directory; that will break the following line:
 $DM_HOME/jre/jre1.7.0_21/bin/java $SYS_PROPS -jar "$DM_HOME/bin/download-manager-webapp-jetty-console.war" --headless --port 8082 --contextPath /download-manager

@@ -22,7 +22,8 @@
 	<property name="conf.plugins"    value="${conf}/plugins"/>
 	<property name="webapp.name"  value="download-manager-webapp-jetty-console.war" />
 	<property name="non.user.modifiable.settings.defaults" value="non-user-modifiable-settings-defaults.properties"/>
-	<property     name="user.modifiable.settings.defaults"     value="user-modifiable-settings-defaults.properties"/>
+	<property name="user.modifiable.settings.defaults"     value="user-modifiable-settings-defaults.properties"/>
+	<property name="logging.defaults"     value="log4j.xml"/>
 	<property name="zipfilename" value="target/download-manager_${version}_${target}.zip"/>
 	<property name="targzfilename" value="target/download-manager_${version}_${target}.tar.gz"/>
 
@@ -145,6 +146,7 @@
 			<patternset>
 				<include name="WEB-INF/classes/META-INF/${non.user.modifiable.settings.defaults}"/>
 				<include name="WEB-INF/classes/META-INF/${user.modifiable.settings.defaults}"/>
+				<include name="WEB-INF/classes/${logging.defaults}"/>
 			</patternset>
 			<mapper type="flatten"/>
 		</unzip>
