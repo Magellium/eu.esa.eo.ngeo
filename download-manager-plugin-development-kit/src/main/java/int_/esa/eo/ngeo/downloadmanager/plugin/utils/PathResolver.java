@@ -110,7 +110,9 @@ public class PathResolver {
 				completedFolderPath = Paths.get(downloadDir.getAbsolutePath(), fileName);
 				tempFolderPath = Paths.get(downloadDir.getAbsolutePath(), String.format(".%s", fileName));
 			}else{
-				fileNameToUseForDownload = String.format("%s (%s)", fileName, i);
+				String baseName = FilenameUtils.getBaseName(fileName);
+				String extension = FilenameUtils.getExtension(fileName);
+				fileNameToUseForDownload = String.format("%s (%s).%s", baseName, i, extension);
 				completedFolderPath = Paths.get(downloadDir.getAbsolutePath(), fileNameToUseForDownload);
 				tempFolderPath = Paths.get(downloadDir.getAbsolutePath(), String.format(".%s", fileNameToUseForDownload));
 			}
