@@ -11,7 +11,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
  * to transfer a block of bytes results in no bytes being transferred because the source of the InputStream's content has chosen to
  * return immediately without providing further bytes (typically motivated by wanting to avoid a significant delay that would occur
  * by blocking until further bytes are available.) 
+ * Since the source and destination are passed in as arguments, they should be closed in the calling class
  */
 public class Transferrer {
 	
@@ -45,7 +45,7 @@ public class Transferrer {
 			long bytesRead = -1;
 			while (productDownloadProgressMonitor.getStatus() == EDownloadStatus.RUNNING) {
 				if ((bytesRead = destination.transferFrom(source, totalBytesDownloaded, readLength)) == 0) {
-					LOGGER.info(String.format("Server-side \"log jam\" affecting the download from %s?", fileMetadata.getFileURL()));
+					LOGGER.debug(String.format("Server-side \"log jam\" affecting the download from %s?", fileMetadata.getFileURL()));
 				} else {
 					this.totalBytesDownloaded += bytesRead;
 					
@@ -59,13 +59,7 @@ public class Transferrer {
 				}
 			}
 		} finally {
-			IOUtils.closeQuietly(source);
-			// Defending against the inability of Mockito to mock the close() method of 
-			// AbstractInterruptibleChannel (a parent of FileChannel), because
-			// that close() method is declared final 
-			if (destination != null && destination.isOpen()) { 
-				IOUtils.closeQuietly(destination);
-			}
+			// Since the source and destination are passed in as arguments, they should be closed in the calling class
 		}
 	}
 

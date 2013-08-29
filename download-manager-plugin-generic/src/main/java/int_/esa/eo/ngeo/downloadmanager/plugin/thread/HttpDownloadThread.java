@@ -16,6 +16,7 @@ import java.nio.file.StandardOpenOption;
 
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.util.HttpURLConnection;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +104,9 @@ public class HttpDownloadThread implements Runnable {
 			if (method != null) {
 				method.abort();
 				method.releaseConnection();
+			}
+			if (destination != null && destination.isOpen()) { 
+				IOUtils.closeQuietly(destination);
 			}
 		}
 	}		

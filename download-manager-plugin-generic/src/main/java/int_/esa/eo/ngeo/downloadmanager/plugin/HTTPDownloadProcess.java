@@ -274,6 +274,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 						productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, String.format("Download for product %s timed out.", productURI.toString()));
 						fileDownloadExecutor.shutdownNow();
 					}else{
+						LOGGER.debug(String.format("Threads completed for download %s", productURI.toString()));
 						if(productDownloadProgressMonitor.getNumberOfCompletedFiles() == numberOfFilesInProduct) {
 							if(numberOfFilesInProduct > 1) { //product download is a metalink
 								try {
@@ -302,6 +303,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	}
 	
 	private void tidyUpAfterCancelledDownload() {
+		LOGGER.debug(String.format("Tidying up cancelled download %s", productURI.toString()));
 		//delete files, both partial and complete
 		List<FileDownloadMetadata> fileMetadataList = productMetadata.getFileMetadataList();
 		for (FileDownloadMetadata fileDownloadMetadata : fileMetadataList) {
@@ -344,9 +346,6 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 			throw new DMPluginException(String.format("Unable to cancel download, status is %s", previousDownloadStatus));
 		}
 		productDownloadProgressMonitor.setStatus(EDownloadStatus.CANCELLED);
-		if(previousDownloadStatus == EDownloadStatus.PAUSED) {
-			tidyUpAfterCancelledDownload();
-		}
 		
 		return getStatus();
 	}
