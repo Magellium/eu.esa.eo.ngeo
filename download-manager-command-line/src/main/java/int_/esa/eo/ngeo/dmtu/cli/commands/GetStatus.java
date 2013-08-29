@@ -74,6 +74,9 @@ public class GetStatus implements CommandMarker {
 				JSONObject product = (JSONObject)productListJSON.get(j);
 				sb.append("\t");
 				sb.append(product.get("productAccessUrl"));
+				sb.append(" (");
+				sb.append(product.get("uuid"));
+				sb.append(")");
 				sb.append("\n\t\t");
 				
 				JSONObject productProgress = (JSONObject) product.get("productProgress");
