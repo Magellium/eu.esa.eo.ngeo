@@ -1,5 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.monitor;
 
+import int_.esa.eo.ngeo.dmtu.callback.CallbackCommandExecutor;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadProcessCreationException;
 import int_.esa.eo.ngeo.dmtu.exception.NoPluginAvailableException;
@@ -60,13 +61,6 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 	private ProductTerminationLog productTerminationLog;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(DownloadMonitor.class);
-
-	private static final String FILESET_MACRO_REF = "${FILESET}";
-	private static final String FILE_MACRO_REF    = "${FILE}";
-
-	private static final boolean EXEC_IN_BACKGROUND = true;
-
-	private static final int SUCCESSFUL_OS_COMMAND_EXIT_CODE = 0;
 
 	@Autowired
 	public DownloadMonitor(DataAccessRequestManager dataAccessRequestManager) {
@@ -189,67 +183,18 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 			
 			// We implement the call-back mechanism here, i.e. before we lose the list of downloaded files
 			try {
-				invokeAnyCallbackCommand(getDownloadProcess(productUuid).getDownloadedFiles());
+				String productDownloadCompleteCommand = settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
+				CallbackCommandExecutor callbackExecutor = new CallbackCommandExecutor();
+				callbackExecutor.invokeCallbackCommandOnProductFiles(productDownloadCompleteCommand, getDownloadProcess(productUuid).getDownloadedFiles());
 			} catch (DownloadOperationException e) { // This catch block should be unreachable
 				LOGGER.error("Unable to invoke post-download callback on product " + productUuid, e);
 			}
-			
 			
 			downloadProcessList.remove(productUuid);	
 			productToDownloadList.remove(productUuid);
 		}
 	}
 	
-	private void invokeAnyCallbackCommand(File[] downloadedFiles) {
-		String unresolvedCommand = settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
-		if (unresolvedCommand == null || unresolvedCommand.isEmpty()) {
-			LOGGER.debug("No post-download call-back command has been defined");
-			return; // Nothing to do
-		}
-		if (unresolvedCommand.contains(FILESET_MACRO_REF)) {
-			// TODO: Execute the command once, passing in each and every pathname. (How should the pathnames be separated?)
-			throw new UnsupportedOperationException(String.format("TODO: Execute the command \"%s\" once, replacing %s with each and every pathname. (How should the pathnames be separated?)",
-					unresolvedCommand, FILESET_MACRO_REF));
-		}
-		else if(unresolvedCommand.contains(FILE_MACRO_REF)) {
-			for (File file : downloadedFiles) {
-				LOGGER.debug(String.format("Unresolved call-back command = %s", unresolvedCommand));
-
-				CommandLine commandLine = new CommandLine(getOSShellName()); // FIXME: Specification of the shell wrapper needs to cope with MacOS and Linux/Unix (and maybe Win95...)
-				commandLine.addArgument("/c");
-				commandLine.addArgument(unresolvedCommand);
-
-				// build up the command line using a 'java.io.File'
-				Map<String, Object> map = new HashMap<>();
-				map.put("FILE", file);
-				
-				commandLine.setSubstitutionMap(map);
-				
-				OSCommandExecutor osCommandExecutor = new OSCommandExecutor();
-				CommandResultHandler resultHandler = null;
-				try {
-					resultHandler = osCommandExecutor.execute(commandLine, 60000, EXEC_IN_BACKGROUND, SUCCESSFUL_OS_COMMAND_EXIT_CODE);
-					resultHandler.waitFor();
-				}
-				catch (InterruptedException | IOException e) {
-					LOGGER.error(String.format("Error invoking command \"%s\": %s", commandLine.toString(), e.getMessage()));
-				}
-				
-				LOGGER.debug(String.format("Process exit code for command \"%s\" = %s", commandLine.toString(), resultHandler.getExitValue()));
-			}			
-		} 
-		
-	}
-
-	private String getOSShellName() {		
-		String osName = System.getProperty("os.name");
-		return osName.toLowerCase().startsWith("windows") ? "cmd.exe" : "bash";
-	}
-
-	private String quotePathNameAccordingToOS(String absolutePath) {
-		return String.format("\"%s\"", absolutePath); // TODO: Handle scenarios where the OS is other than Windows.
-	}
-
 	/**
 	 * Thread to download a file
 	 */
