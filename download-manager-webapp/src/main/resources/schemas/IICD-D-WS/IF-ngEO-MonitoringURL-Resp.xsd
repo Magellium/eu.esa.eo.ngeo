@@ -21,7 +21,7 @@
 					<simpleType>
 						<restriction base="string">
 							<enumeration value="STOP" />
-							<enumeration value="STOP_IMMEADIATELY" />
+							<enumeration value="STOP_IMMEDIATELY" />
 						</restriction>
 					</simpleType>
 				</element>
