@@ -1,6 +1,4 @@
 <project name="Download Manager - zipping the artifacts" default="build-installation" basedir=".">
-
-
 	<property name="win_x64"    value="win_x64"/>
 	<property name="win_i586"   value="win_i586"/>
 	<property name="linux_x64"  value="linux_x64"/>
