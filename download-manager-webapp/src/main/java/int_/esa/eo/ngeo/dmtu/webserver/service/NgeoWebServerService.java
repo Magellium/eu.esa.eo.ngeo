@@ -3,6 +3,7 @@ package int_.esa.eo.ngeo.dmtu.webserver.service;
 import int_.esa.eo.ngeo.dmtu.exception.ParseException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.jaxb.JaxbUtils;
+import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
 import int_.esa.eo.ngeo.dmtu.utils.HttpHeaderParser;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
@@ -29,6 +30,9 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	private JaxbUtils jaxbUtils;
 
 	@Autowired
+	private SettingsManager settingsManager;
+
+	@Autowired
 	private HttpHeaderParser httpUtils;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(NgeoWebServerService.class);
@@ -37,7 +41,7 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	//XXX: temporary method to integrate with Terradue's ngEO Web Server implementation
 	public void login(UmSsoHttpClient umSsoHttpClient, String umSsoUsername, String umSsoPassword) {
 		HttpMethod loginMethod = null;
-	    String loginUrlString = String.format("https://mag-2-webs.eo.esa.int/ngeo/login?format=xml&username=%s&password=%s", "ngeo", "ngeo");
+		String loginUrlString = settingsManager.getSetting("TEMP_WEBS_LOGIN_URL");
 	    try {
 			URL loginUrl = new URL(loginUrlString);
 		    LOGGER.debug(String.format("loginUrl: %s", loginUrl));
