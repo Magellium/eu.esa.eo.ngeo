@@ -277,4 +277,18 @@ public class DataAccessRequestManager implements ProductSubject {
 			}
 		}
 	}
+	
+	public boolean isProductDownloadManual(String productUuid) {
+		//If no manual DAR has been created, then we can be certain that the product download is not manual
+		if(manualDataAccessRequestUuid == null) {
+			return false;
+		}
+		List<Product> manualProductList = getProductList(manualDataAccessRequestUuid);
+		for (Product product : manualProductList) {
+			if(product.getUuid().equals(productUuid)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

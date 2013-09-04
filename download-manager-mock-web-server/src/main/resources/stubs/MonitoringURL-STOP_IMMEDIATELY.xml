@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ngeo:MonitoringURL-Resp xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://ngeo.eo.esa.int/iicd-d-ws/1.0 IF-ngEO-MonitoringURL-Resp.xsd">
+	<ngeo:UserOrder>STOP_IMMEDIATELY</ngeo:UserOrder>
+</ngeo:MonitoringURL-Resp>

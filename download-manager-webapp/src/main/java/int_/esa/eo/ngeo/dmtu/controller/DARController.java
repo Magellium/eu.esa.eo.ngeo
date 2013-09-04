@@ -8,11 +8,13 @@ import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
 import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
 import int_.esa.eo.ngeo.dmtu.model.Product;
 import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
+import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 import int_.esa.eo.ngeo.iicd_d_ws._1.UserOrder;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -47,8 +49,16 @@ public class DARController {
 		return dataAccessRequestManager.addDataAccessRequest(darMonitoringUrl);
 	}
 	
-	public void sendUserOrder(UserOrder userOrder) {
-		//TODO: implement STOP and STOP_IMMEADIATELY commands
+	public void userOrder(UserOrder userOrder) {
+		List<EDownloadStatus> statusesToCancel = new ArrayList<>();
+		statusesToCancel.add(EDownloadStatus.NOT_STARTED);
+		statusesToCancel.add(EDownloadStatus.IDLE);
+		statusesToCancel.add(EDownloadStatus.PAUSED);
+
+		if(userOrder == UserOrder.STOP_IMMEDIATELY) {
+			statusesToCancel.add(EDownloadStatus.RUNNING);
+		}
+		downloadMonitor.cancelAutomatedDownloadsWithStatuses(statusesToCancel);
 	}
 	
 	public void updateDAR(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessList) {

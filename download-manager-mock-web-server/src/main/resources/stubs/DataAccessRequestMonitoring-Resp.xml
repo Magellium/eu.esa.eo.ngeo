@@ -22,7 +22,7 @@
 			<ngeo:ProductDownloadDirectory>ProductDirectory1</ngeo:ProductDownloadDirectory>
 		</ngeo:ProductAccess>
 		<ngeo:ProductAccess>
-			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com:8080/50MB.zip</ngeo:ProductAccessURL>
+			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com:8080/512MB.zip</ngeo:ProductAccessURL>
 			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
 			<ngeo:ProductDownloadDirectory>ProductDirectory1</ngeo:ProductDownloadDirectory>
 		</ngeo:ProductAccess>

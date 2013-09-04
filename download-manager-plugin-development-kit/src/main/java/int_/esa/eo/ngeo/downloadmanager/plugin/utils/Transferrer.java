@@ -1,8 +1,6 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin.utils;
 
-import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
-import int_.esa.eo.ngeo.downloadmanager.plugin.FilesProgressListener;
-import int_.esa.eo.ngeo.downloadmanager.plugin.ProductDownloadProgressMonitor;
+import int_.esa.eo.ngeo.downloadmanager.plugin.FilesDownloadProgressListener;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
 
 import java.io.IOException;
@@ -27,23 +25,22 @@ import org.slf4j.LoggerFactory;
  */
 public class Transferrer {
 	
-	private ProductDownloadProgressMonitor productDownloadProgressMonitor;
 	private int readLength;
 	private long totalBytesDownloaded;
+	private boolean aborted;
 	private static final Logger LOGGER = LoggerFactory.getLogger(Transferrer.class);
 	
-	public Transferrer(ProductDownloadProgressMonitor productDownloadProgressMonitor, int readLength) {
-		this.productDownloadProgressMonitor = productDownloadProgressMonitor;
+	public Transferrer(int readLength) {
 		this.readLength = readLength;
 	}
 
-	public void doTransfer(FileChannel destination, InputStream inputStream, FileDownloadMetadata fileMetadata, long bytesAlreadyDownloaded, FilesProgressListener filesProgressListener) throws IOException {
+	public boolean doTransfer(FileChannel destination, InputStream inputStream, FileDownloadMetadata fileMetadata, long bytesAlreadyDownloaded, FilesDownloadProgressListener filesProgressListener) throws IOException {
 		this.totalBytesDownloaded = bytesAlreadyDownloaded;
 		ReadableByteChannel source = null;
 		try {
 			source = Channels.newChannel(inputStream);
 			long bytesRead = -1;
-			while (productDownloadProgressMonitor.getStatus() == EDownloadStatus.RUNNING) {
+			while (!aborted) {
 				if ((bytesRead = destination.transferFrom(source, totalBytesDownloaded, readLength)) == 0) {
 					LOGGER.debug(String.format("Server-side \"log jam\" affecting the download from %s?", fileMetadata.getFileURL()));
 				} else {
@@ -54,13 +51,18 @@ public class Transferrer {
 					// Have we just finished the download?
 					if (totalBytesDownloaded == fileMetadata.getDownloadSize()) {
 						// Don't try to read any more bytes from the source!
-						break;
+						return true;
 					}
 				}
 			}
 		} finally {
 			// Since the source and destination are passed in as arguments, they should be closed in the calling class
 		}
+		//transfer has been aborted i.e. is not complete.
+		return false;
 	}
 
+	public void abortTransfer() {
+		aborted = true;
+	}
 }

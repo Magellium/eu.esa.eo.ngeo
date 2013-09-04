@@ -1,6 +1,6 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
-import int_.esa.eo.ngeo.downloadmanager.plugin.FilesProgressListener;
+import int_.esa.eo.ngeo.downloadmanager.plugin.FilesDownloadProgressListener;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.Transferrer;
 
@@ -23,9 +23,7 @@ public class TransferrerTest {
 	
 	@Test
 	public void test() throws IOException {
-		ProductDownloadProgressMonitor productDownloadProgressMonitor = mock(ProductDownloadProgressMonitor.class);
-		when(productDownloadProgressMonitor.getStatus()).thenReturn(EDownloadStatus.RUNNING);
-		Transferrer transferrer = new Transferrer(productDownloadProgressMonitor, 4096);
+		Transferrer transferrer = new Transferrer(4096);
 		
 		FileChannel mockDestinationChannel = mock(FileChannel.class);
 		final long length1 = (long)HELLO.length();
@@ -39,7 +37,7 @@ public class TransferrerTest {
 		
 		InputStream inputStream = new ByteArrayInputStream((HELLO + WORLD).getBytes("UTF-8"));
 		FileDownloadMetadata fileDetails = new FileDownloadMetadata(new URL("http://dummyurl"), "dummyFileName", length1 + length2, new File("dummyDownloadPath").toPath());
-		FilesProgressListener progressListener = mock(FilesProgressListener.class);
+		FilesDownloadProgressListener progressListener = mock(FilesDownloadProgressListener.class);
 		String fileDownloadMetadataUuid = fileDetails.getUuid();
 		doNothing().when(progressListener).notifySomeBytesTransferred(fileDownloadMetadataUuid, length1);
 		doNothing().when(progressListener).notifySomeBytesTransferred(fileDownloadMetadataUuid, 0);		

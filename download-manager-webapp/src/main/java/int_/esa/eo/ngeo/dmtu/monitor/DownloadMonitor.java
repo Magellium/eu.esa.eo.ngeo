@@ -13,8 +13,6 @@ import int_.esa.eo.ngeo.dmtu.model.Product;
 import int_.esa.eo.ngeo.dmtu.model.ProductProgress;
 import int_.esa.eo.ngeo.dmtu.observer.DownloadObserver;
 import int_.esa.eo.ngeo.dmtu.observer.ProductObserver;
-import int_.esa.eo.ngeo.dmtu.os.command.OSCommandExecutor;
-import int_.esa.eo.ngeo.dmtu.os.command.OSCommandExecutor.CommandResultHandler;
 import int_.esa.eo.ngeo.dmtu.plugin.ProductDownloadListener;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
@@ -22,19 +20,19 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadProcess;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.exec.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,8 +64,8 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 	public DownloadMonitor(DataAccessRequestManager dataAccessRequestManager) {
 		this.dataAccessRequestManager = dataAccessRequestManager;
 		dataAccessRequestManager.registerObserver(this);
-		this.downloadProcessList = new HashMap<>();
-		this.productToDownloadList = new HashMap<String, Product>();
+		this.downloadProcessList = new ConcurrentHashMap<>();
+		this.productToDownloadList = new ConcurrentHashMap<>();
 		this.productTerminationLog = new ProductTerminationLog();
 	}
 
@@ -93,6 +91,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 			case RUNNING:
 				DownloadThread downloadThread = new DownloadThread(downloadProcess);
 				productDownloadExecutor.execute(downloadThread);
+				break;
 			default:
 				break;
 			}
@@ -179,8 +178,6 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 		}
 		
 		if(productProgress.getStatus() == EDownloadStatus.COMPLETED) {
-			
-			
 			// We implement the call-back mechanism here, i.e. before we lose the list of downloaded files
 			try {
 				String productDownloadCompleteCommand = settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
@@ -189,10 +186,20 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 			} catch (DownloadOperationException e) { // This catch block should be unreachable
 				LOGGER.error("Unable to invoke post-download callback on product " + productUuid, e);
 			}
+		}
+		if(productProgress.getStatus() == EDownloadStatus.COMPLETED || productProgress.getStatus() == EDownloadStatus.CANCELLED) {
+			IDownloadProcess downloadProcess = downloadProcessList.get(productUuid);
+			//This disconnect ensures that we tidy up any left over threads / resources
+			try {
+				downloadProcess.disconnect();
+			} catch (DMPluginException e) {
+				//Any disconnect that fails doesn't matter - the process should be handled by the garbage collector once removed from this monitor
+			}
 			
-			downloadProcessList.remove(productUuid);	
+			downloadProcessList.remove(productUuid);
 			productToDownloadList.remove(productUuid);
 		}
+		
 	}
 	
 	/**
@@ -271,5 +278,20 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 				LOGGER.error("Unable to disconnect download process, threads may still be open.");
 			}
 		}
+	}
+	
+	public void cancelAutomatedDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel) {
+		for (Entry<String, IDownloadProcess> downloadProcessEntry: downloadProcessList.entrySet()) {
+			String productUuid = downloadProcessEntry.getKey();
+			IDownloadProcess downloadProcess = downloadProcessEntry.getValue();
+			if(!dataAccessRequestManager.isProductDownloadManual(productUuid) && statusesToCancel.contains(downloadProcess.getStatus())) {
+				try {
+					downloadProcess.cancelDownload();
+				} catch (DMPluginException e) {
+					LOGGER.error(String.format("Unable to cancel product download with UUID %s. Reason: %s.", productUuid, e.getLocalizedMessage()));
+				}
+			}
+		}
+		
 	}
 }

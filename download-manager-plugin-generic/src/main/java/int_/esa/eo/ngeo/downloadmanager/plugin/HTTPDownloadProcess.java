@@ -1,10 +1,9 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
-import int_.esa.eo.ngeo.downloadmanager.plugin.ProductDownloadProgressMonitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.ProductDownloadMetadata;
-import int_.esa.eo.ngeo.downloadmanager.plugin.thread.HttpDownloadThread;
+import int_.esa.eo.ngeo.downloadmanager.plugin.thread.HttpFileDownloadRunnable;
 import int_.esa.eo.ngeo.downloadmanager.plugin.thread.IdleCheckThread;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.PathResolver;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.ProductResponseParser;
@@ -150,7 +149,6 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				}
 				
 				productDownloadProgressMonitor.setTotalFileSize(productMetadata.getFileMetadataList());
-				productDownloadProgressMonitor.setStatus(EDownloadStatus.NOT_STARTED);
 				break;
 			case HttpStatus.SC_ACCEPTED:
 				productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
@@ -207,9 +205,11 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 			productDownloadProgressMonitor.setError(ex);
 		} finally {
 			if (productDownloadHeaders != null) {
+				productDownloadHeaders.abort();
 				productDownloadHeaders.releaseConnection();
 			}
 			if (productDownloadBody != null) {
+				productDownloadBody.abort();
 				productDownloadBody.releaseConnection();
 			}
 		}
@@ -226,7 +226,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 
 		HttpMethod httpMethod = null; 
 		try {
-			httpMethod = umSsoHttpClient.executeGetRequest(fileDownloadLinkURL);
+			httpMethod = umSsoHttpClient.executeHeadRequest(fileDownloadLinkURL);
 						
 			int metalinkFileResponseCode = httpMethod.getStatusCode();
 			if(metalinkFileResponseCode == HttpStatus.SC_OK) {
@@ -237,6 +237,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 			}
 		} finally {
 			if (httpMethod != null) {
+				httpMethod.abort();
 				httpMethod.releaseConnection();
 			}
 		}
@@ -260,8 +261,9 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					fileDownloadExecutor = Executors.newSingleThreadExecutor();
 					for (FileDownloadMetadata fileDownloadMetadata : fileMetadataList) {
 						if(!productDownloadProgressMonitor.isDownloadComplete(fileDownloadMetadata.getUuid())) {
-							HttpDownloadThread httpDownloadThread = new HttpDownloadThread(fileDownloadMetadata, productDownloadProgressMonitor, umSsoHttpClient, transferrerReadLength);
-							fileDownloadExecutor.execute(httpDownloadThread);
+							HttpFileDownloadRunnable httpFileDownloadRunnable = new HttpFileDownloadRunnable(fileDownloadMetadata, productDownloadProgressMonitor, umSsoHttpClient, transferrerReadLength);
+							productDownloadProgressMonitor.getFileDownloadList().add(httpFileDownloadRunnable);
+							fileDownloadExecutor.execute(httpFileDownloadRunnable);
 						}
 					}
 					
@@ -276,21 +278,29 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					}else{
 						LOGGER.debug(String.format("Threads completed for download %s", productURI.toString()));
 						if(productDownloadProgressMonitor.getNumberOfCompletedFiles() == numberOfFilesInProduct) {
-							if(numberOfFilesInProduct > 1) { //product download is a metalink
-								try {
-									Files.move(productMetadata.getTempMetalinkDownloadDirectory(), productMetadata.getMetalinkDownloadDirectory(), StandardCopyOption.REPLACE_EXISTING);
-									
-									productDownloadProgressMonitor.setStatus(EDownloadStatus.COMPLETED);
-								} catch (IOException e) {
-									productDownloadProgressMonitor.setError(e);
-								}
-							}else{
-								productDownloadProgressMonitor.setStatus(EDownloadStatus.COMPLETED);
+							tidyUpAfterCompletedDownload(numberOfFilesInProduct);
+						}else{
+							// The number of completed files does not equal the number of files in the product, therefore one of the following has happened:
+							// * A pause or cancel command has been sent by the core, which has caused a termination of all product download threads.
+							// * An error has occurred when downloading the products, which has caused a termination of all product download threads.
+							// * The Download Manager is shutting down whilst the download is running, therefore the status was set to NOT_STARTED.
+							// * A programmatic error has occurred, where the status is not PAUSED, CANCELLED or IN_ERROR
+							EDownloadStatus statusWhenDownloadWasAborted = productDownloadProgressMonitor.getStatusWhenDownloadWasAborted();
+							switch (statusWhenDownloadWasAborted) {
+							case PAUSED:
+							case IN_ERROR:
+							case NOT_STARTED:
+								productDownloadProgressMonitor.setStatus(statusWhenDownloadWasAborted);
+								break;
+							case CANCELLED:
+								tidyUpAfterCancelledDownload();
+								break;
+							default:
+								productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, "Product download threads have terminated unexpectedly, please contact support.");
+								break;
 							}
 						}
-						if(getStatus() == EDownloadStatus.CANCELLED) {
-							tidyUpAfterCancelledDownload();
-						}
+
 						fileDownloadExecutor.shutdownNow();
 					}
 				}
@@ -302,36 +312,18 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		}
 	}
 	
-	private void tidyUpAfterCancelledDownload() {
-		LOGGER.debug(String.format("Tidying up cancelled download %s", productURI.toString()));
-		//delete files, both partial and complete
-		List<FileDownloadMetadata> fileMetadataList = productMetadata.getFileMetadataList();
-		for (FileDownloadMetadata fileDownloadMetadata : fileMetadataList) {
-			try {
-				if(productDownloadProgressMonitor.isDownloadComplete(fileDownloadMetadata.getUuid())) {
-					Files.deleteIfExists(fileDownloadMetadata.getCompletelyDownloadedPath());
-				}else{
-					Files.deleteIfExists(fileDownloadMetadata.getPartiallyDownloadedPath());
-				}
-			} catch (IOException e) {
-				LOGGER.error(String.format("Unable to complete tidyup of file %s: %s", fileDownloadMetadata.getFileName(), e.getLocalizedMessage()));
-			}
-		}
-		productDownloadProgressMonitor.confirmCancelAfterTidyUp();
-	}
-
 	public EDownloadStatus pauseDownload() throws DMPluginException {
 		// Pause can only be set if the download is running, idle or in the download queue (NOT_STARTED)
 		if(getStatus() != EDownloadStatus.IDLE && getStatus() != EDownloadStatus.RUNNING && getStatus() != EDownloadStatus.NOT_STARTED) {
 			throw new DMPluginException(String.format("Unable to pause download, status is %s", getStatus()));
 		}
-		productDownloadProgressMonitor.setStatus(EDownloadStatus.PAUSED);
+		productDownloadProgressMonitor.abortFileDownloads(EDownloadStatus.PAUSED);
 
 		return getStatus();
 	}
 
 	public EDownloadStatus resumeDownload() throws DMPluginException {
-		if(getStatus() == EDownloadStatus.RUNNING || getStatus() == EDownloadStatus.COMPLETED || getStatus() == EDownloadStatus.IDLE) {
+		if(getStatus() == EDownloadStatus.RUNNING || getStatus() == EDownloadStatus.COMPLETED || getStatus() == EDownloadStatus.CANCELLED || getStatus() == EDownloadStatus.IDLE) {
 			throw new DMPluginException(String.format("Unable to resume download, status is %s", getStatus()));
 		}
 		productDownloadProgressMonitor.setStatus(EDownloadStatus.NOT_STARTED);
@@ -343,11 +335,56 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		// Cancel can only be set if the download is running, paused, idle or NOT_STARTED
 		EDownloadStatus previousDownloadStatus = getStatus();
 		if(previousDownloadStatus != EDownloadStatus.RUNNING && previousDownloadStatus != EDownloadStatus.PAUSED && previousDownloadStatus != EDownloadStatus.IDLE && previousDownloadStatus != EDownloadStatus.NOT_STARTED) {
+		}
+		
+		switch (previousDownloadStatus) {
+		case RUNNING:
+		case NOT_STARTED:
+			productDownloadProgressMonitor.abortFileDownloads(EDownloadStatus.CANCELLED);
+			break;
+		case PAUSED:
+		case IDLE:
+			tidyUpAfterCancelledDownload();
+			break;
+		default:
 			throw new DMPluginException(String.format("Unable to cancel download, status is %s", previousDownloadStatus));
 		}
-		productDownloadProgressMonitor.setStatus(EDownloadStatus.CANCELLED);
 		
 		return getStatus();
+	}
+
+	private void tidyUpAfterCancelledDownload() {
+		LOGGER.debug(String.format("Tidying up cancelled download %s", productURI.toString()));
+		//delete files, both partial and complete
+		if(productMetadata != null) {
+			List<FileDownloadMetadata> fileMetadataList = productMetadata.getFileMetadataList();
+			for (FileDownloadMetadata fileDownloadMetadata : fileMetadataList) {
+				try {
+					if(productDownloadProgressMonitor.isDownloadComplete(fileDownloadMetadata.getUuid())) {
+						Files.deleteIfExists(fileDownloadMetadata.getCompletelyDownloadedPath());
+					}else{
+						Files.deleteIfExists(fileDownloadMetadata.getPartiallyDownloadedPath());
+					}
+				} catch (IOException e) {
+					LOGGER.error(String.format("Unable to complete tidyup of file %s: %s", fileDownloadMetadata.getFileName(), e.getLocalizedMessage()));
+				}
+			}
+		}
+		productDownloadProgressMonitor.confirmCancelAfterTidyUp();
+	}
+
+	private void tidyUpAfterCompletedDownload(int numberOfFilesInProduct) {
+		if(numberOfFilesInProduct > 1) { //product download is a metalink
+			try {
+				Files.move(productMetadata.getTempMetalinkDownloadDirectory(), productMetadata.getMetalinkDownloadDirectory(), StandardCopyOption.REPLACE_EXISTING);
+				
+				productDownloadProgressMonitor.setStatus(EDownloadStatus.COMPLETED);
+			} catch (IOException e) {
+				productDownloadProgressMonitor.setError(e);
+			}
+		}else{
+			productDownloadProgressMonitor.setStatus(EDownloadStatus.COMPLETED);
+		}
 	}
 
 	public EDownloadStatus getStatus() {
@@ -376,18 +413,18 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	 */
 	public void disconnect() throws DMPluginException {
 		if(idleCheckExecutor != null) {
-			idleCheckExecutor.shutdown();
+			//no elegant shutdown needs to be performed on the idle checker
+			idleCheckExecutor.shutdownNow();
 		}
 		if(getStatus() == EDownloadStatus.RUNNING) {
+			productDownloadProgressMonitor.abortFileDownloads(EDownloadStatus.NOT_STARTED);
 			productDownloadProgressMonitor.setStatus(EDownloadStatus.NOT_STARTED);
 		}
 		try {
-			if(idleCheckExecutor != null) {
+			if(fileDownloadExecutor != null) {
 				fileDownloadExecutor.shutdown();
 				fileDownloadExecutor.awaitTermination(10, TimeUnit.SECONDS);
 			}
-			//notify progress listener to ensure the number of bytes is correct
-//			notifyProgressListeners();
 		} catch (InterruptedException e) {
 			LOGGER.error("Timeout occurred when attempting to shutdown download file threads");
 		}

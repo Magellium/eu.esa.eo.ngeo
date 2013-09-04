@@ -23,10 +23,14 @@ public class MonitorController {
 	private boolean darSupplied = false;
 	private boolean productsSupplied = false;
 	private boolean standingOrderSupplied = false;
+	private String userOrder = "";
 	private int standingOrderResponseEntry = 1;
 	
 	@RequestMapping(value = "/monitoringservice", method = RequestMethod.POST)
-	public ResponseEntity<String> monitorForDars(HttpServletResponse servletResponse) throws IOException {
+	public ResponseEntity<String> monitorForDars(HttpServletResponse servletResponse) throws Exception {
+		if(userOrder != null && !userOrder.isEmpty()) {
+			return sendUserOrder(userOrder);
+		}
 		FileLoader fileLoader = new FileLoader();
 		HttpStatus status;
 		String response;
@@ -84,6 +88,29 @@ public class MonitorController {
 		return new ResponseEntity<String>(response, responseHeaders, status);
 	}
 
+	public ResponseEntity<String> sendUserOrder(String userOrder) throws Exception {
+		FileLoader fileLoader = new FileLoader();
+		HttpStatus status;
+		String response;
+		HttpHeaders responseHeaders = new HttpHeaders();
+	
+		status = HttpStatus.OK;
+	
+		switch (userOrder) {
+		case "STOP":
+			response = fileLoader.loadFileAsString("/stubs/MonitoringURL-STOP.xml");
+			break;
+		case "STOP_IMMEDIATELY":
+			response = fileLoader.loadFileAsString("/stubs/MonitoringURL-STOP_IMMEDIATELY.xml");
+			break;
+		default:
+			throw new Exception(String.format("Invalid user order: %s", userOrder));
+		}
+		responseHeaders.add("Content-Type", "application/xml; charset=utf-8");
+
+		return new ResponseEntity<String>(response, responseHeaders, status);
+	}	
+	
 	public boolean isDarSupplied() {
 		return darSupplied;
 	}
@@ -106,5 +133,13 @@ public class MonitorController {
 
 	public void setStandingOrderSupplied(boolean standingOrderSupplied) {
 		this.standingOrderSupplied = standingOrderSupplied;
+	}
+
+	public String getUserOrder() {
+		return userOrder;
+	}
+
+	public void setUserOrder(String userOrder) {
+		this.userOrder = userOrder;
 	}
 }

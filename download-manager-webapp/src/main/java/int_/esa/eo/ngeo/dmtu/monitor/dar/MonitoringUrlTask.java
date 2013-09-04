@@ -99,9 +99,8 @@ public class MonitoringUrlTask implements Runnable {
 
 			userOrder = monitoringUrlResponse.getUserOrder();
 			if(userOrder != null) {
-				//XXX: Terradue's service currently does not supply a response with the UserOrder in a format which we can understand (non-conformance to schema)
 				LOGGER.info(String.format("User order: %s",userOrder.toString()));
-				darController.sendUserOrder(userOrder);
+				darController.userOrder(userOrder);
 			}else{
 				refreshPeriod = monitoringUrlResponse.getRefreshPeriod().intValue();
 				darController.setSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));

@@ -22,13 +22,14 @@ public class PathResolver {
 	public Path determineFolderPath(URI productURI, File downloadDir) {
 		String productUriPath = productURI.getPath();
 		String fileName = FilenameUtils.getName(productUriPath);
-		Map<String, String> queryMap = getQueryMap(productURI);
-		String ngeoDownloadOptions = queryMap.get("ngEO_DO");
-		ngeoDownloadOptions = ngeoDownloadOptions.replaceAll(":", "=");
-		
 		StringBuilder folderName = new StringBuilder();
 		folderName.append(fileName);
-		if(ngeoDownloadOptions != null && ngeoDownloadOptions.length() > 0) {
+
+		Map<String, String> queryMap = getQueryMap(productURI);
+		String ngeoDownloadOptions = queryMap.get("ngEO_DO");
+		if(ngeoDownloadOptions != null && ngeoDownloadOptions.isEmpty()) {
+			ngeoDownloadOptions = ngeoDownloadOptions.replaceAll(":", "=");
+		
 			folderName.append(" ");
 			int charactersAvailableForFolderName = 200 - (fileName.length() + 1);
 			if(ngeoDownloadOptions.length() > charactersAvailableForFolderName) {
@@ -61,26 +62,29 @@ public class PathResolver {
 
 	//XXX: This should be replaced with something similar to URLEncodedUtils in Apache HTTP Components
 	private Map<String,String> getQueryMap(URI uri) {
-		String decodedQueryString = "";
-		try {
-			decodedQueryString = URLDecoder.decode(uri.getQuery(),"UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		String[] params = decodedQueryString.split("&");  
-	    Map<String, String> map = new HashMap<String, String>();  
-	    for (String param : params)  
-	    {  
-	        String[] paramPair = param.split("=");
-			String name = paramPair[0];
-			String value = "";
-			if(paramPair.length > 1) {
-				value = paramPair[1];  
+	    Map<String, String> map = new HashMap<String, String>();
+		String query = uri.getQuery();
+		if(query != null) {
+		    String decodedQueryString = "";
+			try {
+				decodedQueryString = URLDecoder.decode(query,"UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-	        map.put(name, value);  
-	    }  
+	
+			String[] params = decodedQueryString.split("&");  
+		    for (String param : params)  
+		    {  
+		        String[] paramPair = param.split("=");
+				String name = paramPair[0];
+				String value = "";
+				if(paramPair.length > 1) {
+					value = paramPair[1];  
+				}
+		        map.put(name, value);  
+		    }
+		}
 	    return map;  
 	}
 	

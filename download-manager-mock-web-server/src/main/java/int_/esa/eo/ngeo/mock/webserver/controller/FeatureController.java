@@ -53,4 +53,26 @@ public class FeatureController {
 		
 		return new ResponseEntity<String>(response, responseHeaders, status);
 	}
+	
+	@RequestMapping(value = "/feature/stop", method = RequestMethod.GET)
+	public ResponseEntity<String> stop(HttpServletResponse servletResponse) throws IOException {
+		HttpStatus status = HttpStatus.OK;
+		String response = "OK";
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		monitorController.setUserOrder("STOP");
+		
+		return new ResponseEntity<String>(response, responseHeaders, status);
+	}
+
+	@RequestMapping(value = "/feature/stop_immediately", method = RequestMethod.GET)
+	public ResponseEntity<String> stopImmediately(HttpServletResponse servletResponse) throws IOException {
+		HttpStatus status = HttpStatus.OK;
+		String response = "OK";
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		monitorController.setUserOrder("STOP_IMMEDIATELY");
+		
+		return new ResponseEntity<String>(response, responseHeaders, status);
+	}
 }
