@@ -99,9 +99,7 @@ public class PluginFinder<T> {
 		try {
 
 			// Load non-loaded jar files using a new classloader
-			currentClassLoader = new URLClassLoader(
-					(URL[]) urls.toArray(new URL[urls.size()]),
-					currentClassLoader);
+			currentClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), currentClassLoader);
 			LOADED_JAR_URLS.addAll(urls);
 
 			// The current class loader changed. It main contain new

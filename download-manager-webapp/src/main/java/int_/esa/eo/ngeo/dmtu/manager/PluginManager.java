@@ -83,7 +83,7 @@ public class PluginManager {
 				LOGGER.info(String.format("Ignoring plugin %s because of incompatibility with version of Download Manager", downloadPluginInfo.getName()));
 			}
 		}
-		
+		LOGGER.info(String.format("%s plugins loaded.", downloadPluginInfoList.size()));
 	}
 	
 	private boolean arePluginAndDownloadManagerVersionCompatible(IDownloadPluginInfo downloadPluginInfo) {
