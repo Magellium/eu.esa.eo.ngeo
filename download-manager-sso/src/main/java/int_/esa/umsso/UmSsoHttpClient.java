@@ -103,13 +103,13 @@ public class UmSsoHttpClient {
 	
 	public void executeHttpRequest(HttpMethod method) throws UmssoCLException, IOException {
 		if (enableUmssoJclUse) {
-			LOGGER.info("Making an HTTP request with support for UM-SSO");
+			LOGGER.debug(String.format("Making an HTTP request with support for UM-SSO", method.getURI().toString()));
 			UmssoCLInput input = new UmssoCLInput(method, commandLineCallback);  
 			
 			UmssoCLCore clCore = UmssoCLCoreImpl.getInstance();
 			clCore.processHttpRequest(input);
 		} else {
-			LOGGER.warn("Making an HTTP request *without* support for UM-SSO");
+			LOGGER.debug(String.format("Making an HTTP request *without* support for UM-SSO", method.getURI().toString()));
 			new HttpClient().executeMethod(method);
 		}
 	}
