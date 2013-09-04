@@ -52,7 +52,7 @@ var DownloadMonitor = {
 			  dataType: "json"})
 		.done(function(response) {
 			if(response.success === false) {
-				DownloadMonitor.displayMessage("Error with retrieving download status: " + response.message);
+				DownloadMonitor.displayMessage("Unable to add manual download: " + response.message, "ruby");
 			}else{
 				DownloadMonitor.resetDownloadDisplay(downloadStatusTable);
 			}
@@ -184,7 +184,7 @@ var DownloadMonitor = {
 		} else if(productProgress == "PAUSED") {
 			actionsHtml += DownloadMonitor.displayAction("default", "resume", product.uuid);
 			actionsHtml += DownloadMonitor.displayAction("default", "cancel", product.uuid);
-		} else if(productProgress == "CANCELLED" || productProgress == "IN_ERROR") {
+		} else if(productProgress == "IN_ERROR") {
 			actionsHtml += DownloadMonitor.displayAction("default", "resume", product.uuid);
 		}
 		actionsHtml += '</ul>';
@@ -279,28 +279,41 @@ var DownloadMonitor = {
 
 	    return Math.max(fileSizeInBytes, 0.0).toFixed(1) + byteUnits[i];
 	},
-	displayMessage : function(message) {
-		$("#message").append("<p>" + message + "</p>");
+	displayMessage : function(message, theme) {
+		if(theme === "") {
+			theme = "smoke";
+		}
+		$.notific8(message, {
+			theme : theme,
+			sticky : true,
+			horizontalEdge : 'top',
+			verticalEdge : 'right',
+		});
 	},
-	displayErrorMessage : function(message, error) {
+	displayErrorMessage : function(messageHeading, error) {
 		if(error.status !== 0) {
-			$("#message").append("<p>");
-			$("#message").append(message + ": ");
-	
+			var errorMessage = "";
 			if(typeof error === 'object') {
-				$("#message").append("Error: HTTP " + error.status + ", "+ error.statusText);
+				errorMessage = "Error: HTTP " + error.status + ", "+ error.statusText;
 			}else{
 				var errorObject = jQuery.parseJSON(error);
-				$("#message").append(errorObject.response.message);
+				errorMessage = errorObject.response.message;
 			}
-			$("#message").append("</p>");
+
+			$.notific8(errorMessage, {
+				heading : heading,
+				theme : "ruby",
+				sticky : true,
+				horizontalEdge : 'top',
+				verticalEdge : 'right',
+			});
 		}
 	},
 	clearActivityHistory : function(downloadStatusTable) {
 		$.getJSON("clearActivityHistory")
 		.done(function(response) {
 			if(response.success === false) {
-				DownloadMonitor.displayMessage("Error with clearing activity history: " + response.message);
+				DownloadMonitor.displayMessage("Error with clearing activity history: " + response.message, "lemon");
 			}else{
 				DownloadMonitor.resetDownloadDisplay(downloadStatusTable);
 			}

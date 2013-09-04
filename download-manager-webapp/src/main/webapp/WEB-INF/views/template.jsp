@@ -14,7 +14,8 @@
 		<c:set var="baseURL" value="${fn:replace(req.requestURL, req.requestURI, req.contextPath)}" />
 		<base href="<c:url value="${baseURL}/" />" />
 		<link rel="stylesheet" type="text/css" href="resources/css/jquery.dataTables.css"/>
-		<link rel="stylesheet" type="text/css" href="resources/css/ui-lightness/jquery-ui-1.10.2.custom.min.css"/>	
+		<link rel="stylesheet" type="text/css" href="resources/css/ui-lightness/jquery-ui-1.10.2.custom.min.css"/>
+		<link rel="stylesheet" type="text/css" href="resources/css/jquery.notific8.min.css" />
 		<link rel="stylesheet" type="text/css" href="resources/css/styles.css" />
 		<script src="resources/js/jquery-1.9.1.min.js"></script>
 		<title>
@@ -31,6 +32,7 @@
 		<div class="clearboth"></div>
 		<script src="resources/js/jquery-ui-1.10.2.custom.min.js"></script>
 		<script src="resources/js/jquery.dataTables.js"></script>
+		<script src="resources/js/external/jquery.notific8.min.js"></script>
 		<script src="resources/js/downloadMonitor.js"></script>
 	</body>
 </html>
