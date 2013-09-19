@@ -30,7 +30,7 @@ public class ProductDownloadListener implements IProductDownloadListener, Downlo
 	public void progress(Integer progressPercentage, Long downloadedSize,
 			EDownloadStatus status, String message) {
 		ProductProgress productProgress = new ProductProgress(progressPercentage, downloadedSize, status, message);
-		notifyObservers(productUuid, productProgress);
+		notifyObserversOfProgress(productUuid, productProgress);
 	}
 	
 	@Override
@@ -47,15 +47,21 @@ public class ProductDownloadListener implements IProductDownloadListener, Downlo
 	}
 
 	@Override
-	public void notifyObservers(String productUuid, ProductProgress productProgress) {
+	public void notifyObserversOfProgress(String productUuid, ProductProgress productProgress) {
 		for (DownloadObserver o : observers) {
 			o.updateProgress(productUuid, productProgress);
 		}
-		
+	}
+
+	@Override
+	public void notifyObserversOfProductDetails(String productUuid, String productName, Integer numberOfFiles, Long overallSize) {
+		for (DownloadObserver o : observers) {
+			o.updateProductDetails(productUuid, productName, numberOfFiles, overallSize);
+		}
 	}
 
 	@Override
 	public void productDetails(String productName, Integer numberOfFiles, Long overallSize) {
-		// TODO Auto-generated method stub
+		notifyObserversOfProductDetails(productUuid, productName, numberOfFiles, overallSize);
 	}
 }

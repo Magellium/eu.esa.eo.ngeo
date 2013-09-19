@@ -6,10 +6,11 @@ var DownloadMonitor = {
 	darMonitoringURLColumnIndex: 1,
 	darMonitoringStatusColumnIndex: 2,
 	productAccessURLColumnIndex: 0,
-    productProgressStatusColumnIndex: 1,
+    productOverallSizeColumnIndex: 1,
     productProgressDownloadedSizeColumnIndex: 2,
     productProgressProgressPercentageColumnIndex: 3,
-    productActionsColumnIndex: 4,
+    productProgressStatusColumnIndex: 4,
+    productActionsColumnIndex: 5,
 	initialiseDownloadForm : function(downloadForm,downloadStatusTable) {
 		downloadForm.submit(function() {
 	    	DownloadMonitor.addDownload(downloadForm.find("#downloadUrl").val(),downloadStatusTable);
@@ -95,10 +96,11 @@ var DownloadMonitor = {
 	    var aData = tableData.fnGetData( row );
 	    var sOut = '<table id="productList' + aData.uuid + '" style="padding-left:30px;"><thead><tr>';
 	    sOut += '<th class="productAccessURL">Product Access URL</th>';
-	    sOut += '<th class="productStatus">Product Status</th>';
-	    sOut += '<th class="productMessage">Message</th>';
+	    sOut += '<th class="productDownloadedSize">Total Size</th>';
 	    sOut += '<th class="productDownloadedSize">Downloaded Size</th>';
 	    sOut += '<th class="productProgress">Progress</th>';
+	    sOut += '<th class="productStatus">Product Status</th>';
+	    sOut += '<th class="productMessage">Message</th>';
 	    sOut += '<th class="productActions">Actions</th>';
 	    sOut += '</tr></thead></table>';
 	    return sOut;
@@ -130,18 +132,20 @@ var DownloadMonitor = {
         $("#productList"+aData.uuid).dataTable({
     		"aoColumns": [
 			              { "mData": "productAccessUrl" },
-			              { "mData": "productProgress.status" },
-			              { "mData": "productProgress.message" },
+			              { "mData": "overallSize" },
 			              { "mData": "productProgress.downloadedSize" },
 			              { "mData": "productProgress.progressPercentage" },
+			              { "mData": "productProgress.status" },
+			              { "mData": "productProgress.message" },
 			              { "mData": null }
 			          ],
 			 "aoColumnDefs": [
 				              { "sWidth": "150px", "aTargets": [ 1 ] },
-				              { "bVisible": false, "aTargets": [ 2 ] },
-				              { "sWidth": "150px", "aTargets": [ 3 ] },
-				              { "sWidth": "200px", "aTargets": [ 4 ] },
-				              { "sWidth": "50px", "aTargets": [ 5 ] },
+				              { "sWidth": "150px", "aTargets": [ 2 ] },
+				              { "sWidth": "200px", "aTargets": [ 3 ] },
+				              { "sWidth": "150px", "aTargets": [ 4 ] },
+				              { "bVisible": false, "aTargets": [ 5 ] },
+				              { "sWidth": "50px", "aTargets": [ 6 ] },
 			                 ],
              "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
  				$(nRow).attr("data-product-id",aData.uuid);
@@ -154,6 +158,8 @@ var DownloadMonitor = {
  					iconWarning.remove();
  					fileProductStatus.append("<span class=\"iconWarning ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-alert\" title=\"Product download error: " + aData.productProgress.message + "\">!</span></span>");
  				}
+ 				var fileOverallSizeCell = $(nRow).find("td:eq(" + DownloadMonitor.productOverallSizeColumnIndex + ")");
+ 				fileOverallSizeCell.html(DownloadMonitor.getReadableFileSizeString(aData.overallSize));
  				var fileDownloadedSizeCell = $(nRow).find("td:eq(" + DownloadMonitor.productProgressDownloadedSizeColumnIndex + ")");
  				fileDownloadedSizeCell.html(DownloadMonitor.getReadableFileSizeString(aData.productProgress.downloadedSize));
             	 
@@ -163,7 +169,11 @@ var DownloadMonitor = {
  				progressCell.find(".progressbar").progressbar({
  					value: Math.floor(aData.productProgress.progressPercentage),
  					create: function() {
- 						$(this).children(".progress-label").text( $(this).progressbar( "value" ) + "%" );
+ 						if(aData.overallSize === -1 && aData.productProgress.progressPercentage === -1) {
+ 	 						$(this).children(".progress-label").text( "Unknown" );
+ 						}else{
+ 	 						$(this).children(".progress-label").text( $(this).progressbar( "value" ) + "%" );
+ 						}
  					}
  				});
  				var actionsCell = $(nRow).find("td:eq(" + DownloadMonitor.productActionsColumnIndex + ")");
@@ -269,7 +279,9 @@ var DownloadMonitor = {
 
 	},
 	getReadableFileSizeString : function(fileSizeInBytes) {
-
+		if(fileSizeInBytes === -1) {
+			return "Unknown";
+		}
 	    var i = -1;
 	    var byteUnits = [' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
 	    do {

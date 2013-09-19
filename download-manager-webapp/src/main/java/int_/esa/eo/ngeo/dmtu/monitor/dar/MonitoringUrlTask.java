@@ -2,6 +2,7 @@ package int_.esa.eo.ngeo.dmtu.monitor.dar;
 
 import int_.esa.eo.ngeo.dmtu.controller.DARController;
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
+import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.exception.ParseException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
@@ -129,7 +130,7 @@ public class MonitoringUrlTask implements Runnable {
 					}
 				}
 			}
-		} catch (ParseException | ServiceException e) {
+		} catch (ParseException | ServiceException | DownloadOperationException e) {
 			LOGGER.error(String.format("Exception whilst calling Monitoring URL %s: %s", monitoringServiceUrl, e.getLocalizedMessage()), e);
 		} finally {
 			if (method != null) {

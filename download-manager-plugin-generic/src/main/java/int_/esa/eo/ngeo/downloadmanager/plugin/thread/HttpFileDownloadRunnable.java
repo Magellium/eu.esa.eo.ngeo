@@ -7,7 +7,10 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.utils.Transferrer;
 import int_.esa.umsso.UmSsoHttpClient;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -46,7 +49,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 	public void run() {
 		if(getFileDownloadStatus() == EDownloadStatus.NOT_STARTED) {
 			setFileDownloadStatus(EDownloadStatus.RUNNING);
-			FileChannel destination = null;
+			SeekableByteChannel destination = null;
 		
 			GetMethod method = new GetMethod(fileDownloadMetadata.getFileURL().toString());
 	
@@ -56,7 +59,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 				if (!Files.exists(downloadPathParent)) {
 					Files.createDirectories(downloadPathParent);
 				}
-				destination = (FileChannel) Files.newByteChannel(partiallyDownloadedPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+				destination = Files.newByteChannel(partiallyDownloadedPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 				long currentFileSize = destination.size();
 				
 				//file has been partially downloaded
@@ -74,7 +77,8 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 					
 					if(getFileDownloadStatus() == EDownloadStatus.RUNNING) {
 						transferrer = new Transferrer(transferrerReadLength);
-						hasTransferCompleted = transferrer.doTransfer(destination, method.getResponseBodyAsStream(), fileDownloadMetadata, currentFileSize, productDownloadProgressMonitor);
+						ReadableByteChannel source = Channels.newChannel(method.getResponseBodyAsStream());
+						hasTransferCompleted = transferrer.doTransfer(source, destination, fileDownloadMetadata.getUuid(), productDownloadProgressMonitor);
 					}
 					
 					if(hasTransferCompleted) {
@@ -83,7 +87,6 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 						setFileDownloadStatus(EDownloadStatus.COMPLETED);
 						productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), null);
 						productDownloadProgressMonitor.notifyOfCompletedPath(fileDownloadMetadata.getUuid(), completedPath);
-						
 					}
 
 					break;
@@ -92,10 +95,16 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 					productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), String.format("Response code for download of file is %s.", responseCode));
 					break;
 				}
+			} catch (FileSystemException ex) {
+				LOGGER.error(String.format("%s for file %s", ex.getClass().getName(), ex.getFile()));
+				LOGGER.error("\n\n\n=============DEAD DOWNLOAD THREAD========================", ex);
+				setFileDownloadStatus(EDownloadStatus.IN_ERROR);
+				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), String.format("File system error for file %s", ex.getFile()));
 			} catch (UmssoCLException | IOException ex) {
 				LOGGER.error("\n\n\n=============DEAD DOWNLOAD THREAD========================", ex);
 				setFileDownloadStatus(EDownloadStatus.IN_ERROR);
 				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), ex.getLocalizedMessage());
+				
 			} catch (Throwable throwable) {
 				LOGGER.error("\n\n\n=============DEAD DOWNLOAD THREAD========================", throwable);
 				setFileDownloadStatus(EDownloadStatus.IN_ERROR);

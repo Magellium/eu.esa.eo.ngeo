@@ -1,13 +1,11 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin.utils;
 
-import int_.esa.eo.ngeo.downloadmanager.plugin.FilesDownloadProgressListener;
-import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
+import int_.esa.eo.ngeo.downloadmanager.plugin.FilesDownloadListener;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +24,6 @@ import org.slf4j.LoggerFactory;
 public class Transferrer {
 	
 	private int readLength;
-	private long totalBytesDownloaded;
 	private boolean aborted;
 	private static final Logger LOGGER = LoggerFactory.getLogger(Transferrer.class);
 	
@@ -34,32 +31,46 @@ public class Transferrer {
 		this.readLength = readLength;
 	}
 
-	public boolean doTransfer(FileChannel destination, InputStream inputStream, FileDownloadMetadata fileMetadata, long bytesAlreadyDownloaded, FilesDownloadProgressListener filesProgressListener) throws IOException {
-		this.totalBytesDownloaded = bytesAlreadyDownloaded;
-		ReadableByteChannel source = null;
+	/**
+	 * @param destination
+	 * @param inputStream
+	 * @param fileMetadata
+	 * @param bytesAlreadyDownloaded
+	 * @param filesProgressListener
+	 * @return true if the contents of the inputStream has been transferred to the destination completely, false if the transfer has been interrupted (by a cancel / pause command)
+	 * @throws IOException Occurs when reading the source stream.
+	 */
+	public boolean doTransfer(ReadableByteChannel source, SeekableByteChannel destination, String fileMetadataUuid, FilesDownloadListener filesProgressListener) throws IOException {
+		long startTime, elapsedTime;
 		try {
-			source = Channels.newChannel(inputStream);
-			long bytesRead = -1;
-			while (!aborted) {
-				if ((bytesRead = destination.transferFrom(source, totalBytesDownloaded, readLength)) == 0) {
-					LOGGER.debug(String.format("Server-side \"log jam\" affecting the download from %s?", fileMetadata.getFileURL()));
-				} else {
-					this.totalBytesDownloaded += bytesRead;
-					
-					filesProgressListener.notifySomeBytesTransferred(fileMetadata.getUuid(), bytesRead);
+			//start download from the end of the file - used primarily for resume scenarios
+			destination.position(destination.size());
+			
+			ByteBuffer bytebuf = ByteBuffer.allocateDirect(readLength);
 
-					// Have we just finished the download?
-					if (totalBytesDownloaded == fileMetadata.getDownloadSize()) {
-						// Don't try to read any more bytes from the source!
-						return true;
-					}
-				}
+			startTime = System.nanoTime();
+			int bytesRead;
+			while ((bytesRead = source.read(bytebuf)) >= 0 && !aborted) { 
+				// flip the buffer which set the limit to current position, and position to 0.
+				bytebuf.flip();
+				int bytesWritten = destination.write(bytebuf);
+				bytebuf.clear(); // For the next read
+
+				filesProgressListener.notifyOfBytesTransferred(fileMetadataUuid, bytesWritten);
 			}
+			
+			//check if we have reached the end of file, of whether we have dropped out as a result of an abort command
+			if(bytesRead == -1) {
+				elapsedTime = System.nanoTime() - startTime;
+				LOGGER.debug("Elapsed Time is " + (elapsedTime / 1000000.0) + " msec");				
+        		return true;
+	        }else{
+	    		return false;
+	        }
 		} finally {
 			// Since the source and destination are passed in as arguments, they should be closed in the calling class
 		}
 		//transfer has been aborted i.e. is not complete.
-		return false;
 	}
 
 	public void abortTransfer() {

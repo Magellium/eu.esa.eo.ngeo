@@ -146,6 +146,16 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 	}
 	
 	@Override
+	public void updateProductDetails(String productUuid, String productName, Integer numberOfFiles, Long overallSize) {
+		Product product = productToDownloadList.get(productUuid);
+		product.setProductName(productName);
+		product.setNumberOfFiles(numberOfFiles);
+		product.setOverallSize(overallSize);
+
+		dataAccessRequestManager.persistProductStatusChange(productUuid);
+	}
+
+	@Override
 	public void updateProgress(String productUuid, ProductProgress productProgress) {
 		Product product = productToDownloadList.get(productUuid);
 		EDownloadStatus previouslyKnownStatus = product.getProductProgress().getStatus();
@@ -280,18 +290,23 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 		}
 	}
 	
-	public void cancelAutomatedDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel) {
+	public boolean cancelAutomatedDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel, boolean includeManualDownloads) throws DownloadOperationException {
+		boolean downloadsCancelledCompletely = true;
 		for (Entry<String, IDownloadProcess> downloadProcessEntry: downloadProcessList.entrySet()) {
 			String productUuid = downloadProcessEntry.getKey();
 			IDownloadProcess downloadProcess = downloadProcessEntry.getValue();
-			if(!dataAccessRequestManager.isProductDownloadManual(productUuid) && statusesToCancel.contains(downloadProcess.getStatus())) {
+			if((includeManualDownloads || !dataAccessRequestManager.isProductDownloadManual(productUuid)) && statusesToCancel.contains(downloadProcess.getStatus())) {
 				try {
 					downloadProcess.cancelDownload();
 				} catch (DMPluginException e) {
 					LOGGER.error(String.format("Unable to cancel product download with UUID %s. Reason: %s.", productUuid, e.getLocalizedMessage()));
+					downloadsCancelledCompletely = false;
 				}
 			}
 		}
-		
+		if(!downloadsCancelledCompletely) {
+			throw new DownloadOperationException("Unable to send cancel request to all applicable downloads.");
+		}
+		return downloadsCancelledCompletely;
 	}
 }

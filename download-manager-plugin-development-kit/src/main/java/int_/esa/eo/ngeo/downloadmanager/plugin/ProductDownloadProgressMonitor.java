@@ -12,7 +12,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProductDownloadProgressMonitor implements FilesDownloadProgressListener {
+public class ProductDownloadProgressMonitor implements FilesDownloadListener {
 	private static final double PERCENTAGE = 100.0;
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProductDownloadProgressMonitor.class);
 
@@ -35,7 +35,17 @@ public class ProductDownloadProgressMonitor implements FilesDownloadProgressList
 	}
 
 	@Override
-	public synchronized void notifySomeBytesTransferred(String fileDownloadMetadataUuid, long numberOfBytes) {
+	public void notifyOfProductDetails(String productName, List<FileDownloadMetadata> fileDownloadMetadataList) {
+		totalFileSize = 0;
+		for (FileDownloadMetadata fileDownloadMetadata : fileDownloadMetadataList) {
+			totalFileSize += fileDownloadMetadata.getDownloadSize();
+		}
+		
+		productDownloadListener.productDetails(productName, fileDownloadMetadataList.size(), totalFileSize);
+	}
+
+	@Override
+	public synchronized void notifyOfBytesTransferred(String fileDownloadMetadataUuid, long numberOfBytes) {
 		Long currentFileDownloadProgress = fileDownloadProgressMap.get(fileDownloadMetadataUuid);
 		if(currentFileDownloadProgress == null) {
 			fileDownloadProgressMap.put(fileDownloadMetadataUuid, numberOfBytes);
@@ -60,10 +70,10 @@ public class ProductDownloadProgressMonitor implements FilesDownloadProgressList
 	}
 
 	public void abortFileDownloads(EDownloadStatus downloadStatus) {
+		setStatusWhenDownloadWasAborted(downloadStatus);
 		for (AbortableFileDownload fileDownload: fileDownloadList) {
 			fileDownload.abortFileDownload(downloadStatus);
 		}
-		setStatusWhenDownloadWasAborted(downloadStatus);
 	}
 
 	@Override
@@ -78,18 +88,16 @@ public class ProductDownloadProgressMonitor implements FilesDownloadProgressList
 			totalBytesDownloaded += fileDownloadProgress;
 		}
 		setTotalFileDownloadedSize(totalBytesDownloaded);
-		int floor = (int) Math.floor((totalBytesDownloaded * PERCENTAGE) / totalFileSize);
-		setPercentageComplete(floor);
+		if(totalFileSize > -1) {
+			int floor = (int) Math.floor((totalBytesDownloaded * PERCENTAGE) / totalFileSize);
+			setPercentageComplete(floor);
+		}else{
+			setPercentageComplete(-1);
+		}
+		LOGGER.debug(String.format("Percentage complete: %s", Integer.toString(getPercentageComplete())));
 		notifyProgressListener();
 	}
 
-	public void setTotalFileSize(List<FileDownloadMetadata> fileDownloadMetadataList) {
-		totalFileSize = 0;
-		for (FileDownloadMetadata fileDownloadMetadata : fileDownloadMetadataList) {
-			totalFileSize += fileDownloadMetadata.getDownloadSize();
-		}
-	}
-	
 	public synchronized long getTotalFileDownloadedSize() {
 		return totalFileDownloadedSize;
 	}
@@ -116,7 +124,12 @@ public class ProductDownloadProgressMonitor implements FilesDownloadProgressList
 
 	public synchronized void setStatus(EDownloadStatus downloadStatus, String message) {
 		this.status = downloadStatus;
-		this.message = message;
+		if(this.status == EDownloadStatus.COMPLETED) {
+			setPercentageComplete(100);
+		}
+		if(message != null) {
+			this.message = message;
+		}
 		notifyProgressListener();
 	}
 
@@ -153,8 +166,7 @@ public class ProductDownloadProgressMonitor implements FilesDownloadProgressList
 		return statusWhenDownloadWasAborted;
 	}
 
-	public void setStatusWhenDownloadWasAborted(
-			EDownloadStatus statusWhenDownloadWasAborted) {
+	public void setStatusWhenDownloadWasAborted(EDownloadStatus statusWhenDownloadWasAborted) {
 		this.statusWhenDownloadWasAborted = statusWhenDownloadWasAborted;
 	}
 }

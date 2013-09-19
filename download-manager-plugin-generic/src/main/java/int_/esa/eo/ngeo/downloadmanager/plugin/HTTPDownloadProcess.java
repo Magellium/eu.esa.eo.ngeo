@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
 import org.metalinker.FileType;
@@ -95,16 +95,18 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	}
 	
 	public void retrieveDownloadDetails() {
-		HttpMethod productDownloadHeaders = null;
-		HttpMethod productDownloadBody = null;
+		HttpMethodBase productDownloadHeaders = null;
+		HttpMethodBase productDownloadBody = null;
 		try {
 			LOGGER.debug("About to construct UmSsoHttpClient");
+//			productDownloadHeaders = umSsoHttpClient.executeHeadRequest(productURI.toURL());
 			productDownloadHeaders = umSsoHttpClient.executeHeadRequest(productURI.toURL());
 			int responseCode = productDownloadHeaders.getStatusCode();
 			switch (responseCode) {
 			case HttpStatus.SC_OK:
 				productMetadata = new ProductDownloadMetadata();
 				String contentType = productDownloadHeaders.getResponseHeader("Content-Type").getValue();
+				String productName = "", resolvedProductName = "";
 
 				if(contentType.contains(MIME_TYPE_METALINK)) {
 					productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
@@ -121,34 +123,34 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 						if(urlList.size() > 0) {
 							Url firstUrlForFile = urlList.get(0);
 							
-							String fileName = URLDecoder.decode(fileType.getName(), "UTF-8");
-							String resolvedFileName = pathResolver.resolveDuplicateFilePath(fileName, productMetadata.getTempMetalinkDownloadDirectory().toFile());
-							FileDownloadMetadata fileMetadata = getFileMetadataForMetalinkEntry(firstUrlForFile.getValue(), resolvedFileName, productMetadata.getTempMetalinkDownloadDirectory());
+							productName = URLDecoder.decode(fileType.getName(), "UTF-8");
+							resolvedProductName = pathResolver.resolveDuplicateFilePath(productName, productMetadata.getTempMetalinkDownloadDirectory().toFile());
+							FileDownloadMetadata fileMetadata = getFileMetadataForMetalinkEntry(firstUrlForFile.getValue(), resolvedProductName, productMetadata.getTempMetalinkDownloadDirectory());
 							FileUtils.touch(fileMetadata.getPartiallyDownloadedPath().toFile());
 							LOGGER.debug(String.format("metalink file download size %s", fileMetadata.getDownloadSize()));
 							productMetadata.getFileMetadataList().add(fileMetadata);
 						}
 					}
 					LOGGER.debug(String.format("Product contains %s files", fileList.size()));
+					productDownloadProgressMonitor.notifyOfProductDetails(productMetadata.getMetalinkDownloadDirectory().getFileName().toString(), productMetadata.getFileMetadataList());
 				}else{
 					//download is a single file
 					Header contentDispositionHeader = productDownloadHeaders.getResponseHeader("Content-Disposition");
 					String disposition = contentDispositionHeader != null ? contentDispositionHeader.getValue() : null;
-					Header contentLengthHeader = productDownloadHeaders.getResponseHeader("Content-Length");
-					long fileSize = contentLengthHeader != null ? Long.valueOf(contentLengthHeader.getValue()) : -1; // The -1 is defends against the possibility that it is legal for servers to omit the Content-Length header 
-					String fileName = pathResolver.determineFileName(disposition, productURI, baseProductDownloadDir);
+					long fileSize = productDownloadHeaders.getResponseContentLength();
+					resolvedProductName = pathResolver.determineFileName(disposition, productURI, baseProductDownloadDir);
 
 					LOGGER.debug("Content-Type = " + contentType);
 					LOGGER.debug("Content-Disposition = " + disposition);
 					LOGGER.debug("Content-Length = " + fileSize);
-					LOGGER.debug("fileName = " + fileName);
+					LOGGER.debug("fileName = " + resolvedProductName);
 					
-					FileDownloadMetadata fileMetadata = new FileDownloadMetadata(productURI.toURL(), fileName, fileSize, baseProductDownloadDir.toPath());
+					FileDownloadMetadata fileMetadata = new FileDownloadMetadata(productURI.toURL(), resolvedProductName, fileSize, baseProductDownloadDir.toPath());
 					FileUtils.touch(fileMetadata.getPartiallyDownloadedPath().toFile());
 					productMetadata.getFileMetadataList().add(fileMetadata);
-				}
 				
-				productDownloadProgressMonitor.setTotalFileSize(productMetadata.getFileMetadataList());
+					productDownloadProgressMonitor.notifyOfProductDetails(fileMetadata.getCompletelyDownloadedPath().getFileName().toString(), productMetadata.getFileMetadataList());
+				}
 				break;
 			case HttpStatus.SC_ACCEPTED:
 				productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
@@ -215,7 +217,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		}
 	}
 	
-	private HttpMethod retrieveDownloadDetailsBody(URL productUrl) throws HttpException, IOException, UmssoCLException {
+	private HttpMethodBase retrieveDownloadDetailsBody(URL productUrl) throws HttpException, IOException, UmssoCLException {
 		return umSsoHttpClient.executeGetRequest(productUrl);
 	}
 
@@ -224,13 +226,13 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 
 		URL fileDownloadLinkURL = new URL(fileDownloadLink);
 
-		HttpMethod httpMethod = null; 
+		HttpMethodBase httpMethod = null; 
 		try {
 			httpMethod = umSsoHttpClient.executeHeadRequest(fileDownloadLinkURL);
-						
+
 			int metalinkFileResponseCode = httpMethod.getStatusCode();
 			if(metalinkFileResponseCode == HttpStatus.SC_OK) {
-				fileSize = Long.valueOf(httpMethod.getResponseHeader("Content-Length").getValue());
+				fileSize = httpMethod.getResponseContentLength();
 				LOGGER.debug(String.format("metalink file content length = %s", fileSize));
 			}else{
 				throw new DMPluginException(String.format("Unable to retrieve metalink file details from file URL %s", fileDownloadLink));
@@ -404,7 +406,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		return null;
 	}
 
-	/* TODO This method is the last one called by the Download Manager on a IDownloadProcess instance.
+	/* This method is the last one called by the Download Manager on a IDownloadProcess instance.
 	 * 		It is called by the Download Manager either:
 	 * -	after the status COMPLETED, CANCELLED or IN_ERROR has been notified by the plugin to the Download Manager and the reference of downloaded files has been retrieved by the later
 	 * -	when the Download Manager ends. In this second case, the plugin is expected to :

@@ -28,7 +28,9 @@ public class Product implements Serializable {
 	
 	private long fileSize;
 
-	private String fileName;
+	private String productName;
+	private int numberOfFiles;
+	private long overallSize;
 
 	@Embedded
 	private ProductProgress productProgress;
@@ -76,12 +78,28 @@ public class Product implements Serializable {
 		this.fileSize = fileSize;
 	}
 
-	public String getFileName() {
-		return fileName;
+	public String getProductName() {
+		return productName;
 	}
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	public int getNumberOfFiles() {
+		return numberOfFiles;
+	}
+
+	public void setNumberOfFiles(int numberOfFiles) {
+		this.numberOfFiles = numberOfFiles;
+	}
+
+	public long getOverallSize() {
+		return overallSize;
+	}
+
+	public void setOverallSize(long overallSize) {
+		this.overallSize = overallSize;
 	}
 
 	public ProductProgress getProductProgress() {

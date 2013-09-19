@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +37,9 @@ public class DARController {
 
 	@Autowired
 	private SettingsManager settingsManager;
+	
+	@Autowired
+	private ThreadPoolTaskScheduler darMonitorScheduler;
 
 	public String getSetting(String key) {
 		return settingsManager.getSetting(key);
@@ -49,7 +53,7 @@ public class DARController {
 		return dataAccessRequestManager.addDataAccessRequest(darMonitoringUrl);
 	}
 	
-	public void userOrder(UserOrder userOrder) {
+	public void userOrder(UserOrder userOrder) throws DownloadOperationException {
 		List<EDownloadStatus> statusesToCancel = new ArrayList<>();
 		statusesToCancel.add(EDownloadStatus.NOT_STARTED);
 		statusesToCancel.add(EDownloadStatus.IDLE);
@@ -58,7 +62,23 @@ public class DARController {
 		if(userOrder == UserOrder.STOP_IMMEDIATELY) {
 			statusesToCancel.add(EDownloadStatus.RUNNING);
 		}
-		downloadMonitor.cancelAutomatedDownloadsWithStatuses(statusesToCancel);
+		downloadMonitor.cancelAutomatedDownloadsWithStatuses(statusesToCancel, false);
+	}
+	
+	@RequestMapping(value="/monitoring/stop", method = RequestMethod.GET)
+	@ResponseBody
+	public CommandResponse stopMonitoringForDARs() {
+		CommandResponse response;
+		List<EDownloadStatus> statusesToCancel = new ArrayList<>();
+		statusesToCancel.add(EDownloadStatus.NOT_STARTED);
+		statusesToCancel.add(EDownloadStatus.IDLE);
+		statusesToCancel.add(EDownloadStatus.PAUSED);
+		try {
+			response = createCommandResponse(downloadMonitor.cancelAutomatedDownloadsWithStatuses(statusesToCancel, false), "Unable to stop monitoring for DARs");
+		} catch (DownloadOperationException e) {
+			response = createCommandResponse(false, e.getLocalizedMessage());
+		}
+		return response;
 	}
 	
 	public void updateDAR(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessList) {

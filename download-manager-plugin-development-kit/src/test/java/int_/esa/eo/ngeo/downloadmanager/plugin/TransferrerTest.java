@@ -1,55 +1,62 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
-import int_.esa.eo.ngeo.downloadmanager.plugin.FilesDownloadProgressListener;
-import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.Transferrer;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.channels.FileChannel;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 
+import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
 
 public class TransferrerTest {
-
-	private static final long _4096L = 4096l;
-	private static final String HELLO = "Hello";
-	private static final String WORLD = " world";
+	ReadableByteChannel source;
+	SeekableByteChannel destination;
+	String fileMetadataUuid;
+	FilesDownloadListener filesDownloadListener;
+	
+	@Before
+	public void setup() {
+		source = mock(ReadableByteChannel.class);
+		destination = mock(SeekableByteChannel.class);
+		fileMetadataUuid = "testMetadataUuid";
+		filesDownloadListener = mock(FilesDownloadListener.class);
+	}
 	
 	@Test
 	public void test() throws IOException {
 		Transferrer transferrer = new Transferrer(4096);
 		
-		FileChannel mockDestinationChannel = mock(FileChannel.class);
-		final long length1 = (long)HELLO.length();
-		final long length2 = (long)WORLD.length();
+		int length1 = 6;
+		int length2 = 0;
+		int length3 = 5;
 		
-		when(mockDestinationChannel.transferFrom((ReadableByteChannel) any(), eq(0l), eq(_4096L))).thenReturn(length1);
-		when(mockDestinationChannel.transferFrom((ReadableByteChannel) any(), eq(length1), eq(_4096L))).thenReturn((long)0); // Simulate zero bytes being returned, i.e. the scenario where 
-																													  // we're in the middle of transferring the bytes from the source 
-		  																											  // but the FileChannel can't currently supply more bytes 
-		when(mockDestinationChannel.transferFrom((ReadableByteChannel) any(), eq(length1), eq(_4096L))).thenReturn(length2); // Simulate the scenario where bytes representing the string " world" are transferred.
+		when(source.read((ByteBuffer) any())).thenReturn(length1, length2, length3, -1);
 		
-		InputStream inputStream = new ByteArrayInputStream((HELLO + WORLD).getBytes("UTF-8"));
-		FileDownloadMetadata fileDetails = new FileDownloadMetadata(new URL("http://dummyurl"), "dummyFileName", length1 + length2, new File("dummyDownloadPath").toPath());
-		FilesDownloadProgressListener progressListener = mock(FilesDownloadProgressListener.class);
-		String fileDownloadMetadataUuid = fileDetails.getUuid();
-		doNothing().when(progressListener).notifySomeBytesTransferred(fileDownloadMetadataUuid, length1);
-		doNothing().when(progressListener).notifySomeBytesTransferred(fileDownloadMetadataUuid, 0);		
-		doNothing().when(progressListener).notifySomeBytesTransferred(fileDownloadMetadataUuid, length2);
+		when(destination.size()).thenReturn(0L);
+
+		when(destination.write((ByteBuffer) any())).thenReturn(length1, length2, length3);
+
+		doNothing().when(filesDownloadListener).notifyOfBytesTransferred(fileMetadataUuid, length1);
+		doNothing().when(filesDownloadListener).notifyOfBytesTransferred(fileMetadataUuid, length2);		
+		doNothing().when(filesDownloadListener).notifyOfBytesTransferred(fileMetadataUuid, length3);
 		
-		transferrer.doTransfer(mockDestinationChannel, inputStream, fileDetails, 0, progressListener);
+		assertTrue(transferrer.doTransfer(source, destination, fileMetadataUuid, filesDownloadListener));
 		
-		verify(mockDestinationChannel).transferFrom((ReadableByteChannel) any(), eq(0l), eq(_4096L));
-		verify(mockDestinationChannel).transferFrom((ReadableByteChannel) any(), eq(length1), eq(_4096L)); 
-		verify(mockDestinationChannel).transferFrom((ReadableByteChannel) any(), eq(length1), eq(_4096L));
-		verify(progressListener).notifySomeBytesTransferred(fileDownloadMetadataUuid, length1);
-		verify(progressListener).notifySomeBytesTransferred(fileDownloadMetadataUuid, length2);
+		verify(destination).position(0);
+		verify(destination, times(3)).write((ByteBuffer) any());
+
+		verify(filesDownloadListener).notifyOfBytesTransferred(fileMetadataUuid, length1);
+		verify(filesDownloadListener).notifyOfBytesTransferred(fileMetadataUuid, length2);
+		verify(filesDownloadListener).notifyOfBytesTransferred(fileMetadataUuid, length3);
 	}
 
 }
