@@ -10,16 +10,9 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
 	<beans:bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"> 
-		<beans:property name="basenames"> 
-			<beans:list> 
-				<beans:value>META-INF/maven/int_.esa.eo.ngeo/download-manager-webapp/pom</beans:value> 
-			</beans:list> 
-		</beans:property> 
+		<beans:property name="basenames" value="/WEB-INF/i18n/messages,/WEB-INF/classes/META-INF/dmtu" />
+	    <beans:property name="fallbackToSystemLocale" value="false" />
 	</beans:bean>
-
-	<!-- Loading of non-user modifiable settings for use within the Web UI -->
-	<util:properties id="propertyConfigurer" location="classpath:/META-INF/non-user-modifiable-settings-defaults.properties"/>
-	<context:property-placeholder properties-ref="propertyConfigurer" />
 
 	<!-- Defines the configuration of tiles -->
 	<beans:bean id="tilesConfigurer"

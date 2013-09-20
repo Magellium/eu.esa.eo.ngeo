@@ -3,9 +3,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ page session="false" %>
-<h1>
-	Advanced configuration  
-</h1>
+<h1><spring:message code="advanced_config.heading" /></h1>
 <form:form commandName="ADVANCEDCONFIGSETTINGS" name="settingsForm" id="settingsForm" >
 	<p style="text-align:center;"><form:errors path="*" cssStyle="color:red;"/></p>
 	<div style="width:550px;margin-left:auto;margin-right:auto;">

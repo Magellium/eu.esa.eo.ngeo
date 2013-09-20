@@ -19,7 +19,8 @@
 		<link rel="stylesheet" type="text/css" href="resources/css/styles.css" />
 		<script src="resources/js/jquery-1.9.1.min.js"></script>
 		<title>
-			<spring:eval expression="@propertyConfigurer.getProperty('DM_TITLE')" /><tiles:insertAttribute name="page-sub-title"/>			
+			<c:set var="subTitleKey"><tiles:getAsString name="page-sub-title-key"/></c:set>
+			<spring:message code="DM_TITLE" /> <spring:message code="${subTitleKey}" />			
 		</title>
 	</head>
 	<body>
