@@ -214,7 +214,7 @@ public class DataAccessRequestManager implements ProductSubject {
 			retrievedDataAccessRequest.setLastResponseDate(responseDate);
 
 			if(productAccessListObject != null) {
-				List<ProductAccess> productAccessList = productAccessListObject.getProductAccess();
+				List<ProductAccess> productAccessList = productAccessListObject.getProductAccesses();
 				List<Product> newProductsAdded = new ArrayList<>();
 				for (ProductAccess productAccess : productAccessList) {
 					Product productInDar = findProductInDar(retrievedDataAccessRequest, productAccess.getProductAccessURL());

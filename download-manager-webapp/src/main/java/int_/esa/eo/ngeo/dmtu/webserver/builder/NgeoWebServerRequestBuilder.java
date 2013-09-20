@@ -81,7 +81,7 @@ public class NgeoWebServerRequestBuilder {
 	
 	private ProductDownloadNotificationList buildProductDownloadNotificationList(List<Product> productList) {
 		ProductDownloadNotificationList productDownloadNotificationList = new ProductDownloadNotificationList();
-		List<ProductDownloadNotification> downloadNotificationList = productDownloadNotificationList.getProductDownloadNotification();
+		List<ProductDownloadNotification> downloadNotificationList = productDownloadNotificationList.getProductDownloadNotifications();
 		
 		for (Product product : productList) {
 			if(!product.isNotified()) {

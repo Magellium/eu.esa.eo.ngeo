@@ -165,7 +165,7 @@ public class DataAccessRequestManagerTest {
 		ProductAccess productAccess = new ProductAccess();
 		productAccess.setProductAccessURL(downloadUrl.toString());
 		productAccess.setProductAccessStatus(ProductAccessStatus.READY);
-		productAccessListObject.getProductAccess().add(productAccess);
+		productAccessListObject.getProductAccesses().add(productAccess);
 		dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, responseDate, productAccessListObject);
 		
 		DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);

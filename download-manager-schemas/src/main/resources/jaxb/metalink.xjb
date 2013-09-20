@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jxb:bindings version="1.0" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:com.fnf="http://www.fnf.com/xes">
     <jxb:bindings schemaLocation="../schemas/metalink/3.0/metalink.xsd">
-        <jxb:globalBindings fixedAttributeAsConstantProperty="true" />
         <jxb:bindings node="//xs:complexType[@name='metalinkType']//xs:element[@name='version']" >
 			<jxb:property name="metalinkVersion"/>
         </jxb:bindings>
-    </jxb:bindings>
+		<jxb:bindings node="//xs:complexType[@name='fileType']/xs:all/xs:element[@name='verification']/xs:complexType/xs:sequence/xs:element[@name='hash']/xs:complexType">
+			<jxb:class name="VerificationHash"/>
+		</jxb:bindings>
+		<jxb:bindings node="//xs:complexType[@name='fileType']//xs:all//xs:element[@name='verification']//xs:complexType//xs:element[@name='pieces']//xs:complexType//xs:element[@name='hash']/xs:complexType">
+			<jxb:class name="VerificationPiecesHash"/>
+		</jxb:bindings>
+	</jxb:bindings>
 </jxb:bindings>

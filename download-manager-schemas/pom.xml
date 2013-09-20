@@ -22,6 +22,13 @@
 						<include>DAGICD/ngEOBadRequestResponse.xsd</include>
 						<include>DAGICD/ngEOMissingProductResponse.xsd</include>
 						<include>DAGICD/ngEOProductDownloadResponse.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-D-WS_common.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-DMRegistrationMgmnt_Requ.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-DMRegistrationMgmnt_Resp.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-MonitoringURL-Requ.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-MonitoringURL-Resp.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-DataAccessMonitoring-Requ.xsd</include>
+						<include>IICD-D-WS/IF-ngEO-DataAccessMonitoring-Resp.xsd</include>
 					</schemaIncludes>
 					<bindingDirectory>src/main/resources/jaxb</bindingDirectory>
 					<cleanPackageDirectories>true</cleanPackageDirectories>

@@ -4,10 +4,10 @@ import int_.esa.eo.ngeo.schema.ngeobadrequestresponse.BadRequestResponse;
 import int_.esa.eo.ngeo.schema.ngeomissingproductresponse.MissingProductResponse;
 import int_.esa.eo.ngeo.schema.ngeoproductdownloadresponse.ProductDownloadResponse;
 
-import org.metalinker.MetalinkType;
+import org.metalinker.Metalink;
 
 public enum ProductResponseType {
-	METALINK_3_0(MetalinkType.class, "schemas/metalink/3.0/metalink.xsd"),
+	METALINK_3_0(Metalink.class, "schemas/metalink/3.0/metalink.xsd"),
 	BAD_REQUEST(BadRequestResponse.class, "schemas/DAGICD/ngEOBadRequestResponse.xsd"),
 	MISSING_PRODUCT(MissingProductResponse.class, "schemas/DAGICD/ngEOMissingProductResponse.xsd"),
 	PRODUCT_ACCEPTED(ProductDownloadResponse.class, "schemas/DAGICD/ngEOProductDownloadResponse.xsd");
