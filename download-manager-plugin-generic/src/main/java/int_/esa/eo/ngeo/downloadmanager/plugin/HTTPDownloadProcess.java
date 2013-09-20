@@ -35,8 +35,8 @@ import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
 import org.metalinker.FileType;
-import org.metalinker.MetalinkType;
-import org.metalinker.ResourcesType.Url;
+import org.metalinker.Metalink;
+import org.metalinker.Url;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,15 +110,15 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 
 				if(contentType.contains(MIME_TYPE_METALINK)) {
 					productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
-					MetalinkType metalink = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.METALINK_3_0);					
+					Metalink metalink = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.METALINK_3_0);					
 					LOGGER.debug(String.format("metalink: %s", metalink));
 
 					Path metalinkFolderPath = pathResolver.determineFolderPath(productURI, baseProductDownloadDir);
 					productMetadata.setMetalinkDownloadDirectory(metalinkFolderPath);
 
-					List<FileType> fileList = metalink.getFiles().getFile();
+					List<FileType> fileList = metalink.getFiles().getFiles();
 					for (FileType fileType : fileList) {
-						List<Url> urlList = fileType.getResources().getUrl();
+						List<Url> urlList = fileType.getResources().getUrls();
 						//Assumption: We are not handling parallel downloading at this point
 						if(urlList.size() > 0) {
 							Url firstUrlForFile = urlList.get(0);
