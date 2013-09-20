@@ -6,7 +6,7 @@
 	<appender name="console" class="org.apache.log4j.ConsoleAppender">
 		<param name="Target" value="System.out" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value=" %d{HH:mm:ss,SSS} %-5p: %c - %m%n" />
+			<param name="ConversionPattern" value=" %d{HH:mm:ss} %-5p: %c{1} - %m%n" />
 		</layout>
 	</appender>
 	
@@ -17,7 +17,7 @@
 			<param name="maxFileSize" value="50000000" />
 		</triggeringPolicy>
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value=" %d{HH:mm:ss,SSS} %-5p: %c - %m%n" />
+			<param name="ConversionPattern" value=" %d{HH:mm:ss} %-5p: %c{1} - %m%n" />
         </layout>
     </appender>
 
@@ -83,18 +83,26 @@
 	
 	<!-- 3rdparty Loggers -->
 	<logger name="org.springframework.core">
-		<level value="info" />
+		<level value="error" />
 	</logger>
 	
 	<logger name="org.springframework.beans">
-		<level value="info" />
+		<level value="error" />
 	</logger>
 	
 	<logger name="org.springframework.context">
-		<level value="info" />
+		<level value="error" />
 	</logger>
 
 	<logger name="org.springframework.web">
+		<level value="error" />
+	</logger>
+
+	<!-- Used to give basic guidance to spring loading and starting correctly -->
+	<logger name="org.springframework.web.servlet.DispatcherServlet">
+		<level value="info" />
+	</logger>
+	<logger name="org.springframework.web.context.ContextLoader">
 		<level value="info" />
 	</logger>
 
@@ -108,11 +116,11 @@
 	</logger>
 	
 	<logger name="org.springframework.security.web.FilterChainProxy">
-		<level value="info" />
+		<level value="error" />
 	</logger>
 
 	<logger name="org.springframework.security">
-		<level value="info" />
+		<level value="error" />
 	</logger>
 
 	<!-- Root Logger -->
