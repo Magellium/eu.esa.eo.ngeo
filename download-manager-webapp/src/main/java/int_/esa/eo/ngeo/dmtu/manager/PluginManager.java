@@ -31,7 +31,7 @@ public class PluginManager {
 	private SettingsManager settingsManager;
 	
 	@Autowired
-	private DownloadManagerProperties dmtuProperties;
+	private DownloadManagerProperties downloadManagerProperties;
 	
 	private List<IDownloadPluginInfo> downloadPluginInfoList;
 	private Map<String, IDownloadPlugin> mapOfPluginNamesToPlugins;
@@ -90,7 +90,7 @@ public class PluginManager {
 		boolean areVersionsCompatible = true; 
 		int[] dmMinVersion = downloadPluginInfo.getDMMinVersion();
 //		String dmVersionString = this.getClass().getPackage().getImplementationVersion(); // I can't get this to work, despite http://stackoverflow.com/questions/2712970/how-to-get-maven-artifact-version-at-runtime
-		String dmVersionString = dmtuProperties.getDownloadManagerVersion();
+		String dmVersionString = downloadManagerProperties.getDownloadManagerVersion();
 		String[] dmVersionParts = dmVersionString.split("\\.");
 		for (int i=0; i < dmMinVersion.length; i++) {
 			if (dmMinVersion[i] > Integer.parseInt(dmVersionParts[i])) { // XXX: Addition of some error handling to cope with non-integer version parts would be desirable.

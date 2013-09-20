@@ -12,5 +12,5 @@
 
 	<bean id="pluginManager" class="int_.esa.eo.ngeo.dmtu.manager.PluginManager" />
 	
-	<bean id="dmtuProperties" class="int_.esa.eo.ngeo.dmtu.configuration.DMTUProperties" init-method="loadDMTUProperties" />
+	<bean id="downloadManagerProperties" class="int_.esa.eo.ngeo.dmtu.configuration.DownloadManagerProperties" init-method="loadDownloadManagerProperties" />
 </beans>
