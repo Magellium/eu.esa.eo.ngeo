@@ -29,6 +29,7 @@
 		<module>download-manager-plugin-generic</module>
 		<module>download-manager-plugin-mock-sentinel2</module>
 		<module>download-manager-sso</module>
+		<module>download-manager-schemas</module>
 	</modules>
 
 	<build>
