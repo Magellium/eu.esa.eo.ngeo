@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>int_.esa.eo.ngeo</groupId>
+		<artifactId>download-manager-parent</artifactId>
+		<version>0.4.1</version>
+	</parent>
+	<artifactId>download-manager-schemas</artifactId>
+	<name>Download Manager Schemas</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<version>0.8.3</version>
+				<configuration>
+					<schemaDirectory>src/main/resources/schemas</schemaDirectory>
+					<schemaIncludes>
+						<include>metalink/3.0/metalink.xsd</include>
+						<include>DAGICD/ngEOBadRequestResponse.xsd</include>
+						<include>DAGICD/ngEOMissingProductResponse.xsd</include>
+						<include>DAGICD/ngEOProductDownloadResponse.xsd</include>
+					</schemaIncludes>
+					<bindingDirectory>src/main/resources/jaxb</bindingDirectory>
+					<cleanPackageDirectories>true</cleanPackageDirectories>
+					<removeOldOutput>true</removeOldOutput>
+					<forceRegenerate>true</forceRegenerate>
+					<verbose>true</verbose>
+					<args>
+						<!-- removes jaxb header which contains a timestamp - makes comparing 
+							generation after a change of xsd very difficult -->
+						<arg>-no-header</arg>
+						<!-- treat input as XML schema -->
+						<arg>-xmlschema</arg>
+					</args>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jaxb-generate</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>generate-sources</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
