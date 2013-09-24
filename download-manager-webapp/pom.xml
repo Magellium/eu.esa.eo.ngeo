@@ -19,26 +19,25 @@
 	<name>Download Manager webapp</name>
 	<packaging>war</packaging>
 	<dependencies>
-
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-plugin-interface</artifactId>
-			<version>0.4.1</version>
+			<version>${plugin-interface-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-plugin-development-kit</artifactId>
-			<version>0.4.1</version>
+			<version>${parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-schemas</artifactId>
-			<version>0.4.1</version>
+			<version>${parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-sso</artifactId>
-			<version>0.4.1</version>
+			<version>${parent.version}</version>
 		</dependency>
 	
 		<dependency>
@@ -110,11 +109,6 @@
 			<version>1.9.8</version>
 		</dependency>
 
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
-		</dependency>
 
 
 		<!-- AspectJ -->

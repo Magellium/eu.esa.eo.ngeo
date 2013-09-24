@@ -11,16 +11,15 @@
 	<name>Download Manager Mock Sentinel-2 Plugin</name>
 
 	<dependencies>
-		<!-- Download Manager Plugin Interface -->
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-plugin-interface</artifactId>
-			<version>0.4.1</version>
+			<version>${plugin-interface-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-plugin-development-kit</artifactId>
-			<version>0.4.1</version>
+			<version>${parent.version}</version>
 		</dependency>
 
 		<!-- Logging -->

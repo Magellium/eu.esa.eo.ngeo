@@ -12,16 +12,15 @@
 	<name>Download Manager Plugin Development Kit</name>
 
 	<dependencies>
-		<!-- Download Manager Plugin Interface -->
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-plugin-interface</artifactId>
-			<version>0.4.1</version>
+			<version>${plugin-interface-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-schemas</artifactId>
-			<version>0.4.1</version>
+			<version>${parent.version}</version>
 		</dependency>
 
 		<!-- Logging -->
@@ -65,11 +64,6 @@
 				</exclusion>
 			</exclusions>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
