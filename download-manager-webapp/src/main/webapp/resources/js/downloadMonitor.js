@@ -36,6 +36,11 @@ var DownloadMonitor = {
 			                 ],
 			"fnRowCallback": function( nRow, aData, iDisplayIndex ) {
 				$(nRow).attr("data-dataAccessRequest-id",aData.uuid);
+
+				var darStatusCell = $(nRow).find("td:eq(" + DownloadMonitor.darMonitoringStatusColumnIndex + ")");
+  				var darStatus = aData.monitoringStatus;
+  				var darStatusTranslated = messages['dar_status.' + darStatus];
+  				darStatusCell.html(darStatusTranslated);
 				return nRow;
 			},
             "bPaginate": false,
@@ -53,13 +58,13 @@ var DownloadMonitor = {
 			  dataType: "json"})
 		.done(function(response) {
 			if(response.success === false) {
-				DownloadMonitor.displayMessage("Unable to add manual download: " + response.message, "ruby");
+				DownloadMonitor.displayMessage(messages['error.unable_to_add_manual_download'] + ": " + response.message, "ruby");
 			}else{
 				DownloadMonitor.resetDownloadDisplay(downloadStatusTable);
 			}
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
-			DownloadMonitor.displayErrorMessage("Download Failed! ", jqXHR.responseText);
+			DownloadMonitor.displayErrorMessage(messages['error.download_failed'], jqXHR.responseText);
 		});
 	},
 	monitorDownloadStatus : function(downloadStatusTable) {
@@ -68,7 +73,7 @@ var DownloadMonitor = {
 			DownloadMonitor.displayDownloadStatus(downloadStatusTable,data);
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
-			DownloadMonitor.displayErrorMessage("Error with retrieving download status", jqXHR);
+			DownloadMonitor.displayErrorMessage(messages['error.retrieve_dar_status'], jqXHR);
 			clearTimeout(monitorDownloadStatusTimer);
 		})
 		.done(function() {
@@ -95,13 +100,13 @@ var DownloadMonitor = {
 	formatProductList : function(tableData, row ) {
 	    var aData = tableData.fnGetData( row );
 	    var sOut = '<table id="productList' + aData.uuid + '" style="padding-left:30px;"><thead><tr>';
-	    sOut += '<th class="productAccessURL">Product Access URL</th>';
-	    sOut += '<th class="productDownloadedSize">Total Size</th>';
-	    sOut += '<th class="productDownloadedSize">Downloaded Size</th>';
-	    sOut += '<th class="productProgress">Progress</th>';
-	    sOut += '<th class="productStatus">Product Status</th>';
-	    sOut += '<th class="productMessage">Message</th>';
-	    sOut += '<th class="productActions">Actions</th>';
+	    sOut += '<th class="productAccessURL">' + messages['product_table.heading.product_access_url'] + '</th>';
+	    sOut += '<th class="productDownloadedSize">' + messages['product_table.heading.total_size'] + '</th>';
+	    sOut += '<th class="productDownloadedSize">' + messages['product_table.heading.downloaded_size'] + '</th>';
+	    sOut += '<th class="productProgress">' + messages['product_table.heading.progress'] + '</th>';
+	    sOut += '<th class="productStatus">' + messages['product_table.heading.product_status'] + '</th>';
+	    sOut += '<th class="productMessage">' + messages['product_table.heading.message'] + '</th>';
+	    sOut += '<th class="productActions">' + messages['product_table.heading.actions'] + '</th>';
 	    sOut += '</tr></thead></table>';
 	    return sOut;
 	},
@@ -153,10 +158,13 @@ var DownloadMonitor = {
   				fileProductStatus.html(decodeURIComponent(aData.productAccessUrl));
   				
   				var fileProductStatus = $(nRow).find("td:eq(" + DownloadMonitor.productProgressStatusColumnIndex + ")");
- 				if(aData.productProgress.status == "IN_ERROR") {
+  				var productStatus = aData.productProgress.status;
+  				productStatusTranslated = messages['download_status.' + productStatus];
+  				fileProductStatus.html(productStatusTranslated);
+ 				if(productStatus == "IN_ERROR") {
  					var iconWarning = fileProductStatus.find(".iconWarning");
  					iconWarning.remove();
- 					fileProductStatus.append("<span class=\"iconWarning ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-alert\" title=\"Product download error: " + aData.productProgress.message + "\">!</span></span>");
+ 					fileProductStatus.append("<span class=\"iconWarning ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-alert\" title=\"" + messages['error.product_download'] + ": " + aData.productProgress.message + "\">!</span></span>");
  				}
  				var fileOverallSizeCell = $(nRow).find("td:eq(" + DownloadMonitor.productOverallSizeColumnIndex + ")");
  				fileOverallSizeCell.html(DownloadMonitor.getReadableFileSizeString(aData.overallSize));
@@ -170,7 +178,7 @@ var DownloadMonitor = {
  					value: Math.floor(aData.productProgress.progressPercentage),
  					create: function() {
  						if(aData.overallSize === -1 && aData.productProgress.progressPercentage === -1) {
- 	 						$(this).children(".progress-label").text( "Unknown" );
+ 	 						$(this).children(".progress-label").text( messages['label.unknown'] );
  						}else{
  	 						$(this).children(".progress-label").text( $(this).progressbar( "value" ) + "%" );
  						}
@@ -222,14 +230,21 @@ var DownloadMonitor = {
 		return actionHtml;
 	},
 	productDownloadCommand : function(productUuid, action) {
+		var sending_product_download_command_error = messages['error.sending_product_download_command'];
 		$.getJSON("products/" + productUuid, { action : action })
 		.done(function(response) {
 			if(response.success === false) {
-				DownloadMonitor.displayMessage("Error with sending product download command " + action + " for product uuid " + productUuid + ": " + response.message);
+				sending_product_download_command_error = sending_product_download_command_error.replace("*a*", action);
+				sending_product_download_command_error = sending_product_download_command_error.replace("*p*", productUuid);
+				
+				DownloadMonitor.displayMessage(sending_product_download_command_error + ": " + response.message);
 			}
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
-			DownloadMonitor.displayErrorMessage("Error with sending product download command " + action + " for product uuid " + productUuid, jqXHR);
+			sending_product_download_command_error = sending_product_download_command_error.replace("*a*", action);
+			sending_product_download_command_error = sending_product_download_command_error.replace("*p*", productUuid);
+
+			DownloadMonitor.displayErrorMessage(sending_product_download_command_error, jqXHR);
 		});
 	},
 	monitorProductStatus : function (downloadStatusTable, darUuid) {
@@ -241,7 +256,7 @@ var DownloadMonitor = {
 			}
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
-			DownloadMonitor.displayErrorMessage("Error with retrieving product status for DAR " + darUuid, jqXHR);
+			DownloadMonitor.displayErrorMessage(messages['error.retrieve_product_status'] + " " + darUuid, jqXHR);
 			clearTimeout(DownloadMonitor.monitorProductDownloadStatusTimer[darUuid]);
 		})
 		.done(function() {
@@ -280,7 +295,7 @@ var DownloadMonitor = {
 	},
 	getReadableFileSizeString : function(fileSizeInBytes) {
 		if(fileSizeInBytes === -1) {
-			return "Unknown";
+			return messages['label.unknown'];
 		}
 	    var i = -1;
 	    var byteUnits = [' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
@@ -325,7 +340,7 @@ var DownloadMonitor = {
 		$.getJSON("clearActivityHistory")
 		.done(function(response) {
 			if(response.success === false) {
-				DownloadMonitor.displayMessage("Error with clearing activity history: " + response.message, "lemon");
+				DownloadMonitor.displayMessage(messages['error.clear_activity_history'] + ": " + response.message, "lemon");
 			}else{
 				DownloadMonitor.resetDownloadDisplay(downloadStatusTable);
 			}

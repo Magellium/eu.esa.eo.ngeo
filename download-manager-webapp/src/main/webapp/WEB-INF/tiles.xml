@@ -5,6 +5,7 @@
 <tiles-definitions>
 	<definition name="commonPage" template="/WEB-INF/views/template.jsp">
 		<put-attribute name="top-bar" value="/WEB-INF/fragments/top-bar.jsp" />
+		<put-attribute name="i18n-messages" value="/WEB-INF/fragments/i18n-messages.jsp" />
 	</definition>
 
 	<definition name="home" extends="commonPage">

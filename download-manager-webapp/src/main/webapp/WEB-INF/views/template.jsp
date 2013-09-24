@@ -35,5 +35,7 @@
 		<script src="resources/js/jquery.dataTables.js"></script>
 		<script src="resources/js/external/jquery.notific8.min.js"></script>
 		<script src="resources/js/downloadMonitor.js"></script>
+
+	    <tiles:insertAttribute name="i18n-messages"/>
 	</body>
 </html>
