@@ -1,13 +1,16 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
+import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.exception.SchemaNotFoundException;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.ProductDownloadMetadata;
+import int_.esa.eo.ngeo.downloadmanager.plugin.model.ProxyDetails;
 import int_.esa.eo.ngeo.downloadmanager.plugin.thread.HttpFileDownloadRunnable;
 import int_.esa.eo.ngeo.downloadmanager.plugin.thread.IdleCheckThread;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.PathResolver;
-import int_.esa.eo.ngeo.downloadmanager.plugin.utils.ProductResponseParser;
-import int_.esa.eo.ngeo.downloadmanager.plugin.utils.ProductResponseType;
+import int_.esa.eo.ngeo.downloadmanager.transform.SchemaRepository;
+import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
 import int_.esa.eo.ngeo.schema.ngeobadrequestresponse.BadRequestResponse;
 import int_.esa.eo.ngeo.schema.ngeomissingproductresponse.MissingProductResponse;
 import int_.esa.eo.ngeo.schema.ngeoproductdownloadresponse.ProductDownloadResponse;
@@ -50,7 +53,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	
 	private static final String MIME_TYPE_METALINK = "application/metalink+xml";
 
-	private ProductResponseParser productResponseParser;
+	private SchemaRepository schemaRepository;
 
 	private URI productURI;
 	
@@ -68,19 +71,18 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	private Properties pluginConfig;
 	private PathResolver pathResolver;
 	
-	public HTTPDownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener,
-			String proxyLocation, int proxyPort, String proxyUser, String proxyPassword, String umssoUsername, String umssoPassword, Properties pluginConfig) {
+	public HTTPDownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener, ProxyDetails proxyDetails, String umssoUsername, String umssoPassword, Properties pluginConfig, SchemaRepository schemaRepository) {
 		this.productURI = productURI;
 		this.baseProductDownloadDir = downloadDir;
 		this.productDownloadProgressMonitor = new ProductDownloadProgressMonitor(productDownloadListener);
-		this.productResponseParser = new ProductResponseParser();
+		this.schemaRepository = schemaRepository;
 		this.pathResolver = new PathResolver();
 		this.pluginConfig = pluginConfig;
 
 		String enableUmssoJclUseString = pluginConfig.getProperty(ENABLE_UMSSO_JCL_USE);
 		boolean enableUmssoJclUse = Boolean.parseBoolean(enableUmssoJclUseString);
 
-		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyLocation, proxyPort, proxyUser, proxyPassword, enableUmssoJclUse);
+		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyDetails.getProxyLocation(), proxyDetails.getProxyPort(), proxyDetails.getProxyUser(), proxyDetails.getProxyPassword(), enableUmssoJclUse);
 	}
 	
 	public EDownloadStatus startDownload() throws DMPluginException {
@@ -97,9 +99,9 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	public void retrieveDownloadDetails() {
 		HttpMethodBase productDownloadHeaders = null;
 		HttpMethodBase productDownloadBody = null;
+		XMLWithSchemaTransformer xmlWithSchemaTransformer = new XMLWithSchemaTransformer(schemaRepository);
 		try {
 			LOGGER.debug("About to construct UmSsoHttpClient");
-//			productDownloadHeaders = umSsoHttpClient.executeHeadRequest(productURI.toURL());
 			productDownloadHeaders = umSsoHttpClient.executeHeadRequest(productURI.toURL());
 			int responseCode = productDownloadHeaders.getStatusCode();
 			switch (responseCode) {
@@ -110,7 +112,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 
 				if(contentType.contains(MIME_TYPE_METALINK)) {
 					productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
-					Metalink metalink = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.METALINK_3_0);					
+					Metalink metalink = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadBody.getResponseBodyAsStream(), Metalink.class);					
 					LOGGER.debug(String.format("metalink: %s", metalink));
 
 					Path metalinkFolderPath = pathResolver.determineFolderPath(productURI, baseProductDownloadDir);
@@ -133,6 +135,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					}
 					LOGGER.debug(String.format("Product contains %s files", fileList.size()));
 					productDownloadProgressMonitor.notifyOfProductDetails(productMetadata.getMetalinkDownloadDirectory().getFileName().toString(), productMetadata.getFileMetadataList());
+					productDownloadProgressMonitor.setStatus(EDownloadStatus.NOT_STARTED);
 				}else{
 					//download is a single file
 					Header contentDispositionHeader = productDownloadHeaders.getResponseHeader("Content-Disposition");
@@ -154,7 +157,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				break;
 			case HttpStatus.SC_ACCEPTED:
 				productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
-				ProductDownloadResponse productDownloadResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.PRODUCT_ACCEPTED);					
+				ProductDownloadResponse productDownloadResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadBody.getResponseBodyAsStream(), ProductDownloadResponse.class);					
 				ProductDownloadResponseType productDownloadResponseCode = productDownloadResponse.getResponseCode();
 				if(productDownloadResponseCode == ProductDownloadResponseType.ACCEPTED || productDownloadResponseCode == ProductDownloadResponseType.IN_PROGRESS) {
 					long retryAfter = productDownloadResponse.getRetryAfter().longValue();
@@ -178,10 +181,11 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 			case HttpStatus.SC_BAD_REQUEST:
 				productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
 				try {
-					BadRequestResponse badRequestResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.BAD_REQUEST);					
+					BadRequestResponse badRequestResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadBody.getResponseBodyAsStream(), BadRequestResponse.class);					
 					LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
-				}catch(IOException | DMPluginException ex) {
+				}catch(IOException | ParseException | SchemaNotFoundException ex) {
+					LOGGER.error("HTTP response code 400 (Bad Request), unable to parse response details.", ex);
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, "HTTP response code 400 (Bad Request), unable to parse response details.");
 				}
 				break;
@@ -192,10 +196,11 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 			case HttpStatus.SC_NOT_FOUND:
 				productDownloadBody = retrieveDownloadDetailsBody(productURI.toURL());
 				try {
-					MissingProductResponse missingProductResponse = productResponseParser.parse(productDownloadBody.getResponseBodyAsStream(), ProductResponseType.MISSING_PRODUCT);
+					MissingProductResponse missingProductResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadBody.getResponseBodyAsStream(), MissingProductResponse.class);
 					LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, missingProductResponse.getResponseMessage());
-				}catch(IOException | DMPluginException ex) {
+				}catch(IOException | ParseException | SchemaNotFoundException ex) {
+					LOGGER.error("HTTP response code 402 (Not Found), unable to parse response details.", ex);
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, "HTTP response code 402 (Not Found), unable to parse response details.");
 				}
 				break;
@@ -203,7 +208,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, String.format("Unexpected response, HTTP response code %s",responseCode));
 				break;
 			}
-		} catch (UmssoCLException | IOException | DMPluginException ex) {
+		} catch (UmssoCLException | IOException | DMPluginException | ParseException | SchemaNotFoundException ex) {
+			LOGGER.error("Exception occurred whilst retrieving download details.", ex);
 			productDownloadProgressMonitor.setError(ex);
 		} finally {
 			if (productDownloadHeaders != null) {

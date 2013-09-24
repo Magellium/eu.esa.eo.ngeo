@@ -2,7 +2,6 @@ package int_.esa.eo.ngeo.dmtu.monitor.dar;
 
 import int_.esa.eo.ngeo.dmtu.controller.DARController;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
-import int_.esa.eo.ngeo.dmtu.exception.ParseException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
 import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
@@ -10,6 +9,7 @@ import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
+import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;

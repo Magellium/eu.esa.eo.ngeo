@@ -2,8 +2,14 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<bean name="jaxbSchemaRepository" class="int_.esa.eo.ngeo.dmtu.jaxb.JaxbSchemaRepository">
-		<property name="schemaMap">
+	<bean name="xmlWithSchemaTransformer" class="int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer">
+		<constructor-arg index="0">
+			<ref bean="schemaRepository"/>
+		</constructor-arg>
+	</bean>
+
+	<bean name="schemaRepository" class="int_.esa.eo.ngeo.downloadmanager.transform.SchemaRepository">
+		<constructor-arg index="0">
 			<map>
 				<entry key="int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ" value="schemas/IICD-D-WS/IF-ngEO-DataAccessMonitoring-Requ.xsd" />
 				<entry key="int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp" value="schemas/IICD-D-WS/IF-ngEO-DataAccessMonitoring-Resp.xsd" />
@@ -13,6 +19,6 @@
 				<entry key="int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLResp" value="schemas/IICD-D-WS/IF-ngEO-MonitoringURL-Resp.xsd" />
 				<entry key="int_.esa.eo.ngeo.iicd_d_ws._1.Error" value="schemas/IICD-D-WS/IF-ngEO-D-WS_common.xsd" />
 			</map>
-		</property>
+		</constructor-arg>
 	</bean>
 </beans>

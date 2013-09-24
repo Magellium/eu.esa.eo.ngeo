@@ -1,10 +1,11 @@
 package int_.esa.eo.ngeo.dmtu.webserver.service;
 
-import int_.esa.eo.ngeo.dmtu.exception.ParseException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
-import int_.esa.eo.ngeo.dmtu.jaxb.JaxbUtils;
 import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
 import int_.esa.eo.ngeo.dmtu.utils.HttpHeaderParser;
+import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.exception.SchemaNotFoundException;
+import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLRequ;
@@ -27,7 +28,7 @@ import com.siemens.pse.umsso.client.UmssoCLException;
 @Component
 public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	@Autowired
-	private JaxbUtils jaxbUtils;
+	private XMLWithSchemaTransformer xmlWithSchemaTransformer;
 
 	@Autowired
 	private SettingsManager settingsManager;
@@ -61,42 +62,30 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	}
 	
 	@Override
-	public HttpMethod registrationMgmt(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, DMRegistrationMgmntRequ registrationMgmntRequest) throws ParseException, ServiceException {
-	    ByteArrayOutputStream baos = new ByteArrayOutputStream(BYTE_ARRAY_SIZE);
-	    jaxbUtils.serializeAndInferSchema(registrationMgmntRequest, baos);
-	    LOGGER.debug(String.format("DMRegistrationMgmntRequ (%s):%n %s", ngEOWebServerUrl.toString(), baos.toString()));
-
-	    try {
-	    	return umSsoHttpClient.executePostRequest(ngEOWebServerUrl, baos, "application/xml", "application/xml");
-		} catch (UmssoCLException | IOException e) {
-			throw new ServiceException(e);
-		}
+	public HttpMethod registrationMgmt(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, DMRegistrationMgmntRequ registrationMgmntRequest) throws ServiceException {
+		return sendNgeoWebServerRequest(ngEOWebServerUrl, umSsoHttpClient, registrationMgmntRequest);
 	}
 
 	@Override
-	public HttpMethod monitoringURL(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, MonitoringURLRequ monitoringUrlRequest) throws ParseException, ServiceException {
-	    ByteArrayOutputStream baos = new ByteArrayOutputStream(BYTE_ARRAY_SIZE);
-	    jaxbUtils.serializeAndInferSchema(monitoringUrlRequest, baos);
-	    LOGGER.debug(String.format("MonitoringURLRequ (%s):%n %s", ngEOWebServerUrl.toString(), baos.toString()));
-
-	    try {
-	    	return umSsoHttpClient.executePostRequest(ngEOWebServerUrl, baos, "application/xml", "application/xml");
-		} catch (UmssoCLException | IOException e) {
-			throw new ServiceException(e);
-		}
+	public HttpMethod monitoringURL(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, MonitoringURLRequ monitoringUrlRequest) throws ServiceException {
+		return sendNgeoWebServerRequest(ngEOWebServerUrl, umSsoHttpClient, monitoringUrlRequest);
 	}
 
 	@Override
-	public HttpMethod dataAccessMonitoring(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, DataAccessMonitoringRequ dataAccessMonitoringRequest) throws ParseException, ServiceException {
-	    ByteArrayOutputStream baos = new ByteArrayOutputStream(BYTE_ARRAY_SIZE);
-	    jaxbUtils.serializeAndInferSchema(dataAccessMonitoringRequest, baos);
-	    LOGGER.debug(String.format("DataAccessMonitoringRequ (%s):%n %s", ngEOWebServerUrl.toString(), baos.toString()));
+	public HttpMethod dataAccessMonitoring(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, DataAccessMonitoringRequ dataAccessMonitoringRequest) throws ServiceException {
+		return sendNgeoWebServerRequest(ngEOWebServerUrl, umSsoHttpClient, dataAccessMonitoringRequest);
+	}
 
+	public HttpMethod sendNgeoWebServerRequest(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, Object requestObject) throws ServiceException {
 	    try {
-			return umSsoHttpClient.executePostRequest(ngEOWebServerUrl, baos, "application/xml", "application/xml");
-		} catch (UmssoCLException | IOException e) {
+		    ByteArrayOutputStream baos = new ByteArrayOutputStream(BYTE_ARRAY_SIZE);
+		    xmlWithSchemaTransformer.serializeAndInferSchema(requestObject, baos);
+		    LOGGER.debug(String.format("DataAccessMonitoringRequ (%s):%n %s", ngEOWebServerUrl.toString(), baos.toString()));
+
+		    return umSsoHttpClient.executePostRequest(ngEOWebServerUrl, baos, "application/xml", "application/xml");
+		} catch (UmssoCLException | IOException | SchemaNotFoundException | ParseException e) {
 			throw new ServiceException(e);
 		}
+
 	}
-	
 }

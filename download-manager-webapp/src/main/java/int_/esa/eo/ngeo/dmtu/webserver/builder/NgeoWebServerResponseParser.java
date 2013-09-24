@@ -1,10 +1,11 @@
 package int_.esa.eo.ngeo.dmtu.webserver.builder;
 
-import int_.esa.eo.ngeo.dmtu.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.exception.SchemaNotFoundException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
-import int_.esa.eo.ngeo.dmtu.jaxb.JaxbUtils;
 import int_.esa.eo.ngeo.dmtu.utils.XmlFormatter;
+import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.Error;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NgeoWebServerResponseParser {
 	@Autowired
-	private JaxbUtils jaxbUtils;
+	private XMLWithSchemaTransformer xmlWithSchemaTransformer;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(NgeoWebServerResponseParser.class);
 	
@@ -54,14 +55,14 @@ public class NgeoWebServerResponseParser {
 			switch(httpStatusCode) {
 			case HttpStatus.SC_OK:
 				LOGGER.debug(String.format("response - %s: %n%s", resultType.getName(), new XmlFormatter().format(responseBodyAsString)));
-			    T responseAsObject = jaxbUtils.deserializeAndInferSchema(responseBodyAsStream, resultType);
+			    T responseAsObject = xmlWithSchemaTransformer.deserializeAndInferSchema(responseBodyAsStream, resultType);
 
 			    return responseAsObject;
 			default:
 				LOGGER.debug(String.format("response - %s: %n%s", resultType.getName(), responseBodyAsString));
 				String httpResponseMessage = response.getStatusLine().getReasonPhrase();
 				try {
-					Error exceptionReport = jaxbUtils.deserializeAndInferSchema(responseBodyAsStream, Error.class);
+					Error exceptionReport = xmlWithSchemaTransformer.deserializeAndInferSchema(responseBodyAsStream, Error.class);
 
 					throw new WebServerServiceException(String.format("%s. Reason was: %s", httpResponseMessage, exceptionReport.getErrorDetail()));
 				}catch(ParseException e) {
@@ -69,7 +70,7 @@ public class NgeoWebServerResponseParser {
 							serviceUrl.toString(), httpStatusCode, httpResponseMessage));
 				}
 			}
-		} catch (IOException e) {
+		} catch (IOException | SchemaNotFoundException e) {
 			throw new ServiceException(String.format(e.getLocalizedMessage()));
 		} finally {
 			response.releaseConnection();

@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.dmtu.exception;
+package int_.esa.eo.ngeo.downloadmanager.exception;
 
 
 public class ParseException extends Exception {

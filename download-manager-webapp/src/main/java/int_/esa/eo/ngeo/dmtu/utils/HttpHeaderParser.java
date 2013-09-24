@@ -1,6 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.utils;
 
-import int_.esa.eo.ngeo.dmtu.exception.ParseException;
+import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 
 import java.util.Date;
 
@@ -12,15 +12,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public final class HttpHeaderParser {
-	public Date getDateFromResponseHTTPHeaders(HttpMethod method) throws ParseException {
+	public Date getDateFromResponseHTTPHeaders(HttpMethod method) throws ServiceException {
 		Header responseHeaderDate = method.getResponseHeader("Date");
 		if(responseHeaderDate == null) {
-			throw new ParseException("Server response does not contain HTTP header \"Date\".");
+			throw new ServiceException("Server response does not contain HTTP header \"Date\".");
 		}
 		try {
 			return DateUtil.parseDate(responseHeaderDate.getValue());
 		} catch (DateParseException e) {
-			throw new ParseException(e);
+			throw new ServiceException(e);
 		}
 	}
 }

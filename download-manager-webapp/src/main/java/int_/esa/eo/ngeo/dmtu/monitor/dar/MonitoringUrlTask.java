@@ -4,13 +4,13 @@ import int_.esa.eo.ngeo.dmtu.controller.DARController;
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
-import int_.esa.eo.ngeo.dmtu.exception.ParseException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
 import int_.esa.eo.ngeo.dmtu.utils.HttpHeaderParser;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
+import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLList;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLResp;
@@ -67,86 +67,89 @@ public class MonitoringUrlTask implements Runnable {
 	
 	public void run() {
 		LOGGER.debug("Starting MonitoringUrlTask");
-		HttpClient httpClient = new HttpClient();
-		httpClient.getParams().setParameter("http.useragent", "ngEO Download Manager Test Unit");
-
-		String umSsoUsername = darController.getSetting(SettingsManager.KEY_SSO_USERNAME);
-		String umSsoPassword = darController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
-		String downloadManagerSetTimeAsString = darController.getSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME);
-
-		GregorianCalendar downloadManagerSetTime = null;
-		if(downloadManagerSetTimeAsString != null && !downloadManagerSetTimeAsString.isEmpty()) {
-			downloadManagerSetTime = convertDateTimeAsStringToGregorianCalendar(downloadManagerSetTimeAsString);
-		}
-		
-		UmSsoHttpClient umSsoHttpClient = new UmSsoHttpClient(umSsoUsername, umSsoPassword, "", -1, "", "", true);
-		//XXX: This should be replaced with UM-SSO when implemented
-		ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
-
-		MonitoringURLRequ monitoringUrlRequest = ngeoWebServerRequestBuilder.buildMonitoringURLRequest(downloadManagerId, downloadManagerSetTime);
-		UserOrder userOrder = null;
-		HttpMethod method = null;
-		try {
-			method = ngeoWebServerService.monitoringURL(monitoringServiceUrl, umSsoHttpClient, monitoringUrlRequest);
-			MonitoringURLResp monitoringUrlResponse = ngeoWebServerResponseParser.parseMonitoringURLResponse(monitoringServiceUrl, method);
-			Date responseDate = new HttpHeaderParser().getDateFromResponseHTTPHeaders(method);
-
-			darController.setSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
-
-//			Error error = monitoringUrlResponse.getError();
-//			if(error != null) {
-//				throw new WebServerServiceException(String.format("Error code %s (%s) when MonitoringURL operation. Error detail: %s",error.getErrorCode(), error.getErrorDescription().toString(), error.getErrorDetail()));
-//			}
-
-			userOrder = monitoringUrlResponse.getUserOrder();
-			if(userOrder != null) {
-				LOGGER.info(String.format("User order: %s",userOrder.toString()));
-				darController.userOrder(userOrder);
-			}else{
-				refreshPeriod = monitoringUrlResponse.getRefreshPeriod().intValue();
-				darController.setSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));
-				
-				MonitoringURLList monitoringUrls = monitoringUrlResponse.getMonitoringURLList();
-				List<String> monitoringUrlList = monitoringUrls.getMonitoringURL();
-				LOGGER.debug(String.format("Monitoring URL has %s new DARs to monitor",monitoringUrlList.size()));
-				for (String darMonitoringUrlString : monitoringUrlList) {
-					URL darMonitoringUrl;
-					try {
-						darMonitoringUrl = new URL(darMonitoringUrlString);
-						boolean darAdded = false;
+		//The user can manually stop monitoring for DARs, consequently we have to check the core
+//		if(!darController.isMonitoringStopped()) {
+			HttpClient httpClient = new HttpClient();
+			httpClient.getParams().setParameter("http.useragent", "ngEO Download Manager");
+	
+			String umSsoUsername = darController.getSetting(SettingsManager.KEY_SSO_USERNAME);
+			String umSsoPassword = darController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
+			String downloadManagerSetTimeAsString = darController.getSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME);
+	
+			GregorianCalendar downloadManagerSetTime = null;
+			if(downloadManagerSetTimeAsString != null && !downloadManagerSetTimeAsString.isEmpty()) {
+				downloadManagerSetTime = convertDateTimeAsStringToGregorianCalendar(downloadManagerSetTimeAsString);
+			}
+			
+			UmSsoHttpClient umSsoHttpClient = new UmSsoHttpClient(umSsoUsername, umSsoPassword, "", -1, "", "", true);
+			//XXX: This should be replaced with UM-SSO when implemented
+			ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
+	
+			MonitoringURLRequ monitoringUrlRequest = ngeoWebServerRequestBuilder.buildMonitoringURLRequest(downloadManagerId, downloadManagerSetTime);
+			UserOrder userOrder = null;
+			HttpMethod method = null;
+			try {
+				method = ngeoWebServerService.monitoringURL(monitoringServiceUrl, umSsoHttpClient, monitoringUrlRequest);
+				MonitoringURLResp monitoringUrlResponse = ngeoWebServerResponseParser.parseMonitoringURLResponse(monitoringServiceUrl, method);
+				Date responseDate = new HttpHeaderParser().getDateFromResponseHTTPHeaders(method);
+	
+				darController.setSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
+	
+	//			Error error = monitoringUrlResponse.getError();
+	//			if(error != null) {
+	//				throw new WebServerServiceException(String.format("Error code %s (%s) when MonitoringURL operation. Error detail: %s",error.getErrorCode(), error.getErrorDescription().toString(), error.getErrorDetail()));
+	//			}
+	
+				userOrder = monitoringUrlResponse.getUserOrder();
+				if(userOrder != null) {
+					LOGGER.info(String.format("User order: %s",userOrder.toString()));
+					darController.userOrder(userOrder);
+				}else{
+					refreshPeriod = monitoringUrlResponse.getRefreshPeriod().intValue();
+					darController.setSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));
+					
+					MonitoringURLList monitoringUrls = monitoringUrlResponse.getMonitoringURLList();
+					List<String> monitoringUrlList = monitoringUrls.getMonitoringURLs();
+					LOGGER.debug(String.format("Monitoring URL has %s new DARs to monitor",monitoringUrlList.size()));
+					for (String darMonitoringUrlString : monitoringUrlList) {
+						URL darMonitoringUrl;
 						try {
-							darAdded = darController.addDataAccessRequest(darMonitoringUrl);
-						} catch (DataAccessRequestAlreadyExistsException e) {
-							LOGGER.warn(String.format("Monitoring URL has %s already been added to the Download Manager.",darMonitoringUrl));
+							darMonitoringUrl = new URL(darMonitoringUrlString);
+							boolean darAdded = false;
+							try {
+								darAdded = darController.addDataAccessRequest(darMonitoringUrl);
+							} catch (DataAccessRequestAlreadyExistsException e) {
+								LOGGER.warn(String.format("Monitoring URL has %s already been added to the Download Manager.",darMonitoringUrl));
+							}
+							
+							if(darAdded) {
+								LOGGER.debug("Starting new dataAccessMonitoringTask from MonitoringUrlTask");
+								DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
+								darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());
+							}
+						} catch (MalformedURLException e) {
+							LOGGER.error(String.format("Unable to parse ngEO Web Server DAR Monitoring URL %s",darMonitoringUrlString),e);
 						}
-						
-						if(darAdded) {
-							LOGGER.debug("Starting new dataAccessMonitoringTask from MonitoringUrlTask");
-							DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
-							darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());
-						}
-					} catch (MalformedURLException e) {
-						LOGGER.error(String.format("Unable to parse ngEO Web Server DAR Monitoring URL %s",darMonitoringUrlString),e);
 					}
 				}
+			} catch (ParseException | ServiceException | DownloadOperationException e) {
+				LOGGER.error(String.format("Exception whilst calling Monitoring URL %s: %s", monitoringServiceUrl, e.getLocalizedMessage()), e);
+			} finally {
+				if (method != null) {
+					method.releaseConnection();
+				}
 			}
-		} catch (ParseException | ServiceException | DownloadOperationException e) {
-			LOGGER.error(String.format("Exception whilst calling Monitoring URL %s: %s", monitoringServiceUrl, e.getLocalizedMessage()), e);
-		} finally {
-			if (method != null) {
-				method.releaseConnection();
-			}
-		}
-
-		if(userOrder == null) {
-			Calendar c = Calendar.getInstance();
-			c.setTime(new Date());
-			c.add(Calendar.SECOND, refreshPeriod);
 	
-			MonitoringUrlTask monitoringUrlTask = new MonitoringUrlTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, darMonitorScheduler, downloadManagerId, monitoringServiceUrl);
-			darMonitorScheduler.schedule(monitoringUrlTask, c.getTime());
-		}
-		LOGGER.debug("Finished MonitoringUrlTask");
+			if(userOrder == null) {
+				Calendar c = Calendar.getInstance();
+				c.setTime(new Date());
+				c.add(Calendar.SECOND, refreshPeriod);
+		
+				MonitoringUrlTask monitoringUrlTask = new MonitoringUrlTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, darMonitorScheduler, downloadManagerId, monitoringServiceUrl);
+				darMonitorScheduler.schedule(monitoringUrlTask, c.getTime());
+			}
+			LOGGER.debug("Finished MonitoringUrlTask");
+//		}
 	}
 
 	//TODO: does this need to be moved into a parse date util class?
