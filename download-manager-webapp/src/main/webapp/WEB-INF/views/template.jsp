@@ -20,7 +20,7 @@
 		<script src="resources/js/jquery-1.9.1.min.js"></script>
 		<title>
 			<c:set var="subTitleKey"><tiles:getAsString name="page-sub-title-key"/></c:set>
-			<spring:message code="DM_TITLE" /> <spring:message code="${subTitleKey}" />			
+			<spring:message code="DM_TITLE" /> <c:if test="${fn:length(subTitleKey) > 0}"><spring:message code="${subTitleKey}" /></c:if>
 		</title>
 	</head>
 	<body>

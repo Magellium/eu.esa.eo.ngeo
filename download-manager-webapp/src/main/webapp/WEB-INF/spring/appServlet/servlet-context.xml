@@ -10,7 +10,7 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
 	<beans:bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"> 
-		<beans:property name="basenames" value="/WEB-INF/i18n/messages,/WEB-INF/classes/META-INF/dmtu" />
+		<beans:property name="basenames" value="/WEB-INF/i18n/messages,/WEB-INF/classes/META-INF/download-manager" />
 	    <beans:property name="fallbackToSystemLocale" value="false" />
 	</beans:bean>
 

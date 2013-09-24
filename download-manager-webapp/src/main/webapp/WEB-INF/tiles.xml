@@ -9,7 +9,7 @@
 
 	<definition name="home" extends="commonPage">
 		<put-attribute name="content" value="/WEB-INF/views/home.jsp" />
-		<put-attribute name="page-sub-title" value="" />
+		<put-attribute name="page-sub-title-key" value="" />
 	</definition>
 
 	<definition name="firstStartupConfig" extends="commonPage">
