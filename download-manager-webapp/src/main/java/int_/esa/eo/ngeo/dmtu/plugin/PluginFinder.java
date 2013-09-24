@@ -1,4 +1,4 @@
-package fr.magellium.common.plugin;
+package int_.esa.eo.ngeo.dmtu.plugin;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-// XXX: Technical debt: This class should be moved to a utils project; it isn't domain-specific.
 public class PluginFinder<T> {
 
 	private static final ReentrantReadWriteLock LOCK = new ReentrantReadWriteLock();

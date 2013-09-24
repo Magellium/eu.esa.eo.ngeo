@@ -1,9 +1,9 @@
 package int_.esa.eo.ngeo.dmtu.manager;
 
-import fr.magellium.common.plugin.PluginFinder;
 import int_.esa.eo.ngeo.dmtu.configuration.DownloadManagerProperties;
 import int_.esa.eo.ngeo.dmtu.exception.NoPluginAvailableException;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.dmtu.plugin.PluginFinder;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPluginInfo;
