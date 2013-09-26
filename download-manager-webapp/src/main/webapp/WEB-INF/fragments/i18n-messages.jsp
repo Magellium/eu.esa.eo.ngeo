@@ -10,6 +10,8 @@
 	messages['error.retrieve_product_status'] = "<spring:message code='error.retrieve_product_status' />";
 	messages['error.retrieve_dar_status'] = "<spring:message code='error.retrieve_dar_status' />";
 	messages['error.clear_activity_history'] = "<spring:message code='error.clear_activity_history' />";
+	messages['error.heading.communication_lost'] = "<spring:message code='error.heading.communication_lost' />";
+	messages['error.message.communication_lost'] = "<spring:message code='error.message.communication_lost' />";
 	messages['product_table.heading.product_access_url'] = "<spring:message code='product_table.heading.product_access_url' />";
 	messages['product_table.heading.total_size'] = "<spring:message code='product_table.heading.total_size' />";
 	messages['product_table.heading.downloaded_size'] = "<spring:message code='product_table.heading.downloaded_size' />";
@@ -29,4 +31,5 @@
 	messages['download_status.CANCELLED'] = "<spring:message code='download_status.CANCELLED' />";
 	messages['download_status.IN_ERROR'] = "<spring:message code='download_status.IN_ERROR' />";
 	messages['download_status.COMPLETED'] = "<spring:message code='download_status.COMPLETED' />";
+
 </script>

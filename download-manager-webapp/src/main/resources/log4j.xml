@@ -58,11 +58,11 @@
 	</logger>
 	
 	<logger name="int_.esa.eo.ngeo.dmtu.monitor.dar">
-		<level value="info" />
+		<level value="debug" />
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.dmtu.webserver.builder">
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.dmtu.webserver.service">

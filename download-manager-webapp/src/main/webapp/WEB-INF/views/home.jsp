@@ -8,10 +8,36 @@
 	</form>
 	</div>
 	<div style="float:right;">
-		<spring:message code="label.advanced_configuration" var="label_advanced_configuration" />
 		<spring:message code="label.clear_activity_history" var="label_clear_activity_history" />
-		<input type="button" value="${label_advanced_configuration}" class="headerButton" onclick="document.location.href='advancedconfig'"/>&nbsp;
-		<input type="button" value="${label_clear_activity_history}" class="headerButton" onclick="DownloadMonitor.clearActivityHistory($('#downloadStatusTable'));" />
+		<spring:message code="label.commands" var="label_commands" />
+		<spring:message code="label.commands.stop" var="label_commands_stop" />
+		<spring:message code="label.commands.stop_monitoring" var="label_commands_stop_monitoring" />
+		<spring:message code="label.commands.stop_monitoring_now" var="label_commands_stop_monitoring_now" />
+		<spring:message code="label.commands.stop_monitoring_all" var="label_commands_stop_monitoring_all" />
+		<spring:message code="tooltip.commands.stop_monitoring" var="tooltip_commands_stop_monitoring" />
+		<spring:message code="tooltip.commands.stop_monitoring_now" var="tooltip_commands_stop_monitoring_now" />
+		<spring:message code="tooltip.commands.stop_monitoring_all" var="tooltip_commands_stop_monitoring_all" />
+
+		<ul id="menu">
+			<li><a href="#">${label_commands}</a>
+				<ul>
+					<li><a href="#" class="clearActivityHistory">${label_clear_activity_history}</a></li>
+					<li><a href="#">${label_commands_stop}</a>
+						<ul>
+							<li><a href="#" class="stopMonitoring" title="${tooltip_commands_stop_monitoring}">${label_commands_stop_monitoring}</a></li>
+							<li><a href="#" class="stopMonitoringNow" title="${tooltip_commands_stop_monitoring_now}">${label_commands_stop_monitoring_now}</a></li>
+							<li><a href="#" class="stopAll" title="${tooltip_commands_stop_monitoring_all}">${label_commands_stop_monitoring_all}</a></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	&nbsp;
+	<div style="float:right;">
+		<spring:message code="label.advanced_configuration" var="label_advanced_configuration" />
+
+		<input type="button" value="${label_advanced_configuration}" class="headerButton" onclick="document.location.href='advancedconfig'"/>
 	</div>
 	<br /><br />
 </div>
@@ -35,5 +61,18 @@
 	$(document).ready(function() {
 		DownloadMonitor.initialiseDownloadForm($("#downloadForm"),$("#downloadStatusTable"));
 		DownloadMonitor.initialiseDownloadStatusTable($("#downloadStatusTable"));
+		$("#menu").menu( { icons: { submenu: "ui-icon-carat-1-s" }, position: { my: "right top", at: "left center" } });
+		$(".clearActivityHistory").click(function() {
+			DownloadMonitor.clearActivityHistory($('#downloadStatusTable'));
+		});
+		$(".stopMonitoring").click(function() {
+			DownloadMonitor.stopDownloads("monitoring");
+		});
+		$(".stopMonitoringNow").click(function() {
+			DownloadMonitor.stopDownloads("monitoringNow");
+		});
+		$(".stopAll").click(function() {
+			DownloadMonitor.stopDownloads("all");
+		});
 	});
 </script>

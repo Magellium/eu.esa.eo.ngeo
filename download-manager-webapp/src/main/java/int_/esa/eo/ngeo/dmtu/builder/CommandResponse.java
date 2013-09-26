@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.dmtu.controller;
+package int_.esa.eo.ngeo.dmtu.builder;
 
 public class CommandResponse {
 	private final boolean success;

@@ -1,6 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.monitor.dar;
 
 import int_.esa.eo.ngeo.dmtu.controller.DARController;
+import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
@@ -32,17 +33,19 @@ public class DataAccessMonitoringTask implements Runnable {
 	private NgeoWebServerResponseParser ngeoWebServerResponseParser;
 	private NgeoWebServerServiceInterface ngeoWebServerService;
 	private DARController darController;
+	private MonitoringController monitoringController;
 	private TaskScheduler darMonitorScheduler;
  
 	private String downloadManagerId;
 	private URL darMonitoringUrl;
 	private int refreshPeriod;
 	
-	public DataAccessMonitoringTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService, DARController darController, TaskScheduler darMonitorScheduler, String downloadManagerId, URL darMonitoringUrl, int refreshPeriod) {
+	public DataAccessMonitoringTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService, DARController darController, MonitoringController monitoringController, TaskScheduler darMonitorScheduler, String downloadManagerId, URL darMonitoringUrl, int refreshPeriod) {
 		this.ngeoWebServerRequestBuilder = ngeoWebServerRequestBuilder;
 		this.ngeoWebServerResponseParser= ngeoWebServerResponseParser; 
 		this.ngeoWebServerService = ngeoWebServerService;
 		this.darController = darController;
+		this.monitoringController = monitoringController;
 		this.darMonitorScheduler = darMonitorScheduler;
 		this.downloadManagerId = downloadManagerId;
 		this.darMonitoringUrl = darMonitoringUrl;
@@ -52,8 +55,8 @@ public class DataAccessMonitoringTask implements Runnable {
 	public void run() {
 		LOGGER.debug("Starting DataAccessMonitoringTask");
 
-		String umSsoUsername = darController.getSetting(SettingsManager.KEY_SSO_USERNAME);
-		String umSsoPassword = darController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
+		String umSsoUsername = monitoringController.getSetting(SettingsManager.KEY_SSO_USERNAME);
+		String umSsoPassword = monitoringController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
 
 		UmSsoHttpClient umSsoHttpClient = new UmSsoHttpClient(umSsoUsername, umSsoPassword, "", -1, "", "", true);
 		//XXX: This should be replaced with UM-SSO when implemented
@@ -94,7 +97,7 @@ public class DataAccessMonitoringTask implements Runnable {
 			c.setTime(new Date());
 			c.add(Calendar.SECOND, refreshPeriod);
 			
-			DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
+			DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
 			darMonitorScheduler.schedule(dataAccessMonitoringTask, c.getTime());
 		}
 		LOGGER.debug("Ending DataAccessMonitoringTask");

@@ -46,7 +46,6 @@ input[type="submit"],input[type="button"] {
 
 table.dataTable {
 	font-size: 0.9em;
-	line-height: 0.9em;
 }
 
 table.dataTable td {
@@ -76,6 +75,10 @@ table.dataTable td.productProgress {
 
 .productProgress .ui-widget-content {
 	border: 0px;
+	background: #eeeeee;
+}
+.productProgress .ui-progressbar-value {
+	border-radius: 0px;
 }
 
 .productProgress .ui-corner-all {
@@ -90,6 +93,7 @@ table.dataTable td.productProgress {
 	font-size: 0.8em;
 	width: 100%;
 	line-height: 22px;
+	color:black;
 }
 
 ul#actions li {
@@ -162,3 +166,11 @@ ul#actions li {
 	border: solid 1px #CCCCCC;
 	display: none;
 }
+
+/* menu styles */
+.ui-menu {
+	z-index: 1000;
+	padding: 0px;
+	margin-left: 10px;
+}
+/* end of menu styles */

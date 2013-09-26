@@ -1,4 +1,5 @@
 var DownloadMonitor = {
+	communicationLost : false,
 	sImageUrl : "resources/images/",
 	monitorDownloadStatusTimer: null,
 	monitorProductDownloadStatusTimer: {},
@@ -74,7 +75,7 @@ var DownloadMonitor = {
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			DownloadMonitor.displayErrorMessage(messages['error.retrieve_dar_status'], jqXHR);
-			clearTimeout(monitorDownloadStatusTimer);
+			clearTimeout(DownloadMonitor.monitorDownloadStatusTimer);
 		})
 		.done(function() {
 			DownloadMonitor.monitorDownloadStatusTimer = setTimeout(function() { DownloadMonitor.monitorDownloadStatus(downloadStatusTable); } , 5000);
@@ -318,15 +319,23 @@ var DownloadMonitor = {
 		});
 	},
 	displayErrorMessage : function(messageHeading, error) {
+		var errorMessage = "";
+		var heading = "";
 		if(error.status !== 0) {
-			var errorMessage = "";
 			if(typeof error === 'object') {
 				errorMessage = "Error: HTTP " + error.status + ", "+ error.statusText;
 			}else{
 				var errorObject = jQuery.parseJSON(error);
 				errorMessage = errorObject.response.message;
 			}
-
+		}else{
+			if(!DownloadMonitor.communicationLost) {
+				heading = messages['error.heading.communication_lost'];
+				errorMessage = messages['error.message.communication_lost'];
+				DownloadMonitor.communicationLost = true;
+			}
+		}
+		if(errorMessage.length > 0) {
 			$.notific8(errorMessage, {
 				heading : heading,
 				theme : "ruby",
@@ -346,7 +355,7 @@ var DownloadMonitor = {
 			}
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
-			DownloadMonitor.displayErrorMessage("Download Failed! ", jqXHR.responseText);
+			DownloadMonitor.displayErrorMessage(messages['error.download_failed'], jqXHR.responseText);
 		});
 	},
 	resetDownloadDisplay: function(downloadStatusTable) {
@@ -356,5 +365,16 @@ var DownloadMonitor = {
 			clearTimeout(value);
 		});
 		DownloadMonitor.monitorDownloadStatus(downloadStatusTable);
-	}
+	},
+	stopDownloads : function(stopType) {
+		$.getJSON("monitoring/stop?type=" + stopType)
+		.done(function(response) {
+			if(response.success === false) {
+				DownloadMonitor.displayMessage(messages['error.stop_download_function'] + ": " + response.message, "ruby");
+			}
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			DownloadMonitor.displayErrorMessage(messages['error.stop_download_function'], jqXHR.responseText);
+		});
+	},
 };

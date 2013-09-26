@@ -1,6 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.monitor.dar;
 
 import int_.esa.eo.ngeo.dmtu.controller.DARController;
+import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
@@ -42,6 +43,7 @@ public class MonitoringUrlTask implements Runnable {
 	private NgeoWebServerResponseParser ngeoWebServerResponseParser;
 	private NgeoWebServerServiceInterface ngeoWebServerService;
 	private DARController darController;
+	private MonitoringController monitoringController;
 	private TaskScheduler darMonitorScheduler;
  
 	private String downloadManagerId;
@@ -49,15 +51,16 @@ public class MonitoringUrlTask implements Runnable {
 	
 	private int refreshPeriod;
 	
-	public MonitoringUrlTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService,  DARController darController, TaskScheduler darMonitorScheduler, String downloadManagerId, URL monitoringServiceUrl) {
+	public MonitoringUrlTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService,  DARController darController, MonitoringController monitoringController, TaskScheduler darMonitorScheduler, String downloadManagerId, URL monitoringServiceUrl) {
 		this.ngeoWebServerRequestBuilder = ngeoWebServerRequestBuilder;
 		this.ngeoWebServerResponseParser = ngeoWebServerResponseParser;
 		this.ngeoWebServerService = ngeoWebServerService;
 		this.darController = darController;
+		this.monitoringController = monitoringController;
 		this.darMonitorScheduler = darMonitorScheduler;
 		this.downloadManagerId = downloadManagerId;
 		this.monitoringServiceUrl = monitoringServiceUrl;
-		String defaultRefreshPeriod = darController.getSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD);
+		String defaultRefreshPeriod = monitoringController.getSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD);
 		if(defaultRefreshPeriod != null && !defaultRefreshPeriod.isEmpty()) {
 			this.refreshPeriod = Integer.parseInt(defaultRefreshPeriod, 10);
 		}else{
@@ -67,14 +70,13 @@ public class MonitoringUrlTask implements Runnable {
 	
 	public void run() {
 		LOGGER.debug("Starting MonitoringUrlTask");
-		//The user can manually stop monitoring for DARs, consequently we have to check the core
-//		if(!darController.isMonitoringStopped()) {
+		if(monitoringController.isDarMonitoringRunning()) {
 			HttpClient httpClient = new HttpClient();
 			httpClient.getParams().setParameter("http.useragent", "ngEO Download Manager");
 	
-			String umSsoUsername = darController.getSetting(SettingsManager.KEY_SSO_USERNAME);
-			String umSsoPassword = darController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
-			String downloadManagerSetTimeAsString = darController.getSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME);
+			String umSsoUsername = monitoringController.getSetting(SettingsManager.KEY_SSO_USERNAME);
+			String umSsoPassword = monitoringController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
+			String downloadManagerSetTimeAsString = monitoringController.getSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME);
 	
 			GregorianCalendar downloadManagerSetTime = null;
 			if(downloadManagerSetTimeAsString != null && !downloadManagerSetTimeAsString.isEmpty()) {
@@ -93,7 +95,7 @@ public class MonitoringUrlTask implements Runnable {
 				MonitoringURLResp monitoringUrlResponse = ngeoWebServerResponseParser.parseMonitoringURLResponse(monitoringServiceUrl, method);
 				Date responseDate = new HttpHeaderParser().getDateFromResponseHTTPHeaders(method);
 	
-				darController.setSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
+				monitoringController.setSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
 	
 	//			Error error = monitoringUrlResponse.getError();
 	//			if(error != null) {
@@ -103,10 +105,10 @@ public class MonitoringUrlTask implements Runnable {
 				userOrder = monitoringUrlResponse.getUserOrder();
 				if(userOrder != null) {
 					LOGGER.info(String.format("User order: %s",userOrder.toString()));
-					darController.userOrder(userOrder);
+					monitoringController.sendUserOrder(userOrder);
 				}else{
 					refreshPeriod = monitoringUrlResponse.getRefreshPeriod().intValue();
-					darController.setSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));
+					monitoringController.setSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));
 					
 					MonitoringURLList monitoringUrls = monitoringUrlResponse.getMonitoringURLList();
 					List<String> monitoringUrlList = monitoringUrls.getMonitoringURLs();
@@ -124,7 +126,7 @@ public class MonitoringUrlTask implements Runnable {
 							
 							if(darAdded) {
 								LOGGER.debug("Starting new dataAccessMonitoringTask from MonitoringUrlTask");
-								DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
+								DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
 								darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());
 							}
 						} catch (MalformedURLException e) {
@@ -145,11 +147,13 @@ public class MonitoringUrlTask implements Runnable {
 				c.setTime(new Date());
 				c.add(Calendar.SECOND, refreshPeriod);
 		
-				MonitoringUrlTask monitoringUrlTask = new MonitoringUrlTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, darMonitorScheduler, downloadManagerId, monitoringServiceUrl);
+				MonitoringUrlTask monitoringUrlTask = new MonitoringUrlTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, monitoringServiceUrl);
 				darMonitorScheduler.schedule(monitoringUrlTask, c.getTime());
 			}
 			LOGGER.debug("Finished MonitoringUrlTask");
-//		}
+		}else{
+			LOGGER.debug("Stop command has been sent, either by the Web Server or manually by the user. Monitoring for new DARs is terminated.");
+		}
 	}
 
 	//TODO: does this need to be moved into a parse date util class?

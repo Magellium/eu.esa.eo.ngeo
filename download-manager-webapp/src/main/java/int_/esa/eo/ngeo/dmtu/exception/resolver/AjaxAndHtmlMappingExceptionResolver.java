@@ -1,6 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.exception.resolver;
 
-import int_.esa.eo.ngeo.dmtu.controller.CommandResponse;
+import int_.esa.eo.ngeo.dmtu.builder.CommandResponse;
 
 import java.util.Map;
 

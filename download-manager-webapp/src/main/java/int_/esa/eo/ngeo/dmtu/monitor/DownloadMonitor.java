@@ -290,7 +290,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 		}
 	}
 	
-	public boolean cancelAutomatedDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel, boolean includeManualDownloads) throws DownloadOperationException {
+	public boolean cancelDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel, boolean includeManualDownloads) throws DownloadOperationException {
 		boolean downloadsCancelledCompletely = true;
 		for (Entry<String, IDownloadProcess> downloadProcessEntry: downloadProcessList.entrySet()) {
 			String productUuid = downloadProcessEntry.getKey();
