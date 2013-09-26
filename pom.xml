@@ -14,9 +14,9 @@
 	<properties>
 		<org.slf4j-version>1.7.5</org.slf4j-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<plugin-interface-version>1.4</plugin-interface-version>
+	    <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 	</properties>
-
-
 
 	<modules>
 		<module>download-manager-plugin-interface</module>
@@ -30,6 +30,7 @@
 		<module>download-manager-plugin-mock-sentinel2</module>
 		<module>download-manager-sso</module>
 		<module>download-manager-schemas</module>
+		<module>download-manager-core</module>
 	</modules>
 
 	<build>
@@ -53,7 +54,7 @@
 					</configuration>
 				</plugin>
 			</plugins>
-		</pluginManagement>
+    	</pluginManagement>
 	</build>
 	<profiles>
         <profile>
@@ -71,6 +72,12 @@
             <properties>
                 <DM_TITLE>DREAM Download Manager</DM_TITLE>
                 <DM_CLI_PROMPT>DREAM-DM</DM_CLI_PROMPT>
+            </properties>
+		</profile>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.skippedModules>download-manager-mock-product-facility,download-manager-mock-web-server,download-manager-plugin-mock-sentinel2</sonar.skippedModules>
             </properties>
 		</profile>
 	</profiles>
