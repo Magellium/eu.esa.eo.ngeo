@@ -1,13 +1,12 @@
-package int_.esa.eo.ngeo.dmtu.configuration;
+package int_.esa.eo.ngeo.downloadmanager.configuration;
 
-import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class DownloadManagerProperties {
-	
 	Properties downloadManagerProperties = new Properties();
 	
 	public void loadDownloadManagerProperties() {
@@ -27,5 +26,4 @@ public class DownloadManagerProperties {
 	public String getDownloadManagerVersion() {
 		return downloadManagerProperties.getProperty("version");
 	}
-
 }

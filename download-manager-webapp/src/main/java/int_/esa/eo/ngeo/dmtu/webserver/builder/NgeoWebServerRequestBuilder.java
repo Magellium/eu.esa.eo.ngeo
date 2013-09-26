@@ -1,6 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.webserver.builder;
 
-import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
 import int_.esa.eo.ngeo.dmtu.model.Product;
 import int_.esa.eo.ngeo.dmtu.model.ProductProgress;

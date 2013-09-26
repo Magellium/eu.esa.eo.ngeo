@@ -2,7 +2,7 @@ package int_.esa.eo.ngeo.dmtu.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
-import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
+import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

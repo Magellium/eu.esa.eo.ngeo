@@ -21,12 +21,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-plugin-interface</artifactId>
-			<version>${plugin-interface-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-plugin-development-kit</artifactId>
+			<artifactId>download-manager-core</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -37,6 +32,16 @@
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-sso</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>int_.esa.eo.ngeo</groupId>
+			<artifactId>download-manager-plugin-interface</artifactId>
+			<version>${plugin-interface-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>int_.esa.eo.ngeo</groupId>
+			<artifactId>download-manager-plugin-development-kit</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 	
@@ -55,11 +60,6 @@
 		  <artifactId>jsp-2.1-glassfish</artifactId>
 		  <version>2.1.v20100127</version>
 		</dependency>
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.7</version>
-		</dependency>
             	
 		<!-- Spring -->
 		<dependency>
@@ -68,13 +68,13 @@
 			<version>${org.springframework-version}</version>
 			
 			<!--  See http://stackoverflow.com/questions/12394385/maven-spring-project-givinig-me-org-slf4j-spi-locationawarelogger-error#14533846 -->
-<!-- 			<exclusions> -->
+			<exclusions>
 <!-- 				Exclude Commons Logging in favor of SLF4j -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>commons-logging</groupId> -->
-<!-- 					<artifactId>commons-logging</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 			
 		</dependency>
 		<dependency>
@@ -116,57 +116,6 @@
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
 			<version>${org.aspectj-version}</version>
-		</dependency>
-
-		<!-- Logging -->
-		
-		<!-- Commented out, per http://stackoverflow.com/questions/12394385/maven-spring-project-givinig-me-org-slf4j-spi-locationawarelogger-error#14533846 -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.slf4j</groupId> -->
-<!-- 			<artifactId>slf4j-api</artifactId> -->
-<!-- 			<version>${org.slf4j-version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.slf4j</groupId> -->
-<!-- 			<artifactId>jcl-over-slf4j</artifactId> -->
-<!-- 			<version>${org.slf4j-version}</version> -->
-<!-- 			<scope>runtime</scope> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.slf4j</groupId> -->
-<!-- 			<artifactId>slf4j-log4j12</artifactId> -->
-<!-- 			<version>${org.slf4j-version}</version> -->
-<!-- 			<scope>runtime</scope> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.slf4j</groupId> -->
-<!-- 			<artifactId>slf4j-ext</artifactId> -->
-<!-- 			<version>${org.slf4j-version}</version> -->
-<!-- 		</dependency> -->
-
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.mail</groupId>
-					<artifactId>mail</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.jms</groupId>
-					<artifactId>jms</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jdmk</groupId>
-					<artifactId>jmxtools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jmx</groupId>
-					<artifactId>jmxri</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>

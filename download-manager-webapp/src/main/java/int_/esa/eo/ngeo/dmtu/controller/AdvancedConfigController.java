@@ -1,12 +1,12 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
+import int_.esa.eo.ngeo.dmtu.configuration.AdvancedConfigSettings;
+import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import int_.esa.eo.ngeo.dmtu.configuration.AdvancedConfigSettings;
-import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
 
 import javax.validation.Valid;
 

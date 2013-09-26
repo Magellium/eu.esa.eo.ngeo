@@ -3,12 +3,12 @@ package int_.esa.eo.ngeo.dmtu.monitor;
 import int_.esa.eo.ngeo.dmtu.callback.CallbackCommandExecutor;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadProcessCreationException;
-import int_.esa.eo.ngeo.dmtu.exception.NoPluginAvailableException;
-import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.log.ProductTerminationLog;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
-import int_.esa.eo.ngeo.dmtu.manager.PluginManager;
-import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
+import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
+import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.dmtu.model.Product;
 import int_.esa.eo.ngeo.dmtu.model.ProductProgress;
 import int_.esa.eo.ngeo.dmtu.observer.DownloadObserver;
@@ -31,17 +31,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DownloadMonitor implements ProductObserver, DownloadObserver, ApplicationListener<ContextClosedEvent> {
+public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	@Autowired
 	private PluginManager pluginManager;
 
@@ -69,7 +65,6 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 		this.productTerminationLog = new ProductTerminationLog();
 	}
 
-	@PostConstruct
 	public void initDowloadPool() {
 		String noOfParallelProductDownloadThreads = settingsManager.getSetting("NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS");
 		int concurrentProductDownloadThreads = Integer.parseInt(noOfParallelProductDownloadThreads);
@@ -275,8 +270,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Appli
 		return downloadProcess;
 	}
 
-	@Override
-	public void onApplicationEvent(ContextClosedEvent arg0) {
+	public void shutdown() {
 		LOGGER.info("Shutting down Download Monitor.");
 
 		productDownloadExecutor.shutdown();		

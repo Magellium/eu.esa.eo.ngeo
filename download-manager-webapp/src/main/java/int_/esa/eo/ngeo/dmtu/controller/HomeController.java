@@ -1,6 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
+import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

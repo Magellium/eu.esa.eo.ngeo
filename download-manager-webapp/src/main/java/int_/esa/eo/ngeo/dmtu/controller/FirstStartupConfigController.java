@@ -2,8 +2,8 @@ package int_.esa.eo.ngeo.dmtu.controller;
 
 import int_.esa.eo.ngeo.dmtu.configuration.FirstStartupConfigSettings;
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
-import int_.esa.eo.ngeo.dmtu.manager.SettingsManager;
 import int_.esa.eo.ngeo.dmtu.monitor.dar.DARMonitor;
+import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
 import java.io.IOException;
 import java.nio.file.Files;

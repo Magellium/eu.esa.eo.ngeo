@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.dmtu.plugin;
+package int_.esa.eo.ngeo.downloadmanager.plugin;
 
 import java.io.File;
 import java.io.FilenameFilter;

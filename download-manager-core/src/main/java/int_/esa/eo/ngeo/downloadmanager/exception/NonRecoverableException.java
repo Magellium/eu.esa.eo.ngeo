@@ -1,7 +1,7 @@
 /**
  * 
  */
-package int_.esa.eo.ngeo.dmtu.exception;
+package int_.esa.eo.ngeo.downloadmanager.exception;
 
 /**
  * @author Lewis Keen

@@ -7,7 +7,6 @@ import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
 import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
 import int_.esa.eo.ngeo.dmtu.model.Product;
-import int_.esa.eo.ngeo.dmtu.model.WebServerMonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 

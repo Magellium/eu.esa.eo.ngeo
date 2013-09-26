@@ -8,9 +8,17 @@
 
 	<context:annotation-config />
 
-	<bean id="settingsManager" class="int_.esa.eo.ngeo.dmtu.manager.SettingsManager" init-method="init"/>
+	<bean id="settingsManager" class="int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager" />
 
-	<bean id="pluginManager" class="int_.esa.eo.ngeo.dmtu.manager.PluginManager" />
+	<bean id="downloadManagerProperties" class="int_.esa.eo.ngeo.downloadmanager.configuration.DownloadManagerProperties" />
+
+	<bean id="pluginManager" class="int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager">
+		<constructor-arg index="0">
+			<ref bean="settingsManager" />
+		</constructor-arg>
 	
-	<bean id="downloadManagerProperties" class="int_.esa.eo.ngeo.dmtu.configuration.DownloadManagerProperties" init-method="loadDownloadManagerProperties" />
+		<constructor-arg index="1">
+			<ref bean="downloadManagerProperties" />
+		</constructor-arg>
+	</bean>
 </beans>

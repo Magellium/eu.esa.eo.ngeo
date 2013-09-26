@@ -1,12 +1,10 @@
-package int_.esa.eo.ngeo.dmtu.manager;
+package int_.esa.eo.ngeo.downloadmanager.plugin;
 
-import int_.esa.eo.ngeo.dmtu.configuration.DownloadManagerProperties;
-import int_.esa.eo.ngeo.dmtu.exception.NoPluginAvailableException;
-import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
-import int_.esa.eo.ngeo.dmtu.plugin.PluginFinder;
+import int_.esa.eo.ngeo.downloadmanager.configuration.DownloadManagerProperties;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
-import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
-import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPluginInfo;
+import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,20 +15,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class PluginManager {
 	private static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
 
-	@Autowired
 	private SettingsManager settingsManager;
-	
-	@Autowired
 	private DownloadManagerProperties downloadManagerProperties;
 	
 	private List<IDownloadPluginInfo> downloadPluginInfoList;
@@ -38,12 +29,14 @@ public class PluginManager {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PluginManager.class);
 
-	public PluginManager() {
+	public PluginManager(SettingsManager settingsManager, DownloadManagerProperties downloadManagerProperties) {
+		this.settingsManager = settingsManager;
+		this.downloadManagerProperties = downloadManagerProperties;
+		
 		downloadPluginInfoList = new ArrayList<IDownloadPluginInfo>();
 		mapOfPluginNamesToPlugins = new HashMap<String, IDownloadPlugin>();
 	}
 	
-	 @PostConstruct
 	 public void detectPlugins() {
 		LOGGER.info("Detecting plugins.");
 		final String dmHome = System.getenv("DM_HOME");
@@ -116,7 +109,6 @@ public class PluginManager {
 		throw new NoPluginAvailableException(String.format("No available plugin for url %s", downloadUrl));
 	}
 	
-	@PreDestroy
 	public void cleanUp() {
 		LOGGER.debug("Cleaning up plugins");
 		for (IDownloadPlugin downloadPlugin : mapOfPluginNamesToPlugins.values()) {

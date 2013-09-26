@@ -1,7 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.manager;
 
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
-import int_.esa.eo.ngeo.dmtu.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
 import int_.esa.eo.ngeo.dmtu.model.Product;
