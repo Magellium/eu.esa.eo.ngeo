@@ -7,6 +7,7 @@ public class ConfigurationProvider {
 	
 	public static final String DM_TITLE			= "DM_TITLE";
 	public static final String DM_CLI_PROMPT    = "DM_CLI_PROMPT";
+	public static final String DM_WEBAPP_URL    = "DM_WEBAPP_URL";
 
 	private static void loadProperties() {
 		resourceBundle = ResourceBundle.getBundle("cli");

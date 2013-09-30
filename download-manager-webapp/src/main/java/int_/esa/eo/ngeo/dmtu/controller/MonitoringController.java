@@ -69,7 +69,7 @@ public class MonitoringController {
 			case "monitoring":
 				userOrder = UserOrder.STOP;
 				break;
-			case "monitoringNow":
+			case "monitoring_now":
 				userOrder = UserOrder.STOP_IMMEDIATELY;
 				break;
 			case "all":

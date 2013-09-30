@@ -69,7 +69,7 @@
 			DownloadMonitor.stopDownloads("monitoring");
 		});
 		$(".stopMonitoringNow").click(function() {
-			DownloadMonitor.stopDownloads("monitoringNow");
+			DownloadMonitor.stopDownloads("monitoring_now");
 		});
 		$(".stopAll").click(function() {
 			DownloadMonitor.stopDownloads("all");

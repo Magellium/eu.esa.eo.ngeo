@@ -28,24 +28,30 @@ import org.springframework.stereotype.Component;
  *  Note that this might make the availability of other commands dependent on configuration having been performed.
  */
 @Component
-public class ResumeProductDownload implements CommandMarker {
+public class StopCommands implements CommandMarker {
 	
 	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_PREFIX = "{\"response\":"; 
 	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_SUFFIX = "}"; 
-	private static final Logger LOGGER = Logger.getLogger(ResumeProductDownload.class.getName());
-		
-	@CliAvailabilityIndicator({"pause"})
+	private static final Logger LOGGER = Logger.getLogger(StopCommands.class.getName());
+	private static final String TABS = "\t\t\t\t\t\t\t";	
+	
+	@CliAvailabilityIndicator({"stop"})
 	public boolean isAddAvailable() {
 		return true;
 	}
 	
-	@CliCommand(value = "pause", help = "Pause a product download")
+	@CliCommand(value = "stop", help = "stop command for monitoring and downloads.")
 	public String add(
-		@CliOption(key = { "uuid" }, mandatory = true, help = "The uuid of the product of interest") final String productUuid) {
+		@CliOption(key = { "type" }, 
+					mandatory = true, 
+					help = "The type of stop command to send.\n"+
+					TABS + "* monitoring - Stop monitoring for new downloads. All product downloads received from the monitoring service and which are not currently running will be cancelled immediately.\n" +
+					TABS + "* monitoring_now - Stop monitoring for new downloads. All product downloads received from the monitoring service will be cancelled immediately.\n" +
+					TABS + "* monitoring_all - Stop monitoring for new downloads. All product downloads including manual downloads will be cancelled immediately.") final String productDownloadUrl) {
 		
 		String returnMessage;
 		try {
-			String urlAsString = String.format("%s/products/%s?action=pause", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL), productUuid);
+			String urlAsString = String.format("%s/monitoring/stop?type=%s", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL), productDownloadUrl);
 			URL url = new URL(urlAsString);
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 			conn.setDoOutput(true);
@@ -71,7 +77,7 @@ public class ResumeProductDownload implements CommandMarker {
 			    
 			    commandResponse = mapper.readValue(responseStrBuilder.toString(), CommandResponse2.class);
 			    if (commandResponse.isSuccess()) {
-			    	returnMessage = "Product paused.";
+			    	returnMessage = "Stop command sent. Please use the \"status\" command to monitor the progress of the product downloads.";
 			    }
 			    else if (commandResponse.getMessage() != null) {
 			    	returnMessage = String.format("Error: %s", commandResponse.getMessage());
@@ -79,6 +85,7 @@ public class ResumeProductDownload implements CommandMarker {
 			    else {
 			    	returnMessage = "Error (No message provided)";
 			    }
+			    //returnMessage = commandResponse.isSuccess() ? "Added" : (commandResponse.getMessage() == null ? "Error (No message provided)" : String.format("Error: %s", commandResponse.getMessage()));
 				break;
 			case HttpURLConnection.HTTP_NOT_FOUND:
 				returnMessage = String.format("Error: The CLI's reference to the relevant Download Manager command (%s) describes a nonexistent resource", urlAsString);

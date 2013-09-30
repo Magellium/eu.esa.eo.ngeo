@@ -1,5 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.cli.commands;
 
+import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
 import int_.esa.eo.ngeo.dmtu.controller.CommandResponse2;
 
 import java.io.BufferedReader;
@@ -34,8 +35,6 @@ public class ManualProductDownload implements CommandMarker {
 	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_PREFIX = "{\"response\":"; 
 	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_SUFFIX = "}"; 
 	private static final Logger LOGGER = Logger.getLogger(ManualProductDownload.class.getName());
-	private static final String DM_PORT_NUMBER = "8082"; 			   // Must match the port no. specified within start-dm.bat
-	private static final String DM_CONTEXT_PATH = "/download-manager"; // Must match the context path. specified within start-dm.bat
 		
 	@CliAvailabilityIndicator({"add"})
 	public boolean isAddAvailable() {
@@ -48,7 +47,7 @@ public class ManualProductDownload implements CommandMarker {
 		
 		String returnMessage;
 		try {
-			String urlAsString = String.format("http://localhost:%s%s/manualProductDownload", DM_PORT_NUMBER, DM_CONTEXT_PATH);
+			String urlAsString = String.format("%s/manualProductDownload", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL));
 			URL url = new URL(urlAsString);
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 			conn.setDoOutput(true);

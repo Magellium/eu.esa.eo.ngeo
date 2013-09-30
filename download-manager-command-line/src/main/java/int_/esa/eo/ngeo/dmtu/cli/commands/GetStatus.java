@@ -1,5 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.cli.commands;
 
+import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,9 +28,6 @@ import com.jayway.jsonpath.JsonPath;
  */
 @Component
 public class GetStatus implements CommandMarker {
-	private static final String DM_PORT_NUMBER = "8082"; 			   // Must match the port no. specified within start-dm.bat
-	private static final String DM_CONTEXT_PATH = "/download-manager"; // Must match the context path. specified within start-dm.bat
-
 	@CliAvailabilityIndicator({"status"})
 	public boolean isAddAvailable() {
 		return true;
@@ -38,7 +37,7 @@ public class GetStatus implements CommandMarker {
 	public String getStatus() {
 		String returnMessage;
 		try {
-			String urlAsString = String.format("http://localhost:%s%s/dataAccessRequests", DM_PORT_NUMBER, DM_CONTEXT_PATH);
+			String urlAsString = String.format("%s/dataAccessRequests", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL));
 			URL url = new URL(urlAsString);
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 			conn.addRequestProperty("Accept", "application/json");
