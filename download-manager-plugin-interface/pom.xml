@@ -11,7 +11,7 @@
 	<artifactId>download-manager-plugin-interface</artifactId>
 	<packaging>jar</packaging>
 	<name>Download Manager Plugin Interface</name>
-	<version>1.4</version>
+	<version>${plugin-interface-version}</version>
 	<build>
 		<plugins>
 			<plugin>

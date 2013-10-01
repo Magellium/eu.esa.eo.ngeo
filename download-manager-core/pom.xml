@@ -13,7 +13,7 @@
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-plugin-interface</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${plugin-interface-version}</version>
 		</dependency>
 
 		<dependency>

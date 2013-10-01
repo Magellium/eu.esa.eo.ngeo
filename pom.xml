@@ -14,7 +14,7 @@
 	<properties>
 		<org.slf4j-version>1.7.5</org.slf4j-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<plugin-interface-version>1.4</plugin-interface-version>
+		<plugin-interface-version>1.5</plugin-interface-version>
 	    <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 	</properties>
 
