@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.dmtu.controller;
+package int_.esa.eo.ngeo.dmtu.cli.model;
 
 /**
  * XXX: This class is essentially a duplicate of one that is defined within the dmtu core project.

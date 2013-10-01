@@ -29,7 +29,7 @@ import com.jayway.jsonpath.JsonPath;
 @Component
 public class GetStatus implements CommandMarker {
 	@CliAvailabilityIndicator({"status"})
-	public boolean isAddAvailable() {
+	public boolean isGetStatusAvailable() {
 		return true;
 	}
 

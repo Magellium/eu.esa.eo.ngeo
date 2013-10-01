@@ -1,19 +1,13 @@
 package int_.esa.eo.ngeo.dmtu.cli.commands;
 
 import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
-import int_.esa.eo.ngeo.dmtu.controller.CommandResponse2;
+import int_.esa.eo.ngeo.dmtu.cli.service.DownloadManagerResponseParser;
+import int_.esa.eo.ngeo.dmtu.cli.service.DownloadManagerService;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import org.apache.log4j.Logger;
 
-import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -31,11 +25,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ManualProductDownload implements CommandMarker {
-	
-	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_PREFIX = "{\"response\":"; 
-	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_SUFFIX = "}"; 
-	private static final Logger LOGGER = Logger.getLogger(ManualProductDownload.class.getName());
-		
 	@CliAvailabilityIndicator({"add"})
 	public boolean isAddAvailable() {
 		return true;
@@ -45,65 +34,16 @@ public class ManualProductDownload implements CommandMarker {
 	public String add(
 		@CliOption(key = { "url" }, mandatory = true, help = "The URL of the product of interest") final String productDownloadUrl) {
 		
+		DownloadManagerService downloadManagerService = new DownloadManagerService();
+		DownloadManagerResponseParser downloadManagerResponseParser = new DownloadManagerResponseParser();
+
 		String returnMessage;
 		try {
 			String urlAsString = String.format("%s/manualProductDownload", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL));
-			URL url = new URL(urlAsString);
-			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-			conn.setDoOutput(true);
-			conn.addRequestProperty("Accept", "application/json");
-			String parameters = String.format("productDownloadUrl=%s", URLEncoder.encode(productDownloadUrl, "UTF-8"));
-			
-			OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-			writer.write(parameters);
-			writer.flush();
-			writer.close();
-			
-			CommandResponse2 commandResponse;
-		    ObjectMapper mapper = new ObjectMapper();
-			final int httpResponseCode = conn.getResponseCode();
-			LOGGER.debug("HTTP response code = " + httpResponseCode);
-			switch (httpResponseCode) {
-			case HttpURLConnection.HTTP_OK:
-				
-				BufferedReader streamReader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8")); 
-			    StringBuilder responseStrBuilder = new StringBuilder();
+			URL commandUrl = new URL(urlAsString);
 
-			    String inputStr;
-			    while ((inputStr = streamReader.readLine()) != null) {
-			        responseStrBuilder.append(inputStr);
-			    }
-			    streamReader.close();
-			    
-			    LOGGER.debug("JSON = " + responseStrBuilder.toString());
-			    
-			    commandResponse = mapper.readValue(responseStrBuilder.toString(), CommandResponse2.class);
-			    if (commandResponse.isSuccess()) {
-			    	returnMessage = "Added. Please use the \"status\" command to monitor the progress of the request.";
-			    }
-			    else if (commandResponse.getMessage() != null) {
-			    	returnMessage = String.format("Error: %s", commandResponse.getMessage());
-			    }
-			    else {
-			    	returnMessage = "Error (No message provided)";
-			    }
-			    //returnMessage = commandResponse.isSuccess() ? "Added" : (commandResponse.getMessage() == null ? "Error (No message provided)" : String.format("Error: %s", commandResponse.getMessage()));
-				break;
-			case HttpURLConnection.HTTP_NOT_FOUND:
-				returnMessage = String.format("Error: The CLI's reference to the relevant Download Manager command (%s) describes a nonexistent resource", urlAsString);
-				break;
-			default:
-				String errorStreamContent = IOUtils.toString(conn.getErrorStream());
-				LOGGER.debug("JSON = " + errorStreamContent);
-				int unTrimmedLength = errorStreamContent.length();
-				
-				// XXX: Here follows a hacky way of dealing with the fact that, relative to the HTTP 200 scenario, the server's JSON responses are wrapped. 
-				String trimmedErrorStreamContent = errorStreamContent.substring(MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_PREFIX.length(),
-																				unTrimmedLength - MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_SUFFIX.length());
-			    
-			    commandResponse = mapper.readValue(trimmedErrorStreamContent, CommandResponse2.class);
-				returnMessage = String.format("Error: HTTP %s response code received from the Download Manager: %s", httpResponseCode, commandResponse.getMessage());
-			}
+			HttpURLConnection conn = downloadManagerService.sendCommand(commandUrl);
+			returnMessage = downloadManagerResponseParser.parseResponse(conn);
 		}
 		catch (IOException e) {
 			returnMessage = e.getMessage();
