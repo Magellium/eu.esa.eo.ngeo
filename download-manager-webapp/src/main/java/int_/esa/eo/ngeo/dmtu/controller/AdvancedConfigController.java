@@ -51,6 +51,7 @@ public class AdvancedConfigController {
 		advancedConfigSettings.setWebInterfaceRemoteAccessEnabled(Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_WEB_INTERFACE_REMOTE_ACCESS_ENABLED)));
 		advancedConfigSettings.setWebInterfaceUsername(settingsManager.getSetting(SettingsManager.KEY_WEB_INTERFACE_USERNAME));
 		advancedConfigSettings.setWebProxyPassword(settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PASSWORD));
+		advancedConfigSettings.setWebProxyPort(settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PORT));
 		advancedConfigSettings.setWebProxyUrl(settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_URL));
 		advancedConfigSettings.setWebProxyUsername(settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_USERNAME));
 		model.addAttribute("ADVANCEDCONFIGSETTINGS", advancedConfigSettings);
