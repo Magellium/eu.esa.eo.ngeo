@@ -50,23 +50,23 @@ table.dataTable {
 
 table.dataTable td {
 	padding: 0px 0px 0px 5px;
-	border:solid 1px #CCCCCC;
-	vertical-align:middle;
+	border: solid 1px #CCCCCC;
+	vertical-align: middle;
 }
 
-table.dataTable td.details{
+table.dataTable td.details {
 	padding-left: 50px;
 	padding-bottom: 10px;
 	border: 0px;
 }
 
 table.dataTable td.expand {
-	padding:0px;
+	padding: 0px;
 }
 
 table.dataTable td.productProgress {
 	padding: 0px;
-	border:solid 1px #CCCCCC;
+	border: solid 1px #CCCCCC;
 }
 
 .ui-progressbar {
@@ -77,6 +77,7 @@ table.dataTable td.productProgress {
 	border: 0px;
 	background: #eeeeee;
 }
+
 .productProgress .ui-progressbar-value {
 	border-radius: 0px;
 }
@@ -93,7 +94,7 @@ table.dataTable td.productProgress {
 	font-size: 0.8em;
 	width: 100%;
 	line-height: 22px;
-	color:black;
+	color: black;
 }
 
 ul#actions li {
@@ -174,3 +175,30 @@ ul#actions li {
 	margin-left: 10px;
 }
 /* end of menu styles */
+
+/* advanced configuration styles */
+#tabs {
+	width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#tabs .ui-widget-header {
+	background: #434343;
+	border: solid 1px #878787;
+}
+
+#tabs.ui-widget-content,#tabs .ui-widget-content {
+	background: white;
+	color: black;
+}
+
+#advancedConfigButtons {
+	width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	text-align: center;
+}
+
+/* end of advanced configuration styles */
