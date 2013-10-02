@@ -53,7 +53,6 @@
 		<beans:property name="exceptionMappings">
 			<beans:props>
 				<beans:prop key="uk.co.magellium.exception.NonRecoverableException">nonRecoverableException</beans:prop>
-				<beans:prop key="org.springframework.web.HttpSessionRequiredException">sessionRequired</beans:prop>
 				<beans:prop key="java.lang.Throwable">catchallErrorPage</beans:prop>
 			</beans:props>
 		</beans:property>

@@ -22,4 +22,19 @@
 		<put-attribute name="content" value="/WEB-INF/views/advancedconfig.jsp" />
 		<put-attribute name="page-sub-title-key" value="advanced_config.page_title" />
 	</definition>
+
+	<definition name="nonRecoverableException" extends="commonPage">
+		<put-attribute name="content" value="/WEB-INF/views/nonRecoverableException.jsp" />
+		<put-attribute name="page-sub-title-key" value="page_title.error" />
+	</definition>
+
+	<definition name="error" extends="commonPage">
+		<put-attribute name="content" value="/WEB-INF/views/error.jsp" />
+		<put-attribute name="page-sub-title-key" value="page_title.error" />
+	</definition>
+	
+	<definition name="catchallErrorPage" extends="commonPage">
+		<put-attribute name="content" value="/WEB-INF/views/catchallErrorPage.jsp" />
+		<put-attribute name="page-sub-title-key" value="page_title.error" />
+	</definition>
 </tiles-definitions>
