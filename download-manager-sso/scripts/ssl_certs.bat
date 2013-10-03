@@ -35,7 +35,7 @@ IF NOT exist %TEMP_DIR% (
 	del /Q %TEMP_DIR%\*.*
 )
 
-set CLIENT_TRUSTSTORE_FILE_PATHNAME=..\target\temp\dmtu-truststore.jks
+set CLIENT_TRUSTSTORE_FILE_PATHNAME=..\target\temp\download-manager-truststore.jks
 set MERGED=merged_client-truststore.jks
 
 REM The StackOverflow article used "keytool -genkey" which, in Java 6, was replaced by Sun/Oracle with "keytool -genkeypair".
