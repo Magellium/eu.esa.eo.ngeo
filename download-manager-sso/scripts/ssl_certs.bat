@@ -14,27 +14,28 @@ set JAVA_HOME="C:\Program Files\Java\jdk1.7.0_21"
 set JAVA_BIN=%JAVA_HOME%\bin
 set KEYTOOL_EXE=%JAVA_BIN%\keytool.exe
 
-set APP_NAME=DMTU
+set APP_NAME=Download Manager Test Unit
 set KEYSTORE_FILENAME_P12=%APP_NAME%.p12
 set KEYSTORE_FILENAME_JKS=%APP_NAME%.jks
 set KEYSTORE_PASSWORD=whatever
 
 set IDP_CERTIFICATE_FILEPATH=%1
-set SP_CERTIFICATE_FILEPATH=%2
+set SP_CERTIFICATE_FILEPATH1=%2
+set SP_CERTIFICATE_FILEPATH2=%3
 
 echo ---------------------------------------------------------------------------------------------------------------------------------------------------
 echo Generate the client truststore file
 echo Note: These commands were probably inspired by http://stackoverflow.com/questions/1666052/java-https-client-certificate-authentication
 echo ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-set TEMP_DIR=..\..\..\target\temp
+set TEMP_DIR=..\target\temp
 IF NOT exist %TEMP_DIR% (
 	mkdir %TEMP_DIR%
 ) ELSE (
 	del /Q %TEMP_DIR%\*.*
 )
 
-set CLIENT_TRUSTSTORE_FILE_PATHNAME=..\..\..\target\temp\dmtu-truststore.jks
+set CLIENT_TRUSTSTORE_FILE_PATHNAME=..\target\temp\dmtu-truststore.jks
 set MERGED=merged_client-truststore.jks
 
 REM The StackOverflow article used "keytool -genkey" which, in Java 6, was replaced by Sun/Oracle with "keytool -genkeypair".
@@ -46,7 +47,10 @@ echo You are about to be prompted for the keystore password twice; type '%KEYSTO
 REM The following keytool command rejects non-X509 certificates
 REM @echo ON
 %KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %IDP_CERTIFICATE_FILEPATH% -alias IDP  || goto :error
-%KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %SP_CERTIFICATE_FILEPATH%  -alias SP || goto :error
+%KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %SP_CERTIFICATE_FILEPATH1%  -alias SP1 || goto :error
+if NOT [%3]==[] (
+%KEYTOOL_EXE% -import -keystore %CLIENT_TRUSTSTORE_FILE_PATHNAME% -file %SP_CERTIFICATE_FILEPATH2%  -alias SP2 || goto :error
+)
 REM @echo OFF
 
 echo ---------------------------------------------------------------------------------------------------------------------------------------------------
