@@ -110,7 +110,7 @@ public class UmSsoHttpClient {
 			UmssoCLCore clCore = UmssoCLCoreImpl.getInstance();
 			clCore.processHttpRequest(input);
 		} else {
-			LOGGER.debug(String.format("Making an HTTP request *without* support for UM-SSO", method.getURI().toString()));
+			LOGGER.warn(String.format("Making an HTTP request *without* support for UM-SSO", method.getURI().toString()));
 			new HttpClient().executeMethod(method);
 		}
 	}
