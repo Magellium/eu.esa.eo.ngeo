@@ -10,7 +10,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 export DM_HOME=$DIR
 
-REM if an argument is provided, assume that a file with comamnds to be executed is being provided 
+# if an argument is provided, assume that a file with comamnds to be executed is being provided 
 if [ -z "$1" ]
   then
     export CMD_FILE=
