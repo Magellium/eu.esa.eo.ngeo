@@ -82,7 +82,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		String enableUmssoJclUseString = pluginConfig.getProperty(ENABLE_UMSSO_JCL_USE);
 		boolean enableUmssoJclUse = Boolean.parseBoolean(enableUmssoJclUseString);
 
-		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyDetails.getProxyLocation(), proxyDetails.getProxyPort(), proxyDetails.getProxyUser(), proxyDetails.getProxyPassword(), enableUmssoJclUse);
+		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, enableUmssoJclUse, proxyDetails.getProxyLocation(), proxyDetails.getProxyPort(), proxyDetails.getProxyUser(), proxyDetails.getProxyPassword());
 	}
 	
 	public EDownloadStatus startDownload() throws DMPluginException {

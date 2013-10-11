@@ -29,8 +29,8 @@ public class SettingsManager {
 	public static final String KEY_DM_IS_REGISTERED                  		= "DM_IS_REGISTERED";
 	public static final String KEY_DM_IS_SETUP                       		= "DM_IS_SETUP";
 	public static final String KEY_DM_ID                       		 		= "DM_ID";
-	public static final String KEY_NGEO_WEB_SERVER_URL               		= "NGEO_WEB_SERVER_URL";
-	public static final String KEY_NGEO_MONITORING_SERVICE_URL       		= "NGEO_MONITORING_SERVICE_URL";
+	public static final String NGEO_WEB_SERVER_REGISTRATION_URLS       		= "NGEO_WEB_SERVER_REGISTRATION_URLS";
+	public static final String NGEO_WEB_SERVER_DAR_MONITORING_URLS       	= "NGEO_WEB_SERVER_DAR_MONITORING_URLS";
 	public static final String KEY_NGEO_MONITORING_SERVICE_SET_TIME  		= "NGEO_MONITORING_SERVICE_SET_TIME";
 	public static final String KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD 		= "IICD_D_WS_DEFAULT_REFRESH_PERIOD";
 	public static final String KEY_NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS  = "NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS";
@@ -40,10 +40,10 @@ public class SettingsManager {
 	public static final String KEY_WEB_INTERFACE_PORT_NO             		= "WEB_INTERFACE_PORT_NO";
 	public static final String KEY_WEB_INTERFACE_REMOTE_ACCESS_ENABLED 		= "WEB_INTERFACE_REMOTE_ACCESS_ENABLED";
 	public static final String KEY_WEB_INTERFACE_USERNAME            		= "WEB_INTERFACE_USERNAME";
-	public static final String KEY_WEB_PROXY_PASSWORD                		= "WEB_PROXY_PASSWORD";
-	public static final String KEY_WEB_PROXY_URL                    		= "WEB_PROXY_URL";
+	public static final String KEY_WEB_PROXY_HOST                    		= "WEB_PROXY_HOST";
 	public static final String KEY_WEB_PROXY_PORT                    		= "WEB_PROXY_PORT";
 	public static final String KEY_WEB_PROXY_USERNAME                		= "WEB_PROXY_USERNAME";
+	public static final String KEY_WEB_PROXY_PASSWORD                		= "WEB_PROXY_PASSWORD";
 	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsManager.class);

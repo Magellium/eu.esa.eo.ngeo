@@ -14,12 +14,12 @@
 	</definition>
 
 	<definition name="firstStartupConfig" extends="commonPage">
-		<put-attribute name="content" value="/WEB-INF/views/dmsetup.jsp" />
+		<put-attribute name="content" value="/WEB-INF/views/firstStartupConfig.jsp" />
 		<put-attribute name="page-sub-title-key" value="first_startup_config.page_title" />
 	</definition>
 
 	<definition name="advancedConfig" extends="commonPage">
-		<put-attribute name="content" value="/WEB-INF/views/advancedconfig.jsp" />
+		<put-attribute name="content" value="/WEB-INF/views/advancedConfig.jsp" />
 		<put-attribute name="page-sub-title-key" value="advanced_config.page_title" />
 	</definition>
 

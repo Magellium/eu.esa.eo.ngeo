@@ -119,7 +119,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			
 			String umSSOUsername = settingsManager.getSetting(SettingsManager.KEY_SSO_USERNAME);
 			String umSSOPassword = settingsManager.getSetting(SettingsManager.KEY_SSO_PASSWORD);
-			String proxyUrl = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_URL);
+			String proxyHost = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_HOST);
 			String proxyPortString = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PORT);
 			int proxyPort;
 			if (proxyPortString == null || proxyPortString.isEmpty()) {
@@ -130,7 +130,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			String proxyUsername = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_USERNAME);
 			String proxyPassword = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PASSWORD);
 			
-			return downloadPlugin.createDownloadProcess(uri, downloadPath, umSSOUsername, umSSOPassword, productDownloadListener, proxyUrl, proxyPort, proxyUsername, proxyPassword);
+			return downloadPlugin.createDownloadProcess(uri, downloadPath, umSSOUsername, umSSOPassword, productDownloadListener, proxyHost, proxyPort, proxyUsername, proxyPassword);
 		} catch (NoPluginAvailableException | URISyntaxException | DMPluginException ex) {
 			LOGGER.error(String.format("Error whilst creating download process of product %s: %s", product.getProductAccessUrl(), ex.getLocalizedMessage()));
 			product.getProductProgress().setStatus(EDownloadStatus.IN_ERROR);
@@ -184,13 +184,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		
 		if(productProgress.getStatus() == EDownloadStatus.COMPLETED) {
 			// We implement the call-back mechanism here, i.e. before we lose the list of downloaded files
-			try {
-				String productDownloadCompleteCommand = settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
-				CallbackCommandExecutor callbackExecutor = new CallbackCommandExecutor();
-				callbackExecutor.invokeCallbackCommandOnProductFiles(productDownloadCompleteCommand, getDownloadProcess(productUuid).getDownloadedFiles());
-			} catch (DownloadOperationException e) { // This catch block should be unreachable
-				LOGGER.error("Unable to invoke post-download callback on product " + productUuid, e);
-			}
+			executeCallbackMechanism(productUuid);
 		}
 		if(productProgress.getStatus() == EDownloadStatus.COMPLETED || productProgress.getStatus() == EDownloadStatus.CANCELLED) {
 			IDownloadProcess downloadProcess = downloadProcessList.get(productUuid);
@@ -207,6 +201,16 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		
 	}
 	
+	private void executeCallbackMechanism(String productUuid) {
+		try {
+			String productDownloadCompleteCommand = settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
+			CallbackCommandExecutor callbackExecutor = new CallbackCommandExecutor();
+			callbackExecutor.invokeCallbackCommandOnProductFiles(productDownloadCompleteCommand, getDownloadProcess(productUuid).getDownloadedFiles());
+		} catch (DownloadOperationException e) { // This catch block should be unreachable
+			LOGGER.error("Unable to invoke post-download callback on product " + productUuid, e);
+		}
+	}
+
 	/**
 	 * Thread to download a file
 	 */

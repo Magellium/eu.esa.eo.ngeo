@@ -55,11 +55,15 @@ public class DataAccessMonitoringTask implements Runnable {
 	public void run() {
 		LOGGER.debug("Starting DataAccessMonitoringTask");
 
+		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController, true);
+
+		/* 
+		 * XXX: This should be removed once the Web Client no longer relies on the hooky Web Server 
+		 * login procedure to identify the user
+		 * The path of this login procedure is /ngeo/login?username=<u>&password=<p>
+		 */
 		String umSsoUsername = monitoringController.getSetting(SettingsManager.KEY_SSO_USERNAME);
 		String umSsoPassword = monitoringController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
-
-		UmSsoHttpClient umSsoHttpClient = new UmSsoHttpClient(umSsoUsername, umSsoPassword, "", -1, "", "", true);
-		//XXX: This should be replaced with UM-SSO when implemented
 		ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
 
 		DataAccessRequest dataAccessRequest = darController.getDataAccessRequestByMonitoringUrl(darMonitoringUrl);

@@ -193,7 +193,7 @@ ul#actions li {
 	color: black;
 }
 
-#advancedConfigButtons {
+#configButtons {
 	width: 600px;
 	margin-left: auto;
 	margin-right: auto;
@@ -202,3 +202,10 @@ ul#actions li {
 }
 
 /* end of advanced configuration styles */
+
+.pageDescription {
+	width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}

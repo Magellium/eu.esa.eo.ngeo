@@ -43,16 +43,24 @@ public class UmSsoHttpClient {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UmSsoHttpClient.class);
 	private boolean enableUmssoJclUse;
 	private CommandLineCallback commandLineCallback;
-	
-	public UmSsoHttpClient(String umssoUsername, String umssoPassword, String proxyLocation, int proxyPort, String proxyUser, String proxyPassword, boolean enableUmssoJclUse) {
+
+	public UmSsoHttpClient(String umssoUsername, String umssoPassword, boolean enableUmssoJclUse) {
+		this(umssoUsername, umssoPassword, enableUmssoJclUse, "", -1, "", "");
+	}
+
+	public UmSsoHttpClient(String umssoUsername, String umssoPassword, boolean enableUmssoJclUse, String proxyHost, int proxyPort) {
+		this(umssoUsername, umssoPassword, enableUmssoJclUse, proxyHost, proxyPort, "", "");
+	}
+
+	public UmSsoHttpClient(String umssoUsername, String umssoPassword, boolean enableUmssoJclUse, String proxyHost, int proxyPort, String proxyUser, String proxyPassword) {
 		commandLineCallback = new CommandLineCallback(umssoUsername, umssoPassword);
 		UmssoCLCore clCore = UmssoCLCoreImpl.getInstance();
-		if (!StringUtils.isEmpty(proxyLocation)) {
+		if (!StringUtils.isEmpty(proxyHost)) {
 			if (!StringUtils.isEmpty(proxyUser)) {
-				clCore.init(new UmssoCLEnvironment(proxyLocation, proxyPort, proxyUser, proxyPassword));
+				clCore.init(new UmssoCLEnvironment(proxyHost, proxyPort, proxyUser, proxyPassword));
 			}
 			else {
-				clCore.init(new UmssoCLEnvironment(proxyLocation, proxyPort));
+				clCore.init(new UmssoCLEnvironment(proxyHost, proxyPort));
 			}
 		}
 		this.enableUmssoJclUse = enableUmssoJclUse;

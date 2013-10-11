@@ -37,7 +37,7 @@
 	<div style="float:right;">
 		<spring:message code="label.advanced_configuration" var="label_advanced_configuration" />
 
-		<input type="button" value="${label_advanced_configuration}" class="headerButton" onclick="document.location.href='advancedconfig'"/>
+		<input type="button" value="${label_advanced_configuration}" class="headerButton" onclick="document.location.href='config/advanced'"/>
 	</div>
 	<br /><br />
 </div>
