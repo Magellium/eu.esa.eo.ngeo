@@ -38,7 +38,7 @@
 	</logger>
 	
 	<logger name="com.siemens.pse.umsso">
-		<level value="info" />
+		<level value="fatal" />
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.dmtu">
