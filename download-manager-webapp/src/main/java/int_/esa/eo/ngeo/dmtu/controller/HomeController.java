@@ -20,7 +20,7 @@ public class HomeController {
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home() {
 		if (!Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP)) || !Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_DM_IS_REGISTERED))) {
-			return "redirect:/firststartupconfig";
+			return "redirect:/config/firststartup";
 		}
 		
 		return "home";
