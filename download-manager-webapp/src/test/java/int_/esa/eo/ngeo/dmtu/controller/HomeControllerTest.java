@@ -26,13 +26,13 @@ public class HomeControllerTest {
 	public void testHomeControllerWhenDmIsSetupAndIsNotRegistered() {
 		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP)).thenReturn("true");
 		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_REGISTERED)).thenReturn("false");
-		assertEquals("redirect:/firststartupconfig", controller.home());
+		assertEquals("redirect:/config/firststartup", controller.home());
 	}
 
 	@Test
 	public void testHomeControllerWhenDmIsNotSetupAndIsNotRegistered() {
 		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP)).thenReturn("false");
 		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_REGISTERED)).thenReturn("false");
-		assertEquals("redirect:/firststartupconfig", controller.home());
+		assertEquals("redirect:/config/firststartup", controller.home());
 	}
 }
