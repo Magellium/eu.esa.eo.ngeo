@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PauseProductDownload implements CommandMarker {
+	private final static String successMessage = "Product paused.";
+
 	@CliAvailabilityIndicator({"pause"})
 	public boolean isPauseAvailable() {
 		return true;
@@ -42,8 +44,8 @@ public class PauseProductDownload implements CommandMarker {
 			String urlAsString = String.format("%s/products/%s?action=pause", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL), productUuid);
 			URL commandUrl = new URL(urlAsString);
 
-			HttpURLConnection conn = downloadManagerService.sendCommand(commandUrl);
-			returnMessage = downloadManagerResponseParser.parseResponse(conn);
+			HttpURLConnection conn = downloadManagerService.sendGetCommand(commandUrl);
+			returnMessage = downloadManagerResponseParser.parseResponse(conn, successMessage);
 		}
 		catch (IOException e) {
 			returnMessage = e.getMessage();

@@ -16,7 +16,7 @@ public class DownloadManagerResponseParser {
 	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_SUFFIX = "}"; 
 	private static final Logger LOGGER = Logger.getLogger(DownloadManagerResponseParser.class.getName());
 
-	public String parseResponse(HttpURLConnection conn) throws IOException {
+	public String parseResponse(HttpURLConnection conn, String successMessage) throws IOException {
 		String returnMessage;
 		CommandResponse2 commandResponse;
 	    ObjectMapper mapper = new ObjectMapper();
@@ -38,7 +38,7 @@ public class DownloadManagerResponseParser {
 		    
 		    commandResponse = mapper.readValue(responseStrBuilder.toString(), CommandResponse2.class);
 		    if (commandResponse.isSuccess()) {
-		    	returnMessage = "Product resumed.";
+		    	returnMessage = successMessage;
 		    }
 		    else if (commandResponse.getMessage() != null) {
 		    	returnMessage = String.format("Error: %s", commandResponse.getMessage());
