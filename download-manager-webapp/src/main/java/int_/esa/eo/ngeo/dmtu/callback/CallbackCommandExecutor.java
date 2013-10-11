@@ -1,7 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.callback;
 
-import int_.esa.eo.ngeo.dmtu.os.command.OSCommandExecutor;
-import int_.esa.eo.ngeo.dmtu.os.command.OSCommandExecutor.CommandResultHandler;
+import int_.esa.eo.ngeo.dmtu.os.command.CommandLineExecutor;
+import int_.esa.eo.ngeo.dmtu.os.command.CommandLineExecutor.CommandResultHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,13 +43,14 @@ public class CallbackCommandExecutor {
 				// build up the command line using a 'java.io.File'
 				Map<String, Object> map = new HashMap<>();
 				map.put("FILE", file);
-				
+
 				commandLine.setSubstitutionMap(map);
 				
-				OSCommandExecutor osCommandExecutor = new OSCommandExecutor();
+				LOGGER.debug(String.format("resolved call-back command: %s", commandLine.toString()));
+				CommandLineExecutor commandLineExecutor = new CommandLineExecutor();
 				CommandResultHandler resultHandler = null;
 				try {
-					resultHandler = osCommandExecutor.execute(commandLine, 60000, EXEC_IN_BACKGROUND, SUCCESSFUL_OS_COMMAND_EXIT_CODE);
+					resultHandler = commandLineExecutor.execute(commandLine, 60000, EXEC_IN_BACKGROUND, SUCCESSFUL_OS_COMMAND_EXIT_CODE);
 					resultHandler.waitFor();
 				}
 				catch (InterruptedException | IOException e) {
