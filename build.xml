@@ -5,7 +5,7 @@
 	<property name="linux_i586" value="linux_i586"/>
 	<property name="macosx_x64" value="macosx_x64"/>
 
-	<property name="version" value="0.4.1"/>
+	<property name="version" value="0.5.0"/>
 
 	<property name="target"       value="${win_x64}"/>
 	<property name="dist.base"    value="target/dist"/>
