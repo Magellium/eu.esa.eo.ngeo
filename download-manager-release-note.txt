@@ -1,4 +1,4 @@
-Download Manager Test Unit (DMTU) Release Note 0.4.1
+Download Manager Test Unit (DMTU) Release Note 0.5.0
 -----------------------------------
 
 Features
@@ -8,8 +8,8 @@ Features
 * Implemented completely in Java.
 * Uses standard cross-platform build tools (Maven and Ant) to create the installation package.
 * Can be installed anywhere on a user's machine and does not require root / administrator access.
-* Fully autonomous download of products notified by a server which supports the ngEO interface (IICD-D-WS).
-* Integrates with Product Facilities through ngEO DAGICD interface.
+* Fully autonomous download of products notified by a server which supports the ngEO interface (IICD-D-WS v1.7).
+* Integrates with Product Facilities through ngEO DAGICD interface v1.5.
 * Plugin system which allows users to add support for download protocols.
 * Includes generic HTTP and mock Sentinel-2 plugins.
 * Web interface provided to allow monitoring and managing of download activities, as well as editing of configuration data.
@@ -17,50 +17,78 @@ Features
 * Clear activity history on completed, cancelled or failed downloads.
 * Concurrent download of products.
 * Integration with UM-SSO for product downloads (configurable, disabled by default).
+* Integration with UM-SSO for communication with ngEO Web Server.
 
 Release History
 -----------------------------------
-0.4.2
-    DMTU-65 - Added extra call to update the product file download status.
-    DMTU-48 - Product termination now includes start of actual download and stop of download.
-    DMTU-23 - Add header row for product download termination log
-            - Modified default web interface port number to 8082.
-            - Corrected schema as a result of a fix applied by the WEBS (NGEO-657).
-            - Fixed bug where the error message was not displayed correctly to the user; it was being displayed as "null".
-            - Displayed a friendlier network message to the user if an HTTP 400 or 402 does not provide an expected valid xml response.
-            - Updated UM-SSO login form handling - if the plugin is prompted to login more than once, the UM-SSO credentials are invalid. This message is not displayed to the user.
+0.5.0
+    DMTU-23  - Add header row for product download termination log
+    DMTU-36  - DMTU-REQ-8: "User Order" not honoured in Monitoring URL operation
+    DMTU-47  - DMTU-REQ-18: As a result of conforming to the plugin interface, there is no provision for providing the
+               total size of download, the number of files or the estimated time remaining. 
+    DMTU-48  - Product termination now includes start of actual download and stop of download.
+    DMTU-55  - Improve presentation of "NonRecoverable" error page
+    DMTU-65  - Added extra call to update the product file download status.
+    DMTU-92  - Implement pause, resume and cancel operations in CLI.
+    DMTU-93  - Implement STOP and STOP_IMMEDIATELY user command in CLI and webapp
+    DMTU-95  - Internationalisation of web application text - currently English and French are supported
+    DMTU-100 - Configuration of logging now included in conf folder.
+    DMTU-101 - Product download with status "IN_ERROR" displays an error message of "null" in the Web UI
+    DMTU-109 - Add command help detail specified "Manually add a DAR", when the command added a product
+    DMTU-112 - Pretty print xml response for easier viewing whilst debugging
+    DMTU-113 - NullPointerException when parsing a DataAccessMonitoring response with no product list
+    DMTU-125 - Enable use of UM-SSO in Linux
+    DMTU-126 - Product termination log contains three entries for a cancelled product download
+    DMTU-134 - Allow use of proxy settings for communication with the Web Server
+             - Support for IICD-D-WS v1.7
+             - Support for DAGICD v1.5
+             - Modified default web interface port number to 8082.
+             - Corrected schema as a result of a fix applied by the WEBS (NGEO-657).
+             - Fixed bug where the error message was not displayed correctly to the user; it was being displayed as "null".
+             - Displayed a friendlier network message to the user if an HTTP 400 or 402 does not provide an expected valid 
+               xml response.
+             - Updated UM-SSO login form handling - if the plugin is prompted to login more than once, the UM-SSO credentials
+               are invalid. This message is not displayed to the user.
+             - ESA Open source licence v0.3 Draft included
+             - Support included for downloads which are provided using chunked encoding. This means that the HTTP header
+               does not include a Content-Length. This was causing multiple issues, including DMTU-107 and DMTU-86
+             - Improved error handling in plugin and web application.
+             - Improved support for standing orders (DMTU-113 in particular).
+             - Improvements and additions to Web UI as a result of updated interfaces.
 0.4.1
-    DMTU-15 - set DM_HOME automatically
-    DMTU-26 - UM-SSO integration
-    DMTU-18 - Provide a success message when executing the "add" command
-    DMTU-42 - DMTU-REQ-9: No configuration of this plugin is possible at this time.
-    DMTU-44 - DMTU-REQ-9: Proxy details are now honoured by the generic plugin.
-    DMTU-76 - Include bash script for executing CLI applicaiton
-    DMTU-82 - DataAccessMonitoring change readyProductsOrAll value to "READY_ACCESSED" instead of "READY"   
-    DMTU-90 - Allow the use of JCL client to be configured
-    DMTU-97 - Tested DMTU for Linux and make changes where required.
-            - Included support for HTTPS (updated generic plugin)
-            - Improved build process for os specific files
-            - Unix installation package now built as .tar.gz
+    DMTU-15  - set DM_HOME automatically
+    DMTU-26  - UM-SSO integration
+    DMTU-18  - Provide a success message when executing the "add" command
+    DMTU-42  - DMTU-REQ-9: No configuration of this plugin is possible at this time.
+    DMTU-44  - DMTU-REQ-9: Proxy details are now honoured by the generic plugin.
+    DMTU-76  - Include bash script for executing CLI applicaiton
+    DMTU-82  - DataAccessMonitoring change readyProductsOrAll value to "READY_ACCESSED" instead of "READY"   
+    DMTU-90  - Allow the use of JCL client to be configured
+    DMTU-97  - Tested DMTU for Linux and make changes where required.
+             - Included support for HTTPS (updated generic plugin)
+             - Improved build process for os specific files
+             - Unix installation package now built as .tar.gz
+
 0.4.0
-	DMTU-3	- Persistence of status to DB in scenarios where a download goes straight into IN_ERROR
-	DMTU-11	- Remove "downloads" folder from installation package
-	DMTU-6	- Propagate installation instructions to install package
-	DMTU-57	- Ensure DownloadManagerSetTime is being passed through in MonitoringURL Operation
-	DMTU-63	- Potential clock synchronisation issue for DownloadManagerSetTime
-	DMTU-58	- Ensure DownloadManagerSetTime is being passed through in DataAccessMonitoring Operation
-	DMTU-27	- Supply the download status in the CLI
-	DMTU-59	- Initialise DataAcessRequestMonitoring on server startup
-	DMTU-69	- Support a DAR with multiple products
-	DMTU-25	- Integration with ngEO Web Server
-	DMTU-10	- Increase field size for download directory on first startup and advanced config pages
-	DMTU-54	- Generate unique download manager identifier
-	DMTU-1	- Download appears as "running", but progress appears to be stalled
-	DMTU-5	- The version number of the CLI is "FIXME_getversion"
-	DMTU-24	- Update installation process - demo feedback 22nd May
-	DMTU-79	- Update installation instructions to include DMTU Home Page URL
-	DMTU-2	- "The file download should be completed, but there are still bytes to be read" error when downloading a product
-    DMTU-29 - DMTU-REQ-23: Callback mechanism
+	DMTU-3	 - Persistence of status to DB in scenarios where a download goes straight into IN_ERROR
+	DMTU-11	 - Remove "downloads" folder from installation package
+	DMTU-6	 - Propagate installation instructions to install package
+	DMTU-57	 - Ensure DownloadManagerSetTime is being passed through in MonitoringURL Operation
+	DMTU-63	 - Potential clock synchronisation issue for DownloadManagerSetTime
+	DMTU-58	 - Ensure DownloadManagerSetTime is being passed through in DataAccessMonitoring Operation
+	DMTU-27	 - Supply the download status in the CLI
+	DMTU-59	 - Initialise DataAcessRequestMonitoring on server startup
+	DMTU-69	 - Support a DAR with multiple products
+	DMTU-25	 - Integration with ngEO Web Server
+	DMTU-10	 - Increase field size for download directory on first startup and advanced config pages
+	DMTU-54	 - Generate unique download manager identifier
+	DMTU-1	 - Download appears as "running", but progress appears to be stalled
+	DMTU-5	 - The version number of the CLI is "FIXME_getversion"
+	DMTU-24	 - Update installation process - demo feedback 22nd May
+	DMTU-79	 - Update installation instructions to include DMTU Home Page URL
+	DMTU-2	 - "The file download should be completed, but there are still bytes to be read" error when downloading a product
+    DMTU-29  - DMTU-REQ-23: Callback mechanism
+
 0.3.2
 	First release (limited distribution)
 
@@ -74,23 +102,21 @@ DMTU-REQ-30 - Browser helper application
 Limitations
 ----------------------------------
 
-DMTU-REQ-2   -	Testing for Windows XP/Vista/8, and MacOS required. However the DMTU has been built to be flexible in deployment across multiple platforms.
-DMTU-REQ-4   -	Javadoc, open source licence and validation report not available at this time.
-DMTU-REQ-8   -	UM-SSO is not implemented at this time.
-DMTU-REQ-8   -	"User order" not honoured in Monitoring URL operation.
+DMTU-REQ-2   -	Testing for Windows XP/Vista/8, and MacOS required. However the DMTU has been built to be flexible in
+                deployment across multiple platforms.
+DMTU-REQ-4   -	Javadoc and validation report not available at this time.
 DMTU-REQ-8   -	Time remaining for a product download is not specified to the Web Server at this time.
-DMTU-REQ-8   -	PAUSED, CANCELLED and COMPLETED monitoring status supplied in DataAccessRequestMonitoring operation are not honoured.
-DMTU-REQ-9   -	Schema handling of HTTP 403 not implemented; confirmation of schema response required.
+DMTU-REQ-8   -	PAUSED, CANCELLED and COMPLETED monitoring status supplied in DataAccessRequestMonitoring operation are not 
+                honoured.
 DMTU-REQ-9   -	Handling of HTTP 303s not implemented at this time.
-DMTU-REQ-9   -	Parallel downloading (multiple sources for one file in a metalink) not supported. If multiple sources are provided for a particular file, only the first is used.
+DMTU-REQ-9   -	Parallel downloading (multiple sources for one file in a metalink) not supported. If multiple sources are 
+                provided for a particular file, only the first is used.
 DMTU-REQ-9   -	Only one file is downloaded at a time for a product.
-DMTU-REQ-9   -	Downloaded Files are currently not being used by the DMTU as output to product termination log.
-DMTU-REQ-11  -	Plugins are detected only on server startup. 
-DMTU-REQ-11  -	Adding a plugin via a GUI is not supported.
+DMTU-REQ-9   -	Downloaded files are currently not being used by the DMTU as output to product termination log.
 DMTU-REQ-17  -	Changes to the number of parallel download threads will only be honoured on application restart.
 DMTU-REQ-17  -	Port number for the web interface can be configured but is not honoured.
-DMTU-REQ-18  -	As a result of conforming to the plugin interface, there is no provision for providing the total size of download, the number of files or the estimated time remaining.
-DMTU-REQ-26  -	This setting refers to the product download threads. A product download will only download one file at time (in a metalink scenario).
+DMTU-REQ-26  -	This setting refers to the product download threads. A product download will only download one file at 
+                time (in a metalink scenario).
 DMTU-REQ-23  -  Callback mechanism supports very basic commands at present
 DMTU-REQ-27  -	Download log does not supply the following information at this time:
 					* Name of the Data Access Request (URL?)
@@ -104,8 +130,7 @@ DMTU-REQ-28  -	A list of products to be downloaded via a file parameter is yet t
              -  There is no ability to prioritise the download of a product at this time. The product downloads are handled as as queue (FIFO). 
                 If any product download is paused and then resumed, the download will lose its place in the queue.
              -  DMTU only allows for integration with one ngEO Web Server
-             -  Proxy details are only being honoured when use of the JCL client is enabled.
-             -  UM-SSO integration has not been implemented with the ngEO Web Server at this time. 
+
 Assumptions
 -----------------------------------
 
@@ -127,11 +152,9 @@ Known Issues
 
 DMTU-4  - Pause and resume buttons sometimes do not respond in the Web UI.
 DMTU-70 - Limitation: notification of product download from WEBS not handled correctly
-DMTU-16 - Cancelled products cannot be started
 DMTU-80 - DAGICD: No requirement for handling HTTP 301/302 status codes
 DMTU-8  - Double clicking the FirstStartupConfig page's "Save and Register" button causes a blow-up
 DMTU-62 - Name of downloaded file may be poor in absence of Content-Disposition HTTP response header
-DMTU-65 - Progress bar in UI can indicate less than 100% when Product Status is "Completed"
 DMTU-60 - Siemens UM-SSO Java Client Library buffers whole of each HTTP response body in memory
 DMTU-85 - Siemens' UM-SSO JCL version 2.1.3 fails when an attempt is made to use the HTTP HEAD method
         - As a result of the two above UM-SSO JCL issues, it is recommended to download files of no larger than 100Mb in size.
