@@ -12,17 +12,19 @@ Building:
 
 Environment specific builds:
 
-profiles
-
-ngeo (included by default if no profile is specified)
-DREAM
-
-environments
-
-ngeo-task6
-
 In order to configure the build, include the profiles and/or environment with the following syntax:
 
 mvn clean package -P <profile> -Denvironment=<environment>
 
-Multiple profiles can be included if required
+The following configuration is available:
+
+Profiles
+
+  ngeo (included by default if no profile is specified)
+  DREAM
+
+Environments
+
+  ngeo-task6
+
+Multiple profiles can be included as a comma-seperated list.
