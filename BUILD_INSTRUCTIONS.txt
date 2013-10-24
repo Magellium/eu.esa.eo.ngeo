@@ -1,0 +1,28 @@
+Instructions for building ngEO Download Manager
+=================================================
+
+Building:
+
+  * Install Maven 3  - refer to http://maven.apache.org/download.cgi      (Tested using Maven 3.0.4)
+    Include the Maven bin directory within your PATH environment variable.
+  * Change directory to the root of the source tree
+    i.e. to the folder that contains the download-manager-parent's POM file.
+  * run the command: mvn clean package <return>
+  * Once the build has succeeded, the distributions will be located in the download-manager-distribution/target folder
+
+Environment specific builds:
+
+profiles
+
+ngeo (included by default if no profile is specified)
+DREAM
+
+environments
+
+ngeo-task6
+
+In order to configure the build, include the profiles and/or environment with the following syntax:
+
+mvn clean package -P <profile> -Denvironment=<environment>
+
+Multiple profiles can be included if required

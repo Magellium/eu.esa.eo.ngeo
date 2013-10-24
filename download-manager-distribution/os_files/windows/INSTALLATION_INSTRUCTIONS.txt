@@ -1,21 +1,9 @@
-Instructions for building, installing and running
-=================================================
-
-Building:
-
-  * Install Maven 3  - refer to http://maven.apache.org/download.cgi      (Tested using Maven 3.0.4)
-    Include the Maven bin directory within your PATH environment variable.
-  * Install Ant      - refer to http://ant.apache.org/bindownload.cgi     (Tested using Ant 1.9.0)
-    Include the Ant bin directory within your PATH environment variable.
-  * Change directory to the root of the source tree (referred to hereafter as <SOURCE_ROOT>), 
-    i.e. to the folder that contains the download-manager-parent's POM file.
-  * mvn clean initialize package <return>
-  * ant                          <return>
-  
+Instructions for installing and running Download Manager
+========================================================
 
 Installing:
 
-  * Extract the contents of the distribution ZIP (taken from <SOURCE_ROOT>\target\download-manager_${version}_${target}.zip) to a suitable folder.
+  * Extract the contents of the distribution ZIP to a suitable folder.
   * Copy the JAR files of any 3rd party downloader plug-ins to ngEO-download-manager\plugins.
     (Note that the generic (HTTP) plug-in is automatically placed in the plugins folder.)
     

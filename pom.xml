@@ -16,6 +16,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<plugin-interface-version>1.5</plugin-interface-version>
 	    <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+	    <jre.version>1.7.0.21</jre.version>
 	</properties>
 
 	<modules>
@@ -25,7 +26,7 @@
 		<module>download-manager-command-line</module>
 		<module>download-manager-mock-product-facility</module>
 		<module>download-manager-mock-web-server</module>
-		<!-- <module>download-manager-distribution</module> -->
+		<module>download-manager-distribution</module>
 		<module>download-manager-plugin-generic</module>
 		<module>download-manager-plugin-mock-sentinel2</module>
 		<module>download-manager-sso</module>
@@ -55,6 +56,22 @@
 				</plugin>
 			</plugins>
     	</pluginManagement>
+    	<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/assemble/download-manager-win_i586-assembly.xml</descriptor>
+						<descriptor>src/assemble/download-manager-win_x64-assembly.xml</descriptor>
+						<descriptor>src/assemble/download-manager-linux_i586-assembly.xml</descriptor>
+						<descriptor>src/assemble/download-manager-linux_x64-assembly.xml</descriptor>
+						<descriptor>src/assemble/download-manager-macosx_x64-assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	<profiles>
         <profile>
@@ -65,6 +82,19 @@
 			<properties>
                 <DM_TITLE>ngEO Download Manager Test Unit</DM_TITLE>
                 <DM_CLI_PROMPT>ngEO-D</DM_CLI_PROMPT>
+                <NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
+            </properties>
+        </profile>
+        <profile>
+            <id>ngeo-task6</id>
+			<activation>
+	            <property>
+			        <name>environment</name>
+					<value>ngeo-task6</value>
+				</property>
+			</activation>
+			<properties>
+                <NGEO_WEB_SERVER_REGISTRATION_URLS>https://mag-2-webs.eo.esa.int/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
             </properties>
         </profile>
         <profile>
@@ -72,6 +102,7 @@
             <properties>
                 <DM_TITLE>DREAM Download Manager</DM_TITLE>
                 <DM_CLI_PROMPT>DREAM-DM</DM_CLI_PROMPT>
+                <NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
             </properties>
 		</profile>
         <profile>
@@ -138,3 +169,4 @@
 		</dependency>
 	</dependencies>
 </project>
+

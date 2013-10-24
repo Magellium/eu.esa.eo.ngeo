@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- Appenders -->
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value=" %d{HH:mm:ss} %-5p: %c{1} - %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="DownloadManagerLog" class="org.apache.log4j.RollingFileAppender">
+        <param name="file" value="${DM_HOME}/logs/download-manager.log" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<triggeringPolicy class="org.apache.log4j.rolling.SizeBasedTriggeringPolicy">
+			<param name="maxFileSize" value="50000000" />
+		</triggeringPolicy>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value=" %d{HH:mm:ss} %-5p: %c{1} - %m%n" />
+        </layout>
+    </appender>
+
+	<appender name="productDownloadTerminationLog" class="org.apache.log4j.RollingFileAppender">
+        <param name="file" value="${DM_HOME}/logs/productDownloadTermination.log" />
+		<triggeringPolicy class="org.apache.log4j.rolling.SizeBasedTriggeringPolicy">
+			<param name="maxFileSize" value="50000000" />
+		</triggeringPolicy>
+        <layout class="int_.esa.eo.ngeo.dmtu.log.ProductTerminationLogLayout">
+			<param name="ConversionPattern" value="%m%n" />
+        </layout>
+    </appender>
+	
+	<!-- Application Loggers -->
+	<logger name="ProductDownloadTermination">
+		<level value="info" />
+		<appender-ref ref="productDownloadTerminationLog" />
+	</logger>
+	
+	<logger name="com.siemens.pse.umsso">
+		<level value="fatal" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.dmtu">
+		<level value="info" />
+	</logger>
+	
+	<logger name="int_.esa.eo.ngeo.dmtu.jaxb">
+		<level value="info" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.dmtu.manager">
+		<level value="info" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.dmtu.monitor">
+		<level value="info" />
+	</logger>
+	
+	<logger name="int_.esa.eo.ngeo.dmtu.monitor.dar">
+		<level value="debug" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.dmtu.os.command">
+		<level value="debug" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.dmtu.webserver.builder">
+		<level value="info" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.dmtu.webserver.service">
+		<level value="info" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.downloadmanager.plugin">
+		<level value="info" />
+	</logger>
+
+	<logger name="int_.esa.eo.ngeo.downloadmanager.plugin.utils">
+		<level value="info" />
+	</logger>
+	
+	<logger name="int_.esa.umsso">
+		<level value="info" />
+	</logger>
+	
+	<!-- 3rdparty Loggers -->
+	<logger name="org.springframework.core">
+		<level value="error" />
+	</logger>
+	
+	<logger name="org.springframework.beans">
+		<level value="error" />
+	</logger>
+	
+	<logger name="org.springframework.context">
+		<level value="error" />
+	</logger>
+
+	<logger name="org.springframework.web">
+		<level value="error" />
+	</logger>
+
+	<!-- Used to give basic guidance to spring loading and starting correctly -->
+	<logger name="org.springframework.web.servlet.DispatcherServlet">
+		<level value="info" />
+	</logger>
+	<logger name="org.springframework.web.context.ContextLoader">
+		<level value="info" />
+	</logger>
+
+	<!-- Used for diagnosis of persistence -->
+	<logger name="org.hibernate">
+		<level value="error" />
+	</logger>
+
+	<logger name="org.hibernate.type">
+		<level value="error" />
+	</logger>
+	
+	<logger name="org.springframework.security.web.FilterChainProxy">
+		<level value="error" />
+	</logger>
+
+	<logger name="org.springframework.security">
+		<level value="error" />
+	</logger>
+
+	<!-- Root Logger -->
+	<root>
+		<priority value="warn" />
+		<appender-ref ref="console" />
+		<appender-ref ref="DownloadManagerLog" />
+	</root>
+	
+</log4j:configuration>
