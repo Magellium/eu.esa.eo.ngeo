@@ -34,7 +34,7 @@
 		    <groupId>org.htmlparser</groupId>
 		    <artifactId>htmlparser</artifactId>
 		    <version>1.6</version>
-		</dependency> 
+		</dependency>
 
 		<!-- Logging -->
 		<dependency>
@@ -79,4 +79,52 @@
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>keytool-maven-plugin</artifactId>
+				<version>1.3</version>
+				<executions>
+					<execution>
+						<id>clean</id>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>generate-keypair</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>generateKeyPair</goal>
+						</goals>
+						<configuration>
+							<dname>cn=CLIENT</dname>
+							<alias>truststorekey</alias>
+							<keyalg>RSA</keyalg>
+							<validity>365</validity>
+						</configuration>
+					</execution>
+					<execution>
+						<id>import-task-6-reverse-proxy-certificate</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>importCertificate</goal>
+						</goals>
+						<configuration>
+							<file>${basedir}/certs/ngEO_Task6/ngEO-S2-Gate.int.oivv.org.crt</file>
+							<alias>task-6-reverse-proxy-certificate</alias>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<keystore>${project.build.directory}/download-manager-truststore.jks</keystore>
+					<keypass>whatever</keypass>
+					<storepass>password</storepass>
+					<noprompt>true</noprompt>
+					<verbose>true</verbose>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
