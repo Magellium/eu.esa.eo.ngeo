@@ -1,0 +1,25 @@
+Instructions for installing and running Download Manager
+========================================================
+
+Installing:
+
+  * Extract the contents of the distribution tar.gz to a suitable folder.
+  The preferred method for extraction is the tar command, as it persists file permissions needed for .sh and java commands.
+  * Copy the JAR files of any 3rd party downloader plug-ins to ngEO-download-manager\plugins.
+    (Note that the generic (HTTP) plug-in is automatically placed in the plugins folder.)
+    
+
+Running the Download Manager:
+
+  * Either, within the file explorer, double-click ngEO-download-manager\start-dm.sh
+  * Or, within a command prompt, change directory to ngEO-download-manager then enter the following:    
+    start-dm.sh          <return>
+  * Once the application has started (indicated by a message of "Started @0.0.0.0:0:8082", the Download Manager Web UI can
+    be accessed by the following URL: http://localhost:8082/download-manager/
+       
+ 
+Running the Command Line App: 
+
+  * Either, within the file explorer, double-click ngEO-download-manager\start-dm-cli.sh
+    Or, within a command prompt, change directory to ngEO-download-manager then enter the following:
+    start-dm-cli.sh      <return>

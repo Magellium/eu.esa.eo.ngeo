@@ -10,12 +10,6 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 export DM_HOME=$DIR
 
-# if an argument is provided, assume that a file with comamnds to be executed is being provided 
-if [ -z "$1" ]
-  then
-    export CMD_FILE=
-  else
-    export CMD_FILE="--cmdfile $1"
-fi
+SYS_PROPS="-DDM_HOME=$DM_HOME -Djava.net.preferIPv4Stack=true -Djavax.net.ssl.trustStore=$DM_HOME/conf/download-manager-truststore.jks -Dlog4j.configuration=file:$DM_HOME/conf/log4j.xml"
 
-$DM_HOME/jre/jre1.7.0_21/bin/java -DDM_HOME=$DM_HOME -jar "$DM_HOME/bin/download-manager-command-line.jar" $CMD_FILE
+$DM_HOME/jre/jre1.7.0_21.jre/Contents/Home/bin/java $SYS_PROPS -jar "$DM_HOME/bin/download-manager-webapp-jetty-console.war" --headless --port 8082 --contextPath /download-manager

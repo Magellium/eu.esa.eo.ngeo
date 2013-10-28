@@ -108,7 +108,7 @@
 		</fileSet>
 		<fileSet>
 			<outputDirectory></outputDirectory>
-			<directory>os_files/unix</directory>
+			<directory>os_files/mac</directory>
 			<includes>
 				<include>start-dm*.sh</include>
 			</includes>
@@ -116,7 +116,7 @@
 		</fileSet>
 		<fileSet>
 			<outputDirectory></outputDirectory>
-			<directory>os_files/unix</directory>
+			<directory>os_files/mac</directory>
 			<includes>
 				<include>INSTALLATION_INSTRUCTIONS.txt</include>
 			</includes>
