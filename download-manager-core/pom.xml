@@ -12,8 +12,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-plugin-interface</artifactId>
-			<version>${plugin-interface-version}</version>
+			<artifactId>download-manager-plugin-development-kit</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<dependency>
