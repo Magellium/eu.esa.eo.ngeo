@@ -1,18 +1,14 @@
 package int_.esa.eo.ngeo.dmtu.manager;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
-import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
-import int_.esa.eo.ngeo.dmtu.model.Product;
 import int_.esa.eo.ngeo.dmtu.model.dao.DataAccessRequestDAO;
 import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
 import int_.esa.eo.ngeo.dmtu.observer.ProductObserver;
@@ -25,7 +21,6 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessStatus;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,83 +56,6 @@ public class DataAccessRequestManagerTest {
 	@Test
 	public void testObserver() {
 		//XXX: complete this test
-	}
-	
-	@Test
-	public void testAddManualDownload() throws ProductAlreadyExistsInDarException, MalformedURLException {
-		boolean productAdded = dataAccessRequestManager.addManualProductDownload(downloadUrl.toString());
-		assertTrue(productAdded);
-		
-		assertEquals(1, dataAccessRequestManager.getVisibleDARList(true).size());
-		assertEquals(0, dataAccessRequestManager.getVisibleDARList(false).size());
-
-		DataAccessRequest manualDataAccessRequest = dataAccessRequestManager.getVisibleDARList(true).get(0);
-		assertNotNull(manualDataAccessRequest);
-		
-		assertEquals(DataAccessRequestManager.MANUAL_DATA_REQUEST,manualDataAccessRequest.getMonitoringURL());
-		List<Product> productList = manualDataAccessRequest.getProductList();
-		assertEquals(1, productList.size());
-		assertEquals(productList.get(0).getProductAccessUrl(), downloadUrl.toString());
-	}
-
-	@Test
-	public void testAddManualDownloadTwoDownloads() throws MalformedURLException, ProductAlreadyExistsInDarException {
-		dataAccessRequestManager.addManualProductDownload(downloadUrl.toString());
-		dataAccessRequestManager.addManualProductDownload("http://ipv4.download.thinkbroadband.com/10MB.zip");
-
-		DataAccessRequest manualDataAccessRequest = dataAccessRequestManager.getVisibleDARList(true).get(0);
-		assertEquals(2, manualDataAccessRequest.getProductList().size());
-	}
-
-	@Test
-	public void testAddManualDownloadSameDownloadTwice() throws MalformedURLException, ProductAlreadyExistsInDarException {
-		dataAccessRequestManager.addManualProductDownload(downloadUrl.toString());
-		//add of a second manual download, which should throw a ProductAlreadyExistsInDarException
-		try {
-			dataAccessRequestManager.addManualProductDownload(downloadUrl.toString());
-			fail("adding the same manual download twice should cause an exception to be thrown.");
-		}catch(ProductAlreadyExistsInDarException ex) {
-			assertEquals(String.format("Product %s already exists in DAR %s", downloadUrl.toString(), DataAccessRequestManager.MANUAL_DATA_REQUEST), ex.getLocalizedMessage());
-		}
-		
-	}
-
-	@Test
-	public void testAddDataAccessRequest() throws MalformedURLException, DataAccessRequestAlreadyExistsException {
-		dataAccessRequestManager.addDataAccessRequest(downloadUrl);
-		assertEquals(1, dataAccessRequestManager.getVisibleDARList(true).size());
-	}
-
-	@Test
-	public void testAddDataAccessRequestTwice() throws MalformedURLException, DataAccessRequestAlreadyExistsException {
-		dataAccessRequestManager.addDataAccessRequest(downloadUrl);
-		//add of a second manual download, which should throw a ProductAlreadyExistsInDarException
-		try {
-			dataAccessRequestManager.addDataAccessRequest(downloadUrl);
-			fail("adding the same DAR twice should cause an exception to be thrown.");
-		}catch(DataAccessRequestAlreadyExistsException ex) {
-			assertEquals(String.format("Data Access Request for url %s already exists.", downloadUrl.toString(), DataAccessRequestManager.MANUAL_DATA_REQUEST), ex.getLocalizedMessage());
-		}
-	}
-	
-	@Test
-	public void testGetDataAccessRequestByUuid() throws ProductAlreadyExistsInDarException {
-		dataAccessRequestManager.addManualProductDownload(downloadUrl.toString());
-		DataAccessRequest manualDataAccessRequest = dataAccessRequestManager.getVisibleDARList(true).get(0);
-		
-		DataAccessRequest retrievedDAR = dataAccessRequestManager.getDataAccessRequestByUuid(manualDataAccessRequest.getUuid());
-		assertEquals(manualDataAccessRequest, retrievedDAR);
-	}
-	
-	@Test
-	public void testGetDataAccessRequestByUuidDARDoesNotExist() {
-		String myUuid = "myUuid";
-		try {
-			dataAccessRequestManager.getDataAccessRequestByUuid(myUuid);
-			fail("DAR with uuid \"myUuid\" does not exist, an exception should be thrown here.");
-		}catch(NonRecoverableException ex) {
-			assertEquals(String.format("Unable to find Data Access Request for uuid %s", myUuid), ex.getLocalizedMessage());
-		}
 	}
 	
 	@Test

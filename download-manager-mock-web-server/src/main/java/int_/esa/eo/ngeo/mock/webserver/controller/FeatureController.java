@@ -1,5 +1,7 @@
 package int_.esa.eo.ngeo.mock.webserver.controller;
 
+import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
+
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,56 +25,66 @@ public class FeatureController {
 	
 	@RequestMapping(value = "/feature/supplyDAR", method = RequestMethod.GET)
 	public ResponseEntity<String> supplyDar(HttpServletResponse servletResponse) throws IOException {
-		HttpStatus status = HttpStatus.OK;
-		String response = "OK";
-		HttpHeaders responseHeaders = new HttpHeaders();
-
 		monitorController.setDarSupplied(true);
 		
-		return new ResponseEntity<String>(response, responseHeaders, status);
+		return getHTTP200ResponseEntity();
+	}
+
+	@RequestMapping(value = "/feature/pauseDAR", method = RequestMethod.GET)
+	public ResponseEntity<String> pauseDar(HttpServletResponse servletResponse) throws IOException {
+		monitorController.setMonitoringStatus(MonitoringStatus.PAUSED);
+		
+		return getHTTP200ResponseEntity();
+	}
+
+	@RequestMapping(value = "/feature/resumeDAR", method = RequestMethod.GET)
+	public ResponseEntity<String> resumeDar(HttpServletResponse servletResponse) throws IOException {
+		monitorController.setMonitoringStatus(MonitoringStatus.IN_PROGRESS);
+		
+		return getHTTP200ResponseEntity();
+	}
+
+	@RequestMapping(value = "/feature/cancelDAR", method = RequestMethod.GET)
+	public ResponseEntity<String> cancelDar(HttpServletResponse servletResponse) throws IOException {
+		monitorController.setMonitoringStatus(MonitoringStatus.CANCELLED);
+		
+		return getHTTP200ResponseEntity();
 	}
 
 	@RequestMapping(value = "/feature/supplyProducts", method = RequestMethod.GET)
 	public ResponseEntity<String> supplyProducts(HttpServletResponse servletResponse) throws IOException {
-		HttpStatus status = HttpStatus.OK;
-		String response = "OK";
-		HttpHeaders responseHeaders = new HttpHeaders();
-
 		monitorController.setProductsSupplied(true);
 		
-		return new ResponseEntity<String>(response, responseHeaders, status);
+		return getHTTP200ResponseEntity();
 	}
 
 	@RequestMapping(value = "/feature/supplyStandingOrder", method = RequestMethod.GET)
 	public ResponseEntity<String> supplyStandingOrder(HttpServletResponse servletResponse) throws IOException {
-		HttpStatus status = HttpStatus.OK;
-		String response = "OK";
-		HttpHeaders responseHeaders = new HttpHeaders();
-
 		monitorController.setStandingOrderSupplied(true);
 		
-		return new ResponseEntity<String>(response, responseHeaders, status);
+		return getHTTP200ResponseEntity();
 	}
 	
 	@RequestMapping(value = "/feature/stop", method = RequestMethod.GET)
 	public ResponseEntity<String> stop(HttpServletResponse servletResponse) throws IOException {
-		HttpStatus status = HttpStatus.OK;
-		String response = "OK";
-		HttpHeaders responseHeaders = new HttpHeaders();
-
 		monitorController.setUserOrder("STOP");
 		
-		return new ResponseEntity<String>(response, responseHeaders, status);
+		return getHTTP200ResponseEntity();
 	}
 
 	@RequestMapping(value = "/feature/stop_immediately", method = RequestMethod.GET)
 	public ResponseEntity<String> stopImmediately(HttpServletResponse servletResponse) throws IOException {
+
+		monitorController.setUserOrder("STOP_IMMEDIATELY");
+		
+		return getHTTP200ResponseEntity();
+	}
+	
+	private ResponseEntity<String> getHTTP200ResponseEntity() {
 		HttpStatus status = HttpStatus.OK;
 		String response = "OK";
 		HttpHeaders responseHeaders = new HttpHeaders();
 
-		monitorController.setUserOrder("STOP_IMMEDIATELY");
-		
 		return new ResponseEntity<String>(response, responseHeaders, status);
 	}
 }

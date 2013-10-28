@@ -1,7 +1,9 @@
 package int_.esa.eo.ngeo.dmtu.observer;
 
 import int_.esa.eo.ngeo.dmtu.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 
 public interface ProductObserver {
-	void update(Product product);
+	void newProduct(Product product);
+	void updateProductDownloadStatus(Product product, EDownloadStatus downloadStatus);
 }

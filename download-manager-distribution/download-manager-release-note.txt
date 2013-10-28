@@ -1,10 +1,10 @@
-Download Manager Test Unit (DMTU) Release Note 0.5.0
+Download Manager Test Unit (DMTU) Release Note 0.5.1
 -----------------------------------
 
 Features
 -----------------------------------
 * Open source application, using widely-adopted third-party components and frameworks.
-* Supports multiple operating systems.
+* Supports Windows, Linux and Mac OS operating systems.
 * Implemented completely in Java.
 * Uses standard cross-platform build tools (Maven and Ant) to create the installation package.
 * Can be installed anywhere on a user's machine and does not require root / administrator access.
@@ -21,7 +21,15 @@ Features
 
 Release History
 -----------------------------------
+0.5.1
+    Release date TBD
+    DMTU-38  - DMTU-REQ-8: PAUSED, CANCELLED and IN_PROGRESS from PAUSED state are now handled correctly.
+             - Updated build process to include trust store and build of installation packages.
+               The build process now requires only one command to build.
+             - Added the ability to build for a specific environment (see build instructions for details)
+             - Installation process corrected for Mac OS X - wrong path in shell script for java executable.
 0.5.0
+    Release date 11th October 2013
     DMTU-23  - Add header row for product download termination log
     DMTU-36  - DMTU-REQ-8: "User Order" not honoured in Monitoring URL operation
     DMTU-47  - DMTU-REQ-18: As a result of conforming to the plugin interface, there is no provision for providing the
@@ -56,6 +64,7 @@ Release History
              - Improved support for standing orders (DMTU-113 in particular).
              - Improvements and additions to Web UI as a result of updated interfaces.
 0.4.1
+    Release date 5th July 2013
     DMTU-15  - set DM_HOME automatically
     DMTU-26  - UM-SSO integration
     DMTU-18  - Provide a success message when executing the "add" command
@@ -70,6 +79,7 @@ Release History
              - Unix installation package now built as .tar.gz
 
 0.4.0
+    Release date 21st June 2013
 	DMTU-3	 - Persistence of status to DB in scenarios where a download goes straight into IN_ERROR
 	DMTU-11	 - Remove "downloads" folder from installation package
 	DMTU-6	 - Propagate installation instructions to install package
@@ -90,6 +100,7 @@ Release History
     DMTU-29  - DMTU-REQ-23: Callback mechanism
 
 0.3.2
+    Release date 17th May 2013
 	First release (limited distribution)
 
 Requirements not currently implemented (requirement ref: DMTU-URD)
@@ -102,12 +113,10 @@ DMTU-REQ-30 - Browser helper application
 Limitations
 ----------------------------------
 
-DMTU-REQ-2   -	Testing for Windows XP/Vista/8, and MacOS required. However the DMTU has been built to be flexible in
+DMTU-REQ-2   -	Testing for Windows XP/Vista/8 required. However the DMTU has been built to be flexible in
                 deployment across multiple platforms.
 DMTU-REQ-4   -	Javadoc and validation report not available at this time.
 DMTU-REQ-8   -	Time remaining for a product download is not specified to the Web Server at this time.
-DMTU-REQ-8   -	PAUSED, CANCELLED and COMPLETED monitoring status supplied in DataAccessRequestMonitoring operation are not 
-                honoured.
 DMTU-REQ-9   -	Handling of HTTP 303s not implemented at this time.
 DMTU-REQ-9   -	Parallel downloading (multiple sources for one file in a metalink) not supported. If multiple sources are 
                 provided for a particular file, only the first is used.

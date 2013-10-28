@@ -20,6 +20,11 @@
 	<name>Download Manager Mock ngEO Web Server</name>
 	<packaging>war</packaging>
 	<dependencies>
+		<dependency>
+			<groupId>int_.esa.eo.ngeo</groupId>
+			<artifactId>download-manager-schemas</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework</groupId>

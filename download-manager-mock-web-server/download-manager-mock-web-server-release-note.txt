@@ -1,4 +1,4 @@
-Download Manager Test Unit (DMTU) Mock Web Server Release Note 0.5.0
+Download Manager Test Unit (DMTU) Mock Web Server Release Note 0.5.1
 -----------------------------------
 
 The Download Manager Test Unit application mandates registration with an ngEO Web Server before use.
@@ -22,17 +22,29 @@ All paths provided are relative to the context path of the deployed WAR e.g. dow
 *   Monitor for Data Access Requests (/monitoringservice)
     - Provides a DAR for the DMTU to monitor for products. By default this does not supply a DAR.
 *   Supply Data Access Request (/feature/supplyDAR)
-    - Enables the supply of a DAR to the DMTU. This is used in conjunction with the
+    - Enables the supply of a DAR to the Download Manager. This is used in conjunction with the
       "Monitor for Data Access Requests" service.
+*   Pause Data Access Request (/feature/pauseDAR)
+    - Pauses the above DAR. When the monitoring service for the DAR is requested by the Download Manager, the mock
+      web server will indicate that the DAR is paused, and the Download Manager will act accordingly.
+*   Resume Data Access Request (/feature/resumeDAR)
+    - Resumes the above DAR. When the monitoring service for the DAR is requested by the Download Manager, the mock
+      web server will indicate that the DAR is in progress, and the Download Manager will act accordingly.
+*   Cancel Data Access Request (/feature/cancelDAR)
+    - Cancels the above DAR. When the monitoring service for the DAR is requested by the Download Manager, the mock
+      web server will indicate that the DAR is cancelled, and the Download Manager will act accordingly.
 *   Monitor for Products (/monitoringservice/{monitoringUrlUuid})
     - Provides a list of products relevant to the supplied monitoring URL UUID. By default this does not supply any products.
       {monitoringUrlUuid} is provided by the "Monitor for Data Access Request" response.
 *   Supply Products (/feature/supplyProducts)
     - Enables the supply of products for a data access request to the DMTU. This is used in conjunction with the
       "Monitor for Products" service.
+      
 *   Supply Standing Order (/feature/supplyStandingOrder)
     - Enables the supply of a Standing Order DAR. A DAR is supplied in the monitoring service, and the subsequent monitoring of 
       this DAR provides additional details for products. See the responses in the stubs/standingOrder folder for more details.
+      NOTE: The supply of a Standing Order is independent of the supply of a basic DAR and associated commands.
+
 *   Stop command (/feature/stop)
     - any subsequent monitoring service request to this server will be responded to with a STOP user order.
       see section 3.3 of IICD-D-WS for further details.
@@ -45,12 +57,17 @@ In order to reset these features i.e. to not provide the DAR / products, the web
 
 Release History
 -----------------------------------
+0.5.1
+    Release date TBD
 0.5.0
+    Release date 11th October 2013
     - Added support for standing orders
     - Added support for STOP and STOP_IMMEDIATELY commands
 0.4.1
+    Release date 5th July 2013
     - WAR file no longer contains version number in filename. The version can be found in the manifest.
 0.4.0
+    Release date 21st June 2013
     - First public release
 
 

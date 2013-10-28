@@ -1,5 +1,6 @@
 package int_.esa.eo.ngeo.mock.webserver.controller;
 
+import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.mock.webserver.resource.FileLoader;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class MonitorController {
 	private boolean darSupplied = false;
+	private MonitoringStatus monitoringStatus = MonitoringStatus.IN_PROGRESS;
 	private boolean productsSupplied = false;
 	private boolean standingOrderSupplied = false;
 	private String userOrder = "";
@@ -50,17 +52,29 @@ public class MonitorController {
 	}
 
 	@RequestMapping(value = "/monitoringservice/{monitoringUrlUuid}", method = RequestMethod.POST)
-	public ResponseEntity<String> monitorForProducts(@PathVariable String monitoringUrlUuid) throws IOException {
+	public ResponseEntity<String> monitorForProducts(@PathVariable String monitoringUrlUuid) throws Exception {
 		FileLoader fileLoader = new FileLoader();
 		HttpStatus status;
 		String response;
 		HttpHeaders responseHeaders = new HttpHeaders();
 	
 		status = HttpStatus.OK;
-		if(productsSupplied) {
-			response = fileLoader.loadFileAsString("/stubs/DataAccessRequestMonitoring-Resp.xml");
-		}else{
-			response = fileLoader.loadFileAsString("/stubs/DataAccessRequestMonitoring-Resp-NoProducts.xml");
+		switch (monitoringStatus) {
+		case IN_PROGRESS:
+			if(productsSupplied) {
+				response = fileLoader.loadFileAsString("/stubs/DataAccessRequestMonitoring-Resp.xml");
+			}else{
+				response = fileLoader.loadFileAsString("/stubs/DataAccessRequestMonitoring-NoProducts-Resp.xml");
+			}
+			break;
+		case PAUSED:
+			response = fileLoader.loadFileAsString("/stubs/DataAccessRequestMonitoring-Paused-Resp.xml");
+			break;
+		case CANCELLED:
+			response = fileLoader.loadFileAsString("/stubs/DataAccessRequestMonitoring-Cancelled-Resp.xml");
+			break;
+		default:
+			throw new RuntimeException(String.format("Unknown progress: ", monitoringStatus));
 		}
 		responseHeaders.add("Content-Type", "application/xml; charset=utf-8");
 
@@ -141,5 +155,13 @@ public class MonitorController {
 
 	public void setUserOrder(String userOrder) {
 		this.userOrder = userOrder;
+	}
+
+	public MonitoringStatus getMonitoringStatus() {
+		return monitoringStatus;
+	}
+
+	public void setMonitoringStatus(MonitoringStatus monitoringStatus) {
+		this.monitoringStatus = monitoringStatus;
 	}
 }

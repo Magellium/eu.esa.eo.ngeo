@@ -9,6 +9,7 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.model.ProxyDetails;
 import int_.esa.eo.ngeo.downloadmanager.plugin.thread.HttpFileDownloadRunnable;
 import int_.esa.eo.ngeo.downloadmanager.plugin.thread.IdleCheckThread;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.PathResolver;
+import int_.esa.eo.ngeo.downloadmanager.status.ValidDownloadStatusForUserAction;
 import int_.esa.eo.ngeo.downloadmanager.transform.SchemaRepository;
 import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
 import int_.esa.eo.ngeo.schema.ngeobadrequestresponse.BadRequestResponse;
@@ -320,18 +321,30 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		}
 	}
 	
+	/*
+	 *  If the number of files has been determined, then pause each file download
+	 *  Otherwise, pause the product download
+	 */
 	public EDownloadStatus pauseDownload() throws DMPluginException {
-		// Pause can only be set if the download is running, idle or in the download queue (NOT_STARTED)
-		if(getStatus() != EDownloadStatus.IDLE && getStatus() != EDownloadStatus.RUNNING && getStatus() != EDownloadStatus.NOT_STARTED) {
+		ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
+		if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecutePauseAction().contains(getStatus())) {
 			throw new DMPluginException(String.format("Unable to pause download, status is %s", getStatus()));
 		}
-		productDownloadProgressMonitor.abortFileDownloads(EDownloadStatus.PAUSED);
+		
+		stopIdleCheckIfActive();
+	
+		if(productDownloadProgressMonitor.getFileDownloadList().size() > 0) {
+			productDownloadProgressMonitor.abortFileDownloads(EDownloadStatus.PAUSED);
+		}else{
+			productDownloadProgressMonitor.setStatus(EDownloadStatus.PAUSED);
+		}
 
 		return getStatus();
 	}
 
 	public EDownloadStatus resumeDownload() throws DMPluginException {
-		if(getStatus() == EDownloadStatus.RUNNING || getStatus() == EDownloadStatus.COMPLETED || getStatus() == EDownloadStatus.CANCELLED || getStatus() == EDownloadStatus.IDLE) {
+		ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
+		if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteResumeAction().contains(getStatus())) {
 			throw new DMPluginException(String.format("Unable to resume download, status is %s", getStatus()));
 		}
 		productDownloadProgressMonitor.setStatus(EDownloadStatus.NOT_STARTED);
@@ -340,11 +353,14 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	}
 
 	public EDownloadStatus cancelDownload() throws DMPluginException {
-		// Cancel can only be set if the download is running, paused, idle or NOT_STARTED
 		EDownloadStatus previousDownloadStatus = getStatus();
-		if(previousDownloadStatus != EDownloadStatus.RUNNING && previousDownloadStatus != EDownloadStatus.PAUSED && previousDownloadStatus != EDownloadStatus.IDLE && previousDownloadStatus != EDownloadStatus.NOT_STARTED) {
+		ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
+		if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteCancelAction().contains(previousDownloadStatus)) {
+			throw new DMPluginException(String.format("Unable to cancel download, status is %s", getStatus()));
 		}
 		
+		stopIdleCheckIfActive();
+
 		switch (previousDownloadStatus) {
 		case RUNNING:
 		case NOT_STARTED:
@@ -359,6 +375,12 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		}
 		
 		return getStatus();
+	}
+	
+	private void stopIdleCheckIfActive() {
+		if(idleCheckExecutor != null) {
+			idleCheckExecutor.shutdownNow();
+		}
 	}
 
 	private void tidyUpAfterCancelledDownload() {

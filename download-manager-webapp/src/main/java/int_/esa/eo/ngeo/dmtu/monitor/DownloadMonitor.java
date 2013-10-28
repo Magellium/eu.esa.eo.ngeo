@@ -50,7 +50,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 
 	private ExecutorService productDownloadExecutor;
 	
-	private Map<String,Product> productToDownloadList;
+	private Map<String, Product> productToDownloadList;
 
 	private ProductTerminationLog productTerminationLog;
 	
@@ -73,7 +73,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	}
 	
 	@Override
-	public void update(Product product) {
+	public void newProduct(Product product) {
 		LOGGER.debug("Product update has occurred");
 		productToDownloadList.put(product.getUuid(), product);
 		
@@ -96,6 +96,28 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			//This exception does not need to be rethrown, as the product has already been set in error.
 		}
 	}
+
+	@Override
+	public void updateProductDownloadStatus(Product product, EDownloadStatus downloadStatus) {
+		String productUuid = product.getUuid();
+		try {
+			switch (downloadStatus) {
+			case NOT_STARTED:
+				resumeProductDownload(productUuid);
+				break;
+			case PAUSED:
+				pauseProductDownload(productUuid);
+				break;
+			case CANCELLED:
+				cancelProductDownload(productUuid);
+				break;
+			default:
+				break;
+			}
+		} catch (DownloadOperationException e) {
+			LOGGER.error(String.format("Unable to change status of product %s to %s", product.getProductAccessUrl(), downloadStatus));
+		}
+	}	
 
 	private IDownloadProcess createDownloadProcess(Product product) throws DownloadProcessCreationException {
 		IDownloadPlugin downloadPlugin;

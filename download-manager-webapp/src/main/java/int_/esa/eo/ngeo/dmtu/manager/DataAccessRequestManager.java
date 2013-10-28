@@ -1,27 +1,24 @@
 package int_.esa.eo.ngeo.dmtu.manager;
 
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
-import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
 import int_.esa.eo.ngeo.dmtu.model.Product;
+import int_.esa.eo.ngeo.dmtu.model.VisibleDataAccessRequests;
 import int_.esa.eo.ngeo.dmtu.model.dao.DataAccessRequestDAO;
 import int_.esa.eo.ngeo.dmtu.observer.ProductObserver;
 import int_.esa.eo.ngeo.dmtu.observer.ProductSubject;
+import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
+import int_.esa.eo.ngeo.downloadmanager.status.ValidDownloadStatusForUserAction;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccess;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,19 +31,12 @@ public class DataAccessRequestManager implements ProductSubject {
 
 	@Autowired
 	private DataAccessRequestDAO dataAccessRequestDao;
+	private VisibleDataAccessRequests visibleDataAccessRequests;
 	
 	private List<ProductObserver> observers;
-	private Map<String, DataAccessRequest> dataAccessRequestMap;
-	
-	private Map<String, String> productDarMap;
-
-	private String manualDataAccessRequestUuid;
-
-	public static final String MANUAL_DATA_REQUEST = "Manual Data Access Request";
 
 	public DataAccessRequestManager() {
-		this.dataAccessRequestMap = new LinkedHashMap<String, DataAccessRequest>();
-		this.productDarMap = new HashMap<>();
+		this.visibleDataAccessRequests = new VisibleDataAccessRequests();
 		this.observers = new ArrayList<ProductObserver>();
 	}
 
@@ -54,14 +44,11 @@ public class DataAccessRequestManager implements ProductSubject {
 		LOGGER.debug("Loading DARs from the database");
 		List<DataAccessRequest> loadVisibleDars = this.dataAccessRequestDao.loadVisibleDars();
 		for (DataAccessRequest dataAccessRequest : loadVisibleDars) {
-			String uuid = dataAccessRequest.getUuid();
-			LOGGER.debug(String.format("DAR: %s %s",uuid, dataAccessRequest.getMonitoringURL()));
-			dataAccessRequestMap.put(uuid, dataAccessRequest);
-			if(dataAccessRequest.getMonitoringURL().equals(MANUAL_DATA_REQUEST)) {
-				manualDataAccessRequestUuid = uuid;
-			}
+			LOGGER.debug(String.format("DAR: %s %s", dataAccessRequest.getUuid(), dataAccessRequest.getMonitoringURL()));
+			visibleDataAccessRequests.addDAR(dataAccessRequest);
+			
 			for (Product product : dataAccessRequest.getProductList()) {
-				productDarMap.put(product.getUuid(), dataAccessRequest.getUuid());
+				visibleDataAccessRequests.addProductToProduct_DARMapping(product, dataAccessRequest);
 				if(product.isVisible() && !product.isNotified()) {
 					switch (product.getProductProgress().getStatus()) {
 						case NOT_STARTED:
@@ -70,7 +57,7 @@ public class DataAccessRequestManager implements ProductSubject {
 						case PAUSED:
 						case IN_ERROR:
 						case CANCELLED:
-							notifyObservers(product);
+							notifyObserversOfNewProduct(product);
 						break;
 					default:
 						break;
@@ -79,7 +66,6 @@ public class DataAccessRequestManager implements ProductSubject {
 			}
 		}
 	}
-	
 	
 	@Override
 	public void registerObserver(ProductObserver o) {
@@ -95,129 +81,87 @@ public class DataAccessRequestManager implements ProductSubject {
 	}
 
 	@Override
-	public void notifyObservers(Product product) {
+	public void notifyObserversOfNewProduct(Product product) {
 		for (ProductObserver o : observers) {
-			o.update(product);
+			o.newProduct(product);
 		}
 	}
 
-	private void notifyObservers(List<Product> productsAdded) {
+	@Override
+	public void notifyObserversOfProductStatusUpdate(Product product,	EDownloadStatus downloadStatus) {
+		for (ProductObserver o : observers) {
+			o.updateProductDownloadStatus(product, downloadStatus);
+		}
+	}
+
+	public void notifyObserversOfChangeOfDARProductsStatus(List<Product> productList, EDownloadStatus downloadStatus) {
+		for (Product product : productList) {
+			notifyObserversOfProductStatusUpdate(product, downloadStatus);
+		}
+	}
+
+	private void notifyObserversOfProductsAdded(List<Product> productsAdded) {
 		for (Product product : productsAdded) {
-			notifyObservers(product);
+			notifyObserversOfNewProduct(product);
 		}
 	}
 
-	private void addNewProduct(DataAccessRequest dataAccessRequest, Product newProduct) {
-		dataAccessRequest.addProduct(newProduct);
-		productDarMap.put(newProduct.getUuid(), dataAccessRequest.getUuid());
-	}
-	
 	public boolean addDataAccessRequest(URL monitoringUrl) throws DataAccessRequestAlreadyExistsException {
 		DataAccessRequest retrievedDataAccessRequest = getDataAccessRequestByMonitoringUrl(monitoringUrl);
 		if(retrievedDataAccessRequest != null) {
 			throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request for url %s already exists.", monitoringUrl));
 		}else{
 			DataAccessRequest dataAccessRequest = new DataAccessRequest(monitoringUrl.toString());
-			this.dataAccessRequestMap.put(dataAccessRequest.getUuid(), dataAccessRequest);
+			visibleDataAccessRequests.addDAR(dataAccessRequest);
 			dataAccessRequestDao.updateDataAccessRequest(dataAccessRequest);
 			return true;
 		}
 	}
 	
-	public List<DataAccessRequest> getVisibleDARList(boolean includeManualDar) {
-		List<DataAccessRequest> darList = new ArrayList<>();
-		Collection<DataAccessRequest> dataAccessRequests = dataAccessRequestMap.values();
-		for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
-			//TODO: Write a unit test to ensure this is correct.
-			//Include all visible DARs, except the manual DAR is specified.
-			if(dataAccessRequest.isVisible() && (includeManualDar || !MANUAL_DATA_REQUEST.equals(dataAccessRequest.getMonitoringURL()))) {
-				darList.add(dataAccessRequest);
-			}
-		}
-		return darList;
-	}
-
-	public DataAccessRequest getDataAccessRequestByUuid(String darUuid) {
-		DataAccessRequest dataAccessRequest = this.dataAccessRequestMap.get(darUuid);
-		if(dataAccessRequest == null) {
-			throw new NonRecoverableException(String.format("Unable to find Data Access Request for uuid %s", darUuid));
-		}
-		return dataAccessRequest;
-	}
-
 	public DataAccessRequest getDataAccessRequestByMonitoringUrl(URL monitoringUrl) {
-		Collection<DataAccessRequest> dataAccessRequests = this.dataAccessRequestMap.values();
-		for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
-			if(dataAccessRequest.getMonitoringURL().equals(monitoringUrl.toString())) {
-				return dataAccessRequest;
-			}
+		DataAccessRequest dataAccessRequestFromVisibleList = visibleDataAccessRequests.getDataAccessRequestByMonitoringUrl(monitoringUrl);
+		if(dataAccessRequestFromVisibleList != null) {
+			return dataAccessRequestFromVisibleList;
 		}
+		
 		//a DAR with this monitoringUrl is not active, check if it is in the database
 		return dataAccessRequestDao.getDarByMonitoringUrl(monitoringUrl.toString());
 	}
 
-	public List<Product> getProductList(String darUuid) {
-		List<Product> displayableProductList = new ArrayList<>();
-		DataAccessRequest dataAccessRequest = getDataAccessRequestByUuid(darUuid);
-		List<Product> darProductList = dataAccessRequest.getProductList();
-		for (Product product : darProductList) {
-			if(product.isVisible()) {
-				displayableProductList.add(product);
-			}
-		}
-		return displayableProductList;
-	}
-
 
 	public boolean addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
-		DataAccessRequest manualDataAccessRequest;
-		if(this.manualDataAccessRequestUuid == null) {
-			manualDataAccessRequest = new DataAccessRequest(MANUAL_DATA_REQUEST);
-			this.manualDataAccessRequestUuid = manualDataAccessRequest.getUuid();
-			dataAccessRequestMap.put(manualDataAccessRequestUuid, manualDataAccessRequest);
-		}else{
-			manualDataAccessRequest = dataAccessRequestMap.get(manualDataAccessRequestUuid);
-
-			Product productInDar = findProductInDar(manualDataAccessRequest, productDownloadUrl);
-			if(productInDar != null) {
-				throw new ProductAlreadyExistsInDarException(String.format("Product %s already exists in DAR %s", productDownloadUrl, manualDataAccessRequest.getMonitoringURL()));
-			}
-		}
-
-		Product newProduct = new Product(productDownloadUrl);
-		productDarMap.put(newProduct.getUuid(), manualDataAccessRequest.getUuid());
-
-		addNewProduct(manualDataAccessRequest, newProduct);
-
+		Product newProduct = visibleDataAccessRequests.addManualProductDownload(productDownloadUrl);
+		
+		DataAccessRequest manualDataAccessRequest = visibleDataAccessRequests.findDataAccessRequestByProductUuid(newProduct.getUuid());
 		dataAccessRequestDao.updateDataAccessRequest(manualDataAccessRequest);
-		notifyObservers(newProduct);
+		notifyObserversOfNewProduct(newProduct);
 		return true;
 	}
 	
-	private Product findProductInDar(DataAccessRequest dataAccessRequest, String productAccessUrl) {
-		for (Product product : dataAccessRequest.getProductList()) {
-			if(product.getProductAccessUrl().equals(productAccessUrl)) {
-				return product;
-			}
-		}
-		return null;
-	}
-	
+
 	public void updateDataAccessRequest(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessListObject) {
 		DataAccessRequest retrievedDataAccessRequest = getDataAccessRequestByMonitoringUrl(darMonitoringUrl);
 		if(retrievedDataAccessRequest == null) {
 			throw new NonRecoverableException(String.format("Data Access Request for url %s does not exist.", darMonitoringUrl));
 		}
 		
+		MonitoringStatus previousMonitoringStatus = retrievedDataAccessRequest.getMonitoringStatus();
+		retrievedDataAccessRequest.setLastResponseDate(responseDate);
 		retrievedDataAccessRequest.setMonitoringStatus(monitoringStatus);
-		if(monitoringStatus == MonitoringStatus.IN_PROGRESS) {
-			retrievedDataAccessRequest.setLastResponseDate(responseDate);
 
+		List<Product> productsWhichCanBeUpdatedToNewStatus;
+		switch (monitoringStatus) {
+		case IN_PROGRESS:
+			if(previousMonitoringStatus != MonitoringStatus.IN_PROGRESS) {
+				productsWhichCanBeUpdatedToNewStatus = searchForProductsWhichCanBeUpdatedToNewStatus(retrievedDataAccessRequest.getProductList(), EDownloadStatus.NOT_STARTED);
+				notifyObserversOfChangeOfDARProductsStatus(productsWhichCanBeUpdatedToNewStatus, EDownloadStatus.NOT_STARTED);
+			}
+			
 			if(productAccessListObject != null) {
 				List<ProductAccess> productAccessList = productAccessListObject.getProductAccesses();
 				List<Product> newProductsAdded = new ArrayList<>();
 				for (ProductAccess productAccess : productAccessList) {
-					Product productInDar = findProductInDar(retrievedDataAccessRequest, productAccess.getProductAccessURL());
+					Product productInDar = visibleDataAccessRequests.findProductInDar(retrievedDataAccessRequest, productAccess.getProductAccessURL());
 					if(productInDar != null) {
 						//check if the product has been confirmed as notified
 						Object downloadNotified = productAccess.getDownloadNotified();
@@ -228,31 +172,52 @@ public class DataAccessRequestManager implements ProductSubject {
 						}
 					}else{
 						Product newProduct = new Product(productAccess.getProductAccessURL(), productAccess.getProductDownloadDirectory());
-						addNewProduct(retrievedDataAccessRequest, newProduct);
+						visibleDataAccessRequests.addNewProduct(retrievedDataAccessRequest, newProduct);
 						newProductsAdded.add(newProduct);
 					}
 				}
 	
 				if(newProductsAdded.size() > 0) {
-					dataAccessRequestDao.updateDataAccessRequest(retrievedDataAccessRequest);
-					notifyObservers(newProductsAdded);
+					notifyObserversOfProductsAdded(newProductsAdded);
 				}
 			}
+			dataAccessRequestDao.updateDataAccessRequest(retrievedDataAccessRequest);
+			break;
+		case PAUSED:
+			productsWhichCanBeUpdatedToNewStatus = searchForProductsWhichCanBeUpdatedToNewStatus(retrievedDataAccessRequest.getProductList(), EDownloadStatus.PAUSED);
+			notifyObserversOfChangeOfDARProductsStatus(productsWhichCanBeUpdatedToNewStatus, EDownloadStatus.PAUSED);
+			break;
+		case CANCELLED:
+			productsWhichCanBeUpdatedToNewStatus = searchForProductsWhichCanBeUpdatedToNewStatus(retrievedDataAccessRequest.getProductList(), EDownloadStatus.CANCELLED);
+			notifyObserversOfChangeOfDARProductsStatus(productsWhichCanBeUpdatedToNewStatus, EDownloadStatus.CANCELLED);
+			break;
+		case COMPLETED:
+			break;
 		}
 	}
 	
+	private List<Product> searchForProductsWhichCanBeUpdatedToNewStatus(List<Product> darProductList, EDownloadStatus downloadStatus) {
+		List<EDownloadStatus> validStatusesForUpdateToNewStatus = new ValidDownloadStatusForUserAction().getValidDownloadStatusesForNewStatus(downloadStatus);
+		List<Product> productsToBeUpdated = new ArrayList<>();
+		for (Product product : darProductList) {
+			if(validStatusesForUpdateToNewStatus.contains(product.getProductProgress().getStatus())) {
+				productsToBeUpdated.add(product);
+			}
+		}
+		
+		return productsToBeUpdated;
+	}
+		
 	public boolean clearActivityHistory() {
-		for (Iterator<DataAccessRequest> iter = dataAccessRequestMap.values().iterator(); iter.hasNext();) {
-			DataAccessRequest dataAccessRequest = iter.next();
-			
+		for (DataAccessRequest dataAccessRequest : visibleDataAccessRequests.getDARList(true)) {
 		 	MonitoringStatus monitoringStatus = dataAccessRequest.getMonitoringStatus();
 			if(monitoringStatus == MonitoringStatus.COMPLETED || monitoringStatus == MonitoringStatus.CANCELLED) {
 				dataAccessRequest.setVisible(false);
-				iter.remove();
+				visibleDataAccessRequests.removeDAR(dataAccessRequest);
 				List<Product> productList = dataAccessRequest.getProductList();
 				for (Product product: productList) {
 					product.setVisible(false);
-					productDarMap.remove(product.getUuid());
+					visibleDataAccessRequests.removeProductFromProduct_DARMapping(product);
 				}
 			}else{
 				List<Product> productList = dataAccessRequest.getProductList();
@@ -269,8 +234,7 @@ public class DataAccessRequestManager implements ProductSubject {
 	}
 	
 	public void persistProductStatusChange(String productUuid) {
-		String darUuid = productDarMap.get(productUuid);
-		DataAccessRequest dataAccessRequest = getDataAccessRequestByUuid(darUuid);
+		DataAccessRequest dataAccessRequest = visibleDataAccessRequests.findDataAccessRequestByProductUuid(productUuid);
 		for (Product product : dataAccessRequest.getProductList()) {
 			if(product.getUuid().equals(productUuid)) {
 				dataAccessRequestDao.updateProduct(product);
@@ -278,17 +242,15 @@ public class DataAccessRequestManager implements ProductSubject {
 		}
 	}
 	
+	public List<DataAccessRequest> getVisibleDARList(boolean includeManualDar) {
+		return visibleDataAccessRequests.getDARList(includeManualDar);
+	}
+		
 	public boolean isProductDownloadManual(String productUuid) {
-		//If no manual DAR has been created, then we can be certain that the product download is not manual
-		if(manualDataAccessRequestUuid == null) {
-			return false;
-		}
-		List<Product> manualProductList = getProductList(manualDataAccessRequestUuid);
-		for (Product product : manualProductList) {
-			if(product.getUuid().equals(productUuid)) {
-				return true;
-			}
-		}
-		return false;
+		return visibleDataAccessRequests.isProductDownloadManual(productUuid);
+	}
+
+	public List<Product> getProductList(String darUuid) {
+		return visibleDataAccessRequests.getProductList(darUuid);
 	}
 }
