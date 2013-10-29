@@ -20,11 +20,13 @@ The following configuration is available:
 
 Profiles
 
-  ngeo (included by default if no profile is specified)
+  ngeo
   DREAM
 
 Environments
 
   ngeo-task6
+
+If no profiles or environments are specified, the ngeo profile is used.
 
 Multiple profiles can be included as a comma-seperated list.
