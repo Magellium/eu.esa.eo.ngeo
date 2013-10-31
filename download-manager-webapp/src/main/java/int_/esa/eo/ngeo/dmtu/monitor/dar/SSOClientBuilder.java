@@ -1,13 +1,13 @@
 package int_.esa.eo.ngeo.dmtu.monitor.dar;
 
 import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
+import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
-import int_.esa.umsso.UmSsoHttpClient;
 
 import org.apache.commons.lang.StringUtils;
 
 public class SSOClientBuilder {
-	public UmSsoHttpClient buildSSOClientFromSettings(MonitoringController monitoringController, boolean enableUmssoJclUse) {
+	public UmSsoHttpClient buildSSOClientFromSettings(MonitoringController monitoringController) {
 		String umSsoUsername = monitoringController.getSetting(SettingsManager.KEY_SSO_USERNAME);
 		String umSsoPassword = monitoringController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
 		
@@ -24,13 +24,13 @@ public class SSOClientBuilder {
 		
 		if (!StringUtils.isEmpty(proxyHost)) {
 			if (!StringUtils.isEmpty(proxyUsername)) {
-				return new UmSsoHttpClient(umSsoUsername, umSsoPassword, enableUmssoJclUse, proxyHost, proxyPort, proxyUsername, proxyPassword);
+				return new UmSsoHttpClient(umSsoUsername, umSsoPassword, proxyHost, proxyPort, proxyUsername, proxyPassword);
 			}
 			else {
-				return new UmSsoHttpClient(umSsoUsername, umSsoPassword, enableUmssoJclUse, proxyHost, proxyPort);
+				return new UmSsoHttpClient(umSsoUsername, umSsoPassword, proxyHost, proxyPort);
 			}
 		}else{
-			return new UmSsoHttpClient(umSsoUsername, umSsoPassword, enableUmssoJclUse);
+			return new UmSsoHttpClient(umSsoUsername, umSsoPassword);
 		}
 	}
 }

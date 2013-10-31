@@ -215,27 +215,7 @@
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}</finalName>
-		<plugins>		
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>install-umsso-jar-locally</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${basedir}/lib/umsso_client-0.0.1.jar</file>
-							<groupId>com.siemens.pse.umsso</groupId>
-							<artifactId>umsso_client</artifactId>
-							<version>0.0.1</version>
-							<packaging>jar</packaging>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+		<plugins>
             <plugin> <!-- http://simplericity.com/2009/11/10/1257880778509.html -->
 	            <groupId>org.simplericity.jettyconsole</groupId>
 	            <artifactId>jetty-console-maven-plugin</artifactId>
@@ -251,6 +231,9 @@
 	            <configuration>
 	            	<backgroundImage>${basedir}/src/main/jettyconsole/magellium.png</backgroundImage>
 	                <additionalDependencies>
+<!-- 						<additionalDependency> -->
+<!-- 							<artifactId>jetty-console-log4j-plugin</artifactId> -->
+<!-- 						</additionalDependency> -->
 	                    <additionalDependency>
 	                        <artifactId>jetty-console-requestlog-plugin</artifactId>
 	                    </additionalDependency>

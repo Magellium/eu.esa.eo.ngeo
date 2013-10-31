@@ -11,16 +11,18 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.Error;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLResp;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
+import com.siemens.pse.umsso.client.util.UmssoHttpResponseHelper;
 
 @Component
 public class NgeoWebServerResponseParser {
@@ -29,28 +31,28 @@ public class NgeoWebServerResponseParser {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(NgeoWebServerResponseParser.class);
 	
-	public DMRegistrationMgmntResp parseDMRegistrationMgmntResponse(URL ngEOWebServerUrl, HttpMethod response) throws ServiceException, ParseException {
+	public DMRegistrationMgmntResp parseDMRegistrationMgmntResponse(URL ngEOWebServerUrl, UmssoHttpResponse response) throws ServiceException, ParseException {
 		return handleNgEoWebServerResponse(ngEOWebServerUrl, response, DMRegistrationMgmntResp.class);
 	}
 	
-	public MonitoringURLResp parseMonitoringURLResponse(URL ngEOWebServerUrl, HttpMethod response) throws ServiceException, ParseException {
+	public MonitoringURLResp parseMonitoringURLResponse(URL ngEOWebServerUrl, UmssoHttpResponse response) throws ServiceException, ParseException {
 		return handleNgEoWebServerResponse(ngEOWebServerUrl, response, MonitoringURLResp.class);
 	}
 	
-	public DataAccessMonitoringResp parseDataAccessMonitoringResponse(URL ngEOWebServerUrl, HttpMethod response) throws ServiceException, ParseException {
+	public DataAccessMonitoringResp parseDataAccessMonitoringResponse(URL ngEOWebServerUrl, UmssoHttpResponse response) throws ServiceException, ParseException {
 		return handleNgEoWebServerResponse(ngEOWebServerUrl, response, DataAccessMonitoringResp.class);
 	}
 
-	public <T> T handleNgEoWebServerResponse(URL serviceUrl, HttpMethod response, Class<T> resultType) throws ServiceException, ParseException {
-	    try {
-			String responseBodyAsString = response.getResponseBodyAsString();
+	public <T> T handleNgEoWebServerResponse(URL serviceUrl, UmssoHttpResponse response, Class<T> resultType) throws ServiceException, ParseException {
+		try {
+			String responseBodyAsString = UmssoHttpResponseHelper.getInstance().getResponseBodyAsString(response);
 			/* 
 			 * XXX: The handling of the "error" scenario should be part of the response object itself, not a separate element (as per the schema)
 			 * This is how Terradue are currently implementing the IICD-D-WS interface.
 			 */
 			
-			InputStream responseBodyAsStream = response.getResponseBodyAsStream();
-			int httpStatusCode = response.getStatusCode();
+			InputStream responseBodyAsStream = new ByteArrayInputStream(response.getBody());
+			int httpStatusCode = response.getStatusLine().getStatusCode();
 			LOGGER.debug(String.format("status code: %s",httpStatusCode));
 			switch(httpStatusCode) {
 			case HttpStatus.SC_OK:
@@ -70,10 +72,8 @@ public class NgeoWebServerResponseParser {
 							serviceUrl.toString(), httpStatusCode, httpResponseMessage));
 				}
 			}
-		} catch (IOException | SchemaNotFoundException e) {
+		} catch (SchemaNotFoundException e) {
 			throw new ServiceException(String.format(e.getLocalizedMessage()));
-		} finally {
-			response.releaseConnection();
 		}
 	}
 }

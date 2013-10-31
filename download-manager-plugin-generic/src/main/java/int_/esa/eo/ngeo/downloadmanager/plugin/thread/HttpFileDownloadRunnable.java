@@ -1,12 +1,14 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin.thread;
 
+import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.plugin.ProductDownloadProgressMonitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.Transferrer;
-import int_.esa.umsso.UmSsoHttpClient;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
@@ -15,14 +17,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpStatus;
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.siemens.pse.umsso.client.UmssoCLException;
+import com.siemens.pse.umsso.client.UmssoHttpGet;
+import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 /**
  * Runnable using HTTP protocol to download a part of file
@@ -50,8 +57,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 		if(getFileDownloadStatus() == EDownloadStatus.NOT_STARTED) {
 			setFileDownloadStatus(EDownloadStatus.RUNNING);
 			SeekableByteChannel destination = null;
-		
-			GetMethod method = new GetMethod(fileDownloadMetadata.getFileURL().toString());
+			UmssoHttpGet request = null;
 	
 			try {
 				Path partiallyDownloadedPath = fileDownloadMetadata.getPartiallyDownloadedPath();
@@ -62,22 +68,26 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 				destination = Files.newByteChannel(partiallyDownloadedPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 				long currentFileSize = destination.size();
 				
+				URL fileUrl = fileDownloadMetadata.getFileURL();
 				//file has been partially downloaded
 				if (currentFileSize > 0) {
-					method.addRequestHeader("Range", String.format("bytes=%s-%s", currentFileSize, fileDownloadMetadata.getDownloadSize()));
+					List<Header> headers = new ArrayList<>();
+					headers.add(new BasicHeader("Range", String.format("bytes=%s-%s", currentFileSize, fileDownloadMetadata.getDownloadSize())));
+					request = umSsoHttpClient.executeGetRequest(fileUrl, headers);
+				}else{
+					request = umSsoHttpClient.executeGetRequest(fileUrl);
 				}
+				UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
 				
-				umSsoHttpClient.executeHttpRequest(method);
-				
-				int responseCode = method.getStatusCode();
+				int responseCode = response.getStatusLine().getStatusCode();
 				switch (responseCode) {
-				case HttpURLConnection.HTTP_OK:
-				case HttpURLConnection.HTTP_PARTIAL:
+				case HttpStatus.SC_OK:
+				case HttpStatus.SC_PARTIAL_CONTENT:
 					boolean hasTransferCompleted = false;
 					
 					if(getFileDownloadStatus() == EDownloadStatus.RUNNING) {
 						transferrer = new Transferrer(transferrerReadLength);
-						ReadableByteChannel source = Channels.newChannel(method.getResponseBodyAsStream());
+						ReadableByteChannel source = Channels.newChannel(new ByteArrayInputStream(response.getBody()));
 						hasTransferCompleted = transferrer.doTransfer(source, destination, fileDownloadMetadata.getUuid(), productDownloadProgressMonitor);
 					}
 					
@@ -110,9 +120,9 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 				setFileDownloadStatus(EDownloadStatus.IN_ERROR);
 				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), throwable.getLocalizedMessage());
 			} finally {
-				if (method != null) {
-					method.abort();
-					method.releaseConnection();
+				if (request != null) {
+					request.abort();
+					request.releaseConnection();
 				}
 				if (destination != null && destination.isOpen()) { 
 					IOUtils.closeQuietly(destination);

@@ -5,10 +5,11 @@ import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
-import int_.esa.eo.ngeo.dmtu.utils.HttpHeaderParser;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
+import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
+import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
@@ -16,7 +17,6 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLList;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.UserOrder;
-import int_.esa.umsso.UmSsoHttpClient;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,11 +28,13 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.impl.cookie.DateParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
+
+import com.siemens.pse.umsso.client.UmssoHttpPost;
+import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 public class MonitoringUrlTask implements Runnable {
 	private static final String NGEO_IICD_D_WS_DATE_REQUEST_FORMAT = "yyyy-MM-dd'T'HH:mm:ss zzz";
@@ -71,9 +73,6 @@ public class MonitoringUrlTask implements Runnable {
 	public void run() {
 		LOGGER.debug("Starting MonitoringUrlTask");
 		if(monitoringController.isDarMonitoringRunning()) {
-			HttpClient httpClient = new HttpClient();
-			httpClient.getParams().setParameter("http.useragent", "ngEO Download Manager");
-	
 			String downloadManagerSetTimeAsString = monitoringController.getSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME);
 	
 			GregorianCalendar downloadManagerSetTime = null;
@@ -81,7 +80,7 @@ public class MonitoringUrlTask implements Runnable {
 				downloadManagerSetTime = convertDateTimeAsStringToGregorianCalendar(downloadManagerSetTimeAsString);
 			}
 			
-			UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController, true);
+			UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController);
 
 			/* 
 			 * XXX: This should be removed once the Web Client no longer relies on the hooky Web Server 
@@ -94,23 +93,37 @@ public class MonitoringUrlTask implements Runnable {
 	
 			MonitoringURLRequ monitoringUrlRequest = ngeoWebServerRequestBuilder.buildMonitoringURLRequest(downloadManagerId, downloadManagerSetTime);
 			UserOrder userOrder = null;
-			HttpMethod method = null;
+			UmssoHttpPost request = null;
+			MonitoringURLResp monitoringUrlResponse = null;
+			
 			try {
-				method = ngeoWebServerService.monitoringURL(monitoringServiceUrl, umSsoHttpClient, monitoringUrlRequest);
-				MonitoringURLResp monitoringUrlResponse = ngeoWebServerResponseParser.parseMonitoringURLResponse(monitoringServiceUrl, method);
-				Date responseDate = new HttpHeaderParser().getDateFromResponseHTTPHeaders(method);
+				request = ngeoWebServerService.monitoringURL(monitoringServiceUrl, umSsoHttpClient, monitoringUrlRequest);
+				UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
+				monitoringUrlResponse = ngeoWebServerResponseParser.parseMonitoringURLResponse(monitoringServiceUrl, response);
+				Date responseDate = new ResponseHeaderParser().searchForResponseDate(response);
 	
 				monitoringController.setSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
-	
-	//			Error error = monitoringUrlResponse.getError();
-	//			if(error != null) {
-	//				throw new WebServerServiceException(String.format("Error code %s (%s) when MonitoringURL operation. Error detail: %s",error.getErrorCode(), error.getErrorDescription().toString(), error.getErrorDetail()));
-	//			}
-	
+			} catch (ParseException | ServiceException | DateParseException e) {
+				LOGGER.error(String.format("Exception whilst calling Monitoring URL %s: %s", monitoringServiceUrl, e.getLocalizedMessage()), e);
+			} finally {
+				if(request != null) {
+					request.reset();
+				}
+			}
+
+//			Error error = monitoringUrlResponse.getError();
+//			if(error != null) {
+//				throw new WebServerServiceException(String.format("Error code %s (%s) when MonitoringURL operation. Error detail: %s",error.getErrorCode(), error.getErrorDescription().toString(), error.getErrorDetail()));
+//			}
+
+			if(monitoringUrlResponse != null) {
 				userOrder = monitoringUrlResponse.getUserOrder();
 				if(userOrder != null) {
 					LOGGER.info(String.format("User order: %s",userOrder.toString()));
-					monitoringController.sendUserOrder(userOrder);
+					try {
+						monitoringController.sendUserOrder(userOrder);
+					} catch (DownloadOperationException e) {
+						LOGGER.error(String.format("Exception whilst sending user order %s", userOrder.toString()), e);					}
 				}else{
 					refreshPeriod = monitoringUrlResponse.getRefreshPeriod().intValue();
 					monitoringController.setSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));
@@ -139,14 +152,11 @@ public class MonitoringUrlTask implements Runnable {
 						}
 					}
 				}
-			} catch (ParseException | ServiceException | DownloadOperationException e) {
-				LOGGER.error(String.format("Exception whilst calling Monitoring URL %s: %s", monitoringServiceUrl, e.getLocalizedMessage()), e);
-			} finally {
-				if (method != null) {
-					method.releaseConnection();
-				}
 			}
 	
+			/* 
+			 * Even if an error has ocurred when attempting to call the monitoring service, still schedule the next monitoring request.
+			 */
 			if(userOrder == null) {
 				Calendar c = Calendar.getInstance();
 				c.setTime(new Date());

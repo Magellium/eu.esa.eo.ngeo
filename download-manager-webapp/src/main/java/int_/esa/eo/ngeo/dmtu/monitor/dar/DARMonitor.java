@@ -8,13 +8,13 @@ import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
+import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
-import int_.esa.umsso.UmSsoHttpClient;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.httpclient.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
+
+import com.siemens.pse.umsso.client.UmssoHttpPost;
+import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 @Component
 public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
@@ -88,7 +90,7 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 			throw new WebServerServiceException(String.format("Unable to parse ngEO Web Server URL %s",ngEOWebServer),e);
 		}
 
-		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController, true);
+		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController);
 
 		/* 
 		 * XXX: This should be removed once the Web Client no longer relies on the hooky Web Server 
@@ -100,10 +102,12 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 		ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
 		
 		DMRegistrationMgmntRequ registrationMgmntRequest = ngeoWebServerRequestBuilder.buildDMRegistrationMgmntRequest(downloadManagerId, downloadManagerFriendlyName);
-		HttpMethod method = null;
+		UmssoHttpPost request = null;
 		try {
-			method = ngeoWebServerService.registrationMgmt(ngEOWebServerUrl, umSsoHttpClient, registrationMgmntRequest);
-			DMRegistrationMgmntResp registrationMgmtResponse = ngeoWebServerResponseParser.parseDMRegistrationMgmntResponse(ngEOWebServerUrl, method);
+			request = ngeoWebServerService.registrationMgmt(ngEOWebServerUrl, umSsoHttpClient, registrationMgmntRequest);
+			UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
+
+			DMRegistrationMgmntResp registrationMgmtResponse = ngeoWebServerResponseParser.parseDMRegistrationMgmntResponse(ngEOWebServerUrl, response);
 		
 			String montoringServiceUrl = registrationMgmtResponse.getMonitoringServiceUrl();
 			monitoringController.setSetting(SettingsManager.KEY_DM_IS_REGISTERED, "true");
@@ -112,8 +116,8 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 		} catch (ParseException | ServiceException e) {
 			throw new WebServerServiceException(String.format("Exception occurred whilst attempting to register the Download Manager: %s", e.getLocalizedMessage()));
 		} finally {
-			if (method != null) {
-				method.releaseConnection();
+			if (request != null) {
+				request.releaseConnection();
 			}
 		}
 	}

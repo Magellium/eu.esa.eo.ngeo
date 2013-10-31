@@ -4,10 +4,11 @@ import int_.esa.eo.ngeo.dmtu.controller.DARController;
 import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
-import int_.esa.eo.ngeo.dmtu.utils.HttpHeaderParser;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
+import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
+import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
@@ -15,16 +16,18 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
-import int_.esa.umsso.UmSsoHttpClient;
 
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.impl.cookie.DateParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
+
+import com.siemens.pse.umsso.client.UmssoHttpPost;
+import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 public class DataAccessMonitoringTask implements Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessMonitoringTask.class);
@@ -55,7 +58,7 @@ public class DataAccessMonitoringTask implements Runnable {
 	public void run() {
 		LOGGER.debug("Starting DataAccessMonitoringTask");
 
-		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController, true);
+		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController);
 
 		/* 
 		 * XXX: This should be removed once the Web Client no longer relies on the hooky Web Server 
@@ -73,11 +76,13 @@ public class DataAccessMonitoringTask implements Runnable {
 		DataAccessMonitoringRequ dataAccessMonitoringRequest = ngeoWebServerRequestBuilder.buildDataAccessMonitoringRequ(downloadManagerId, dataAccessRequest, null);
 		MonitoringStatus monitoringStatus = null;
 
-		HttpMethod method = null;
+		UmssoHttpPost request = null;
 		try {
-			method = ngeoWebServerService.dataAccessMonitoring(darMonitoringUrl, umSsoHttpClient, dataAccessMonitoringRequest);
-			DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(darMonitoringUrl, method);
-			Date responseDate = new HttpHeaderParser().getDateFromResponseHTTPHeaders(method);
+			request = ngeoWebServerService.dataAccessMonitoring(darMonitoringUrl, umSsoHttpClient, dataAccessMonitoringRequest);
+			UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
+
+			DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(darMonitoringUrl, response);
+			Date responseDate = new ResponseHeaderParser().searchForResponseDate(response);
 
 //			Error error = dataAccessMonitoringResponse.getError();
 //			if(error != null) {
@@ -88,11 +93,11 @@ public class DataAccessMonitoringTask implements Runnable {
 			ProductAccessList productAccessList = dataAccessMonitoringResponse.getProductAccessList();
 			
 			darController.updateDAR(darMonitoringUrl, monitoringStatus, responseDate, productAccessList);
-		} catch (ParseException | ServiceException e) {
+		} catch (ParseException | ServiceException | DateParseException e) {
 			LOGGER.error(String.format("Exception whilst calling DataAccessMonitoring %s: %s", darMonitoringUrl, e.getLocalizedMessage()), e);
 		} finally {
-			if (method != null) {
-				method.releaseConnection();
+			if (request != null) {
+				request.releaseConnection();
 			}
 		}
 		

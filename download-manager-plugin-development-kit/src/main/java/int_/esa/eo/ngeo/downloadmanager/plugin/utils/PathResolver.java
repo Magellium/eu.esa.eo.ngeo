@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PathResolver {
-	private static final int DISPOSITION_SUBSTRING_START_OFFSET = 10;
 	private static final Logger LOGGER = LoggerFactory.getLogger(PathResolver.class);
 
 	public Path determineFolderPath(URI productURI, File downloadDir) {
@@ -88,14 +87,10 @@ public class PathResolver {
 	    return map;  
 	}
 	
-	public String determineFileName(String disposition, URI actualDownloadUri, File productDownloadDir) {
+	public String determineFileName(String fileNameFromResponseHeader, URI actualDownloadUri, File productDownloadDir) {
 		String fileName = null;
-		if (disposition != null && disposition.indexOf("filename=") > 0) {
-			// Extract file name from header field
-			int index = disposition.indexOf("filename=");
-			if (index > 0) {
-				fileName = disposition.substring(index + DISPOSITION_SUBSTRING_START_OFFSET,disposition.length() - 1);
-			}
+		if (fileNameFromResponseHeader != null) {
+			fileName = fileNameFromResponseHeader;
 		} else {
 			fileName = FilenameUtils.getName(actualDownloadUri.getPath());
 			if (fileName.length() == 0) {

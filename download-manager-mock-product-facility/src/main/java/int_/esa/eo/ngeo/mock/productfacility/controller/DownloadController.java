@@ -9,7 +9,6 @@ import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.ChunkedOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,9 +27,7 @@ public class DownloadController {
         
         InputStream filestream = new FileInputStream(resourceFile);
         servletResponse.setBufferSize(0);
-        ChunkedOutputStream chunkStream = new ChunkedOutputStream(servletResponse.getOutputStream());      
-        IOUtils.copy(filestream, chunkStream);
-        chunkStream.close();
-        chunkStream.finish();		
+
+        IOUtils.copy(filestream, servletResponse.getOutputStream());
 	}
 }
