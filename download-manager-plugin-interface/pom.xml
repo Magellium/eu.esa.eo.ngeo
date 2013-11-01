@@ -11,7 +11,6 @@
 	<artifactId>download-manager-plugin-interface</artifactId>
 	<packaging>jar</packaging>
 	<name>Download Manager Plugin Interface</name>
-	<version>${plugin-interface-version}</version>
 	<build>
 		<plugins>
 			<plugin>
@@ -27,30 +26,13 @@
 								<name>${project.name}</name>
 								<manifestEntries>
 		                			<build_date>${maven.build.timestamp}</build_date>
-		                			<version>${project.version}</version>
+		                			<version>${plugin-interface-version}</version>
 								</manifestEntries>
 							</manifestSection>
 						</manifestSections>
              		</archive>
 		        </configuration>
 		    </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.4.2</version>
-				<configuration>
-					<releaseVersion>${plugin-interface-version}</releaseVersion>
-					<developmentVersion>${plugin-interface-version}</developmentVersion>
-					<checkModificationExcludes>
-						<checkModificationExclude>**\.classpath</checkModificationExclude>
-						<checkModificationExclude>**\.project</checkModificationExclude>
-						<checkModificationExclude>**\dependency-reduced-pom.xml</checkModificationExclude>
-					</checkModificationExcludes>
-					<tagNameFormat>DMTU_@{project.version}</tagNameFormat>
-					<updateDependencies>false</updateDependencies>
-					<updateWorkingCopyVersions>false</updateWorkingCopyVersions>
-				</configuration>
-   			</plugin>
         </plugins>
     </build>
 </project>
