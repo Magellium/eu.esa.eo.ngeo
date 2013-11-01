@@ -15,25 +15,42 @@
 	<build>
 		<plugins>
 			<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-			        <artifactId>maven-jar-plugin</artifactId>
-			        <version>2.4</version>
-        	        <configuration>
-						<finalName>${project.artifactId}</finalName>
-						
-			            <archive>
-							<manifestSections>
-								<manifestSection>
-									<name>${project.name}</name>
-									<manifestEntries>
-			                			<build_date>${maven.build.timestamp}</build_date>
-			                			<version>${project.version}</version>
-									</manifestEntries>
-								</manifestSection>
-							</manifestSections>
-	             		</archive>
+				<groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-jar-plugin</artifactId>
+		        <version>2.4</version>
+       	        <configuration>
+					<finalName>${project.artifactId}</finalName>
+					
+		            <archive>
+						<manifestSections>
+							<manifestSection>
+								<name>${project.name}</name>
+								<manifestEntries>
+		                			<build_date>${maven.build.timestamp}</build_date>
+		                			<version>${project.version}</version>
+								</manifestEntries>
+							</manifestSection>
+						</manifestSections>
+             		</archive>
 		        </configuration>
 		    </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.2</version>
+				<configuration>
+					<releaseVersion>${plugin-interface-version}</releaseVersion>
+					<developmentVersion>${plugin-interface-version}</developmentVersion>
+					<checkModificationExcludes>
+						<checkModificationExclude>**\.classpath</checkModificationExclude>
+						<checkModificationExclude>**\.project</checkModificationExclude>
+						<checkModificationExclude>**\dependency-reduced-pom.xml</checkModificationExclude>
+					</checkModificationExcludes>
+					<tagNameFormat>DMTU_@{project.version}</tagNameFormat>
+					<updateDependencies>false</updateDependencies>
+					<updateWorkingCopyVersions>false</updateWorkingCopyVersions>
+				</configuration>
+   			</plugin>
         </plugins>
     </build>
 </project>
