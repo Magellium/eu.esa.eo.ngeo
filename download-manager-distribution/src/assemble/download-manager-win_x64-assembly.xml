@@ -106,10 +106,12 @@
 				<include>download-manager-release-note.txt</include>
 				<include>LICENSE.txt</include>
 			</includes>
+			<filtered>true</filtered>
 		</fileSet>
 		<fileSet>
 			<outputDirectory></outputDirectory>
 			<directory>os_files/windows</directory>
+			<filtered>true</filtered>
 		</fileSet>
 		<fileSet>
 			<outputDirectory>conf</outputDirectory>
