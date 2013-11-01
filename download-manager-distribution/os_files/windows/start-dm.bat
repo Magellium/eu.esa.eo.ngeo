@@ -1,5 +1,5 @@
 @ECHO OFF
-TITLE Download Manager 0.5.0 console
+TITLE Download Manager ${project.parent.version} console
 
 REM Note that %DM_HOME% will have a trailing '\'
 SET DM_HOME=%~dp0
