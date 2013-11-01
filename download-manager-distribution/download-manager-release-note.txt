@@ -1,8 +1,8 @@
-Download Manager Test Unit (DMTU) Release Note 0.5.1
------------------------------------
+Download Manager Test Unit (DMTU) Release Note ${project.parent.version}
+========================================================
 
 Features
------------------------------------
+========================================================
 * Open source application, using widely-adopted third-party components and frameworks.
 * Supports Windows, Linux and Mac OS operating systems.
 * Implemented completely in Java.
@@ -20,14 +20,16 @@ Features
 * Integration with UM-SSO for communication with ngEO Web Server.
 
 Release History
------------------------------------
+========================================================
 0.5.1
-    Release date TBD
+    Release date 1st November 2013
     DMTU-38  - DMTU-REQ-8: PAUSED, CANCELLED and IN_PROGRESS from PAUSED state are now handled correctly.
              - Updated build process to include trust store and build of installation packages.
                The build process now requires only one command to build.
              - Added the ability to build for a specific environment (see build instructions for details)
              - Installation process corrected for Mac OS X - wrong path in shell script for java executable.
+             - Updated to use version 2.2.1 of the JCL, and Apache HTTPComponents 4.2.2
+             - Updated version process for easier versioning of releases.
 0.5.0
     Release date 11th October 2013
     DMTU-23  - Add header row for product download termination log
@@ -104,14 +106,14 @@ Release History
 	First release (limited distribution)
 
 Requirements not currently implemented (requirement ref: DMTU-URD)
------------------------------------
+========================================================
 
 DMTU-REQ-16 - Web interface protection
 DMTU-REQ-29 - Priority for manual downloads
 DMTU-REQ-30 - Browser helper application
 
 Limitations
-----------------------------------
+========================================================
 
 DMTU-REQ-2   -	Testing for Windows XP/Vista/8 required. However the DMTU has been built to be flexible in
                 deployment across multiple platforms.
@@ -133,7 +135,6 @@ DMTU-REQ-27  -	Download log does not supply the following information at this ti
 					* Start date/time of actual download
 					* Stop date/time of download
 					* Path of the saved product if completed (not specified by plugin interface)"
-DMTU-REQ-28  -	Commands "add" and "status" are the only commands available through the CLI.
 DMTU-REQ-28  -	The DMTU have been started by something other than the CLI before any CLI commands can be serviced by the DMTU.
 DMTU-REQ-28  -	A list of products to be downloaded via a file parameter is yet to be implemented.
              -  There is no ability to prioritise the download of a product at this time. The product downloads are handled as as queue (FIFO). 
@@ -141,7 +142,7 @@ DMTU-REQ-28  -	A list of products to be downloaded via a file parameter is yet t
              -  DMTU only allows for integration with one ngEO Web Server
 
 Assumptions
------------------------------------
+========================================================
 
 *  The restriction on the number of parallel download threads refer to the product download threads, rather than individual files. 
    This is because the interfaces between the DMTU and the plugins do not allow the management of downloads at the file level.
@@ -157,7 +158,7 @@ Assumptions
    This is implied by DMTU-REQ-24.
 
 Known Issues
------------------------------------
+========================================================
 
 DMTU-4  - Pause and resume buttons sometimes do not respond in the Web UI.
 DMTU-70 - Limitation: notification of product download from WEBS not handled correctly

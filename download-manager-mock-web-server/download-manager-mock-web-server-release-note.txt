@@ -1,5 +1,5 @@
-Download Manager Test Unit (DMTU) Mock Web Server Release Note 0.5.1
------------------------------------
+Download Manager Test Unit (DMTU) Mock Web Server Release Note ${project.parent.version}
+======================================================================
 
 The Download Manager Test Unit application mandates registration with an ngEO Web Server before use.
 This mock Web Server provides basic ngEO Web Server functionality, and can allow the DMTU to be used independently
@@ -7,14 +7,14 @@ of the ngEO system for testing and demo purposes.
 For further details of how the ngEO Web Server interface works, see document IICD-D-WS.
 
 Acronyms
------------------------------------
+======================================================================
 ngEO	-	EO User Services Next Generation
 DMTU	-	Download Manager Test Unit
 DAR		-	Data Access Request
 SSO		-	Single Signon
 
 Features
------------------------------------
+======================================================================
 All paths provided are relative to the context path of the deployed WAR e.g. download-manager-mock-web-server/register
 
 *   Registration (/register)
@@ -56,9 +56,11 @@ The supply features allow for better control of supply for DARs / products in de
 In order to reset these features i.e. to not provide the DAR / products, the web server application must be restarted.
 
 Release History
------------------------------------
+======================================================================
+
 0.5.1
-    Release date TBD
+    Release date 1st November 2013
+    - Added support for pause, resume and cancel of a DAR.
 0.5.0
     Release date 11th October 2013
     - Added support for standing orders
@@ -72,7 +74,8 @@ Release History
 
 
 How to use
------------------------------------
+======================================================================
+
 	Note that the hostnames and port numbers described below will vary depending on the set-up of the application server.
 	All stubs referred to can be found in the WEB-INF/classes/stubs folder once the application is deployed.
 
