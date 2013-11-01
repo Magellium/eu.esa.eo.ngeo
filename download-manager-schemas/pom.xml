@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>int_.esa.eo.ngeo</groupId>
 		<artifactId>download-manager-parent</artifactId>
-		<version>0.5.0</version>
+		<version>0.5.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>download-manager-schemas</artifactId>
 	<name>Download Manager Schemas</name>
