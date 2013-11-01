@@ -80,6 +80,11 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.4.2</version>
 				<configuration>
+					<checkModificationExcludes>
+						<checkModificationExclude>**\.classpath</checkModificationExclude>
+						<checkModificationExclude>**\.project</checkModificationExclude>
+						<checkModificationExclude>**\dependency-reduced-pom.xml</checkModificationExclude>
+					</checkModificationExcludes>
 					<tagNameFormat>DMTU_@{project.version}</tagNameFormat>
 				</configuration>
    			</plugin>
