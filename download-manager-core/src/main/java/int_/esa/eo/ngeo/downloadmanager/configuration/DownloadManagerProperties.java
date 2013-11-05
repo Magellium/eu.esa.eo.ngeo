@@ -23,7 +23,10 @@ public class DownloadManagerProperties {
 		return downloadManagerProperties;
 	}
 	
+	//Development versions now include "-SNAPSHOT" in the version - remove this for the version check
 	public String getDownloadManagerVersion() {
-		return downloadManagerProperties.getProperty("version");
+		String downloadManagerVersion = downloadManagerProperties.getProperty("version");
+		downloadManagerVersion = downloadManagerVersion.replaceAll("-SNAPSHOT", "");
+		return downloadManagerVersion;
 	}
 }
