@@ -1,0 +1,17 @@
+{
+	"title": "REST Interface Command Response",
+	"type":"object",
+	"javaType": "int_.esa.ngeo.downloadmanager.rest.CommandResponse",
+	"required":true,
+	"properties":{
+		"message": {
+			"type":"string",
+			"required":true
+		},
+		"success": {
+			"type":"boolean",
+			"default":true,
+			"required":true
+		}
+	}
+}
