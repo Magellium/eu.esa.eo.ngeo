@@ -12,48 +12,37 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+		</dependency>
+		<!--
+		     The following three dependencies are required for the generation of objects from JSON.
+		     see https://github.com/joelittlejohn/jsonschema2pojo/wiki/Getting-Started#the-maven-plugin
+		-->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
 		</dependency>
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${org.slf4j-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${org.slf4j-version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>${org.slf4j-version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.mail</groupId>
-					<artifactId>mail</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.jms</groupId>
-					<artifactId>jms</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jdmk</groupId>
-					<artifactId>jmxtools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jmx</groupId>
-					<artifactId>jmxri</artifactId>
-				</exclusion>
-			</exclusions>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
@@ -83,7 +72,7 @@
 					<cleanPackageDirectories>true</cleanPackageDirectories>
 					<removeOldOutput>true</removeOldOutput>
 					<forceRegenerate>true</forceRegenerate>
-					<verbose>true</verbose>
+					<verbose>false</verbose>
 					<args>
 						<!-- removes jaxb header which contains a timestamp - makes comparing 
 							generation after a change of xsd very difficult -->
@@ -99,6 +88,25 @@
 							<goal>generate</goal>
 						</goals>
 						<phase>generate-sources</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.googlecode.jsonschema2pojo</groupId>
+				<artifactId>jsonschema2pojo-maven-plugin</artifactId>
+				<version>0.3.7</version>
+				<configuration>
+					<sourceDirectory>${basedir}/src/main/resources/schemas/REST</sourceDirectory>
+					<annotationStyle>jackson1</annotationStyle>
+					<usePrimitives>true</usePrimitives>
+					<outputDirectory>${project.build.directory}/generated-sources/jsonschema2pojo</outputDirectory>
+					
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
