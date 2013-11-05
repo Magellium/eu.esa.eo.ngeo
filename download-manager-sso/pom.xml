@@ -141,7 +141,7 @@
 					<keypass>whatever</keypass>
 					<storepass>password</storepass>
 					<noprompt>true</noprompt>
-					<verbose>true</verbose>
+					<verbose>false</verbose>
 				</configuration>
 			</plugin>
 		</plugins>
