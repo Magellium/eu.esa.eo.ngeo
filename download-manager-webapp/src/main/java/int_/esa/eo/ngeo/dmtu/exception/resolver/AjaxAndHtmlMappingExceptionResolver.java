@@ -1,19 +1,19 @@
 package int_.esa.eo.ngeo.dmtu.exception.resolver;
 
-import int_.esa.eo.ngeo.dmtu.builder.CommandResponse;
+import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
 
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -34,7 +34,7 @@ public class AjaxAndHtmlMappingExceptionResolver extends SimpleMappingExceptionR
 		String acceptHeader = request.getHeader("Accept");
 		if (acceptHeader.contains(ACCEPT_TYPE_JSON)) {
 			Map<String, Object> modelMap = new ModelMap();
-			CommandResponse commandResponse = new CommandResponse(false, ex.getLocalizedMessage());
+			CommandResponse commandResponse = new CommandResponseBuilder().buildCommandResponse(false, ex.getLocalizedMessage());
 			modelMap.put("response", commandResponse);
 			return new ModelAndView(new MappingJacksonJsonView(), modelMap);
 		} else if (acceptHeader.contains(ACCEPT_TYPE_HTML)) {

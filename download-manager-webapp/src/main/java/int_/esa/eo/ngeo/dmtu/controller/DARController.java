@@ -1,12 +1,13 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import int_.esa.eo.ngeo.dmtu.builder.CommandResponse;
-import int_.esa.eo.ngeo.dmtu.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
-import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
-import int_.esa.eo.ngeo.dmtu.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
+import int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 
@@ -55,12 +56,14 @@ public class DARController {
 
 	@RequestMapping(value = "/dataAccessRequests", method = RequestMethod.GET)
 	@ResponseBody
-	public List<DataAccessRequest> getDataAccessRequests() {
-		return dataAccessRequestManager.getVisibleDARList(true);
+	public StatusResponse getDataAccessRequestStatus() {
+		return getDataAccessRequestStatus(true);
 	}
 
-	public List<DataAccessRequest> getDataAccessRequests(boolean includeManualDar) {
-		return dataAccessRequestManager.getVisibleDARList(includeManualDar);
+	public StatusResponse getDataAccessRequestStatus(boolean includeManualDar) {
+		StatusResponse statusResponse = new StatusResponse();
+		statusResponse.setDataAccessRequests(dataAccessRequestManager.getVisibleDARList(includeManualDar));
+		return statusResponse;
 	}
 
 	public DataAccessRequest getDataAccessRequestByMonitoringUrl(URL monitoringUrl) {

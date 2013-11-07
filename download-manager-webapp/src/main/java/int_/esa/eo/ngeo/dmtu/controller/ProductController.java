@@ -1,9 +1,9 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import int_.esa.eo.ngeo.dmtu.builder.CommandResponse;
-import int_.esa.eo.ngeo.dmtu.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
+import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

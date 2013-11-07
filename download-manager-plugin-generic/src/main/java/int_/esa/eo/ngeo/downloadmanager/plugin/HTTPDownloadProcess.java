@@ -19,7 +19,6 @@ import int_.esa.eo.ngeo.schema.ngeomissingproductresponse.MissingProductResponse
 import int_.esa.eo.ngeo.schema.ngeoproductdownloadresponse.ProductDownloadResponse;
 import int_.esa.eo.ngeo.schema.ngeoproductdownloadresponse.ProductDownloadResponseType;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -36,7 +35,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.metalinker.FileType;
@@ -97,29 +95,24 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	}
 	
 	public void retrieveDownloadDetails() {
-		UmssoHttpGet productDownloadHeaderRequest = null;
-		UmssoHttpGet productDownloadBodyRequest = null;
-		UmssoHttpResponse productDownloadBodyResponse = null;
-		UmssoHttpResponse productDownloadHeadersResponse = null;
+		UmssoHttpGet productDownloadRequest = null;
+		UmssoHttpResponse productDownloadResponse = null;
 		
 		ResponseHeaderParser responseHeaderParser = new ResponseHeaderParser();
 		XMLWithSchemaTransformer xmlWithSchemaTransformer = new XMLWithSchemaTransformer(schemaRepository);
 		try {
 			LOGGER.debug("About to construct UmSsoHttpClient");
-			productDownloadHeaderRequest = umSsoHttpClient.executeHeadRequest(productURI.toURL());
-			productDownloadHeadersResponse = umSsoHttpClient.getUmssoHttpResponse(productDownloadHeaderRequest);
-			int responseCode = productDownloadHeadersResponse.getStatusLine().getStatusCode();
+			productDownloadRequest = umSsoHttpClient.executeHeadRequest(productURI.toURL());
+			productDownloadResponse = umSsoHttpClient.getUmssoHttpResponse(productDownloadRequest);
+			int responseCode = productDownloadResponse.getStatusLine().getStatusCode();
 			switch (responseCode) {
 			case HttpStatus.SC_OK:
 				productMetadata = new ProductDownloadMetadata();
-				String contentType = responseHeaderParser.searchForResponseHeaderValue(productDownloadHeadersResponse, HttpHeaders.CONTENT_TYPE);
+				String contentType = responseHeaderParser.searchForResponseHeaderValue(productDownloadResponse, HttpHeaders.CONTENT_TYPE);
 				String productName = "", resolvedProductName = "";
 
 				if(contentType.contains(MIME_TYPE_METALINK)) {
-					productDownloadBodyRequest = retrieveDownloadDetailsBody(productURI.toURL());
-					productDownloadBodyResponse = umSsoHttpClient.getUmssoHttpResponse(productDownloadBodyRequest);
-					
-					Metalink metalink = xmlWithSchemaTransformer.deserializeAndInferSchema(new ByteArrayInputStream(productDownloadBodyResponse.getBody()), Metalink.class);					
+					Metalink metalink = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), Metalink.class);					
 					LOGGER.debug(String.format("metalink: %s", metalink));
 
 					Path metalinkFolderPath = pathResolver.determineFolderPath(productURI, baseProductDownloadDir);
@@ -145,8 +138,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.NOT_STARTED);
 				}else{
 					//download is a single file
-					String filenameFromResponseHeader = responseHeaderParser.searchForFilename(productDownloadHeadersResponse);
-					long fileSize = responseHeaderParser.searchForContentLength(productDownloadHeadersResponse);
+					String filenameFromResponseHeader = responseHeaderParser.searchForFilename(productDownloadResponse);
+					long fileSize = responseHeaderParser.searchForContentLength(productDownloadResponse);
 					resolvedProductName = pathResolver.determineFileName(filenameFromResponseHeader, productURI, baseProductDownloadDir);
 
 					LOGGER.debug("Content-Type = " + contentType);
@@ -162,12 +155,10 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				}
 				break;
 			case HttpStatus.SC_ACCEPTED:
-				productDownloadBodyRequest = retrieveDownloadDetailsBody(productURI.toURL());
-				productDownloadBodyResponse = umSsoHttpClient.getUmssoHttpResponse(productDownloadBodyRequest);
-				ProductDownloadResponse productDownloadResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(new ByteArrayInputStream(productDownloadBodyResponse.getBody()), ProductDownloadResponse.class);					
-				ProductDownloadResponseType productDownloadResponseCode = productDownloadResponse.getResponseCode();
+				ProductDownloadResponse parsedProductDownloadResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), ProductDownloadResponse.class);					
+				ProductDownloadResponseType productDownloadResponseCode = parsedProductDownloadResponse.getResponseCode();
 				if(productDownloadResponseCode == ProductDownloadResponseType.ACCEPTED || productDownloadResponseCode == ProductDownloadResponseType.IN_PROGRESS) {
-					long retryAfter = productDownloadResponse.getRetryAfter().longValue();
+					long retryAfter = parsedProductDownloadResponse.getRetryAfter().longValue();
 					LOGGER.info(String.format("Product %s not available at this time, retry after %s seconds", productURI.toString(), retryAfter));
 					
 					idleCheckExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -186,10 +177,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				//TODO handle forwarded download
 				break;
 			case HttpStatus.SC_BAD_REQUEST:
-				productDownloadBodyRequest = retrieveDownloadDetailsBody(productURI.toURL());
-				productDownloadBodyResponse = umSsoHttpClient.getUmssoHttpResponse(productDownloadBodyRequest);
 				try {
-					BadRequestResponse badRequestResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(new ByteArrayInputStream(productDownloadBodyResponse.getBody()), BadRequestResponse.class);					
+					BadRequestResponse badRequestResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), BadRequestResponse.class);					
 					LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
 				}catch(ParseException | SchemaNotFoundException ex) {
@@ -201,10 +190,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, "Forbidden access.");
 				break;
 			case HttpStatus.SC_NOT_FOUND:
-				productDownloadBodyRequest = retrieveDownloadDetailsBody(productURI.toURL());
-				productDownloadBodyResponse = umSsoHttpClient.getUmssoHttpResponse(productDownloadBodyRequest);
 				try {
-					MissingProductResponse missingProductResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(new ByteArrayInputStream(productDownloadBodyResponse.getBody()), MissingProductResponse.class);
+					MissingProductResponse missingProductResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), MissingProductResponse.class);
 					LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, missingProductResponse.getResponseMessage());
 				}catch(ParseException | SchemaNotFoundException ex) {
@@ -216,25 +203,17 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 				productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, String.format("Unexpected response, HTTP response code %s",responseCode));
 				break;
 			}
-		} catch (UmssoCLException | IOException | DMPluginException | ParseException | SchemaNotFoundException | HttpException ex) {
+		} catch (UmssoCLException | IOException | DMPluginException | ParseException | SchemaNotFoundException ex) {
 			LOGGER.error("Exception occurred whilst retrieving download details.", ex);
 			productDownloadProgressMonitor.setError(ex);
 		} finally {
-			if (productDownloadHeaderRequest != null) {
-				productDownloadHeaderRequest.abort();
-				productDownloadHeaderRequest.releaseConnection();
-			}
-			if (productDownloadBodyRequest != null) {
-				productDownloadBodyRequest.abort();
-				productDownloadBodyRequest.releaseConnection();
+			if (productDownloadRequest != null) {
+				productDownloadRequest.abort();
+				productDownloadRequest.releaseConnection();
 			}
 		}
 	}
 	
-	private UmssoHttpGet retrieveDownloadDetailsBody(URL productUrl) throws HttpException, IOException, UmssoCLException {
-		return umSsoHttpClient.executeGetRequest(productUrl);
-	}
-
 	private FileDownloadMetadata getFileMetadataForMetalinkEntry(String fileDownloadLink, String fileName, Path metalinkDownloadDirectory) throws DMPluginException, IOException, UmssoCLException {
 		ResponseHeaderParser responseHeaderParser = new ResponseHeaderParser();
 		long fileSize;

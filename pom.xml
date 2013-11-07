@@ -24,16 +24,16 @@
 	<modules>
 		<module>download-manager-plugin-interface</module>
 		<module>download-manager-plugin-development-kit</module>
-		<module>download-manager-webapp</module>
-		<module>download-manager-command-line</module>
 		<module>download-manager-mock-product-facility</module>
 		<module>download-manager-mock-web-server</module>
-		<module>download-manager-distribution</module>
 		<module>download-manager-plugin-generic</module>
 		<module>download-manager-plugin-mock-sentinel2</module>
 		<module>download-manager-sso</module>
 		<module>download-manager-schemas</module>
 		<module>download-manager-core</module>
+		<module>download-manager-command-line</module>
+		<module>download-manager-webapp</module>
+		<module>download-manager-distribution</module>
 	</modules>
 
 	<developers>
@@ -145,7 +145,7 @@
 			<dependency>
 				<groupId>com.siemens.pse.umsso</groupId>
 				<artifactId>umsso_client</artifactId>
-				<version>2.2.1</version>
+				<version>2.2.3</version>
 			</dependency>
 
 			<dependency>
@@ -300,7 +300,7 @@
 			<!-- Database dependencies -->
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-entitymanager</artifactId>
+				<artifactId>hibernate-core</artifactId>
 				<version>4.2.1.Final</version>
 			</dependency>
 	        <dependency>
@@ -311,11 +311,6 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>5.0.1.Final</version>
-			</dependency>
-			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-validator-annotation-processor</artifactId>
 				<version>5.0.1.Final</version>
 			</dependency>
 

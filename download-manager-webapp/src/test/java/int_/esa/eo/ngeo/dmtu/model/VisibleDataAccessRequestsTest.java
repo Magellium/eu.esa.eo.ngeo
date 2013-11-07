@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
 
 import java.net.MalformedURLException;
 import java.net.URL;

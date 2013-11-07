@@ -9,9 +9,15 @@
 	<name>Download Manager Core</name>
 
 	<dependencies>
+		<!-- This is required by the core in order to load the plugins, even though this is not a compile-time dependency -->
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-plugin-development-kit</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>int_.esa.eo.ngeo</groupId>
+			<artifactId>download-manager-schemas</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 
@@ -23,9 +29,38 @@
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.googlecode.jsonschema2pojo</groupId>
+				<artifactId>jsonschema2pojo-maven-plugin</artifactId>
+				<version>0.3.7</version>
+				
+				<configuration>
+					<sourceDirectory>${basedir}/src/main/resources/schemas/REST</sourceDirectory>
+					<annotationStyle>jackson1</annotationStyle>
+					<usePrimitives>true</usePrimitives>
+					<outputDirectory>${project.build.directory}/generated-sources/jsonschema2pojo</outputDirectory>
+					<includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+					<includeToString>false</includeToString>
+					<useLongIntegers>true</useLongIntegers>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>

@@ -1,22 +1,21 @@
 package int_.esa.eo.ngeo.dmtu.cli.commands;
 
 import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
+import int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.stereotype.Component;
-
-import com.jayway.jsonpath.JsonPath;
 
 /**
  *  XXX: Consider supporting commands that will allow the user to perform run-time configuration of:
@@ -35,64 +34,60 @@ public class GetStatus implements CommandMarker {
 
 	@CliCommand(value = "status", help = "Get the status of visible DARs")
 	public String getStatus() {
-		String returnMessage;
 		try {
 			String urlAsString = String.format("%s/dataAccessRequests", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL));
 			URL url = new URL(urlAsString);
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 			conn.addRequestProperty("Accept", "application/json");
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			StringBuilder jsonBuilder = new StringBuilder();
-			String line;
-			while ((line = reader.readLine()) != null) {
-				jsonBuilder.append(line + '\n');
-			}
-			
-			String jsonString = jsonBuilder.toString();			
-			JSONArray dars = JsonPath.read(jsonString, "$.[*]");
-
-			returnMessage = dars.size() == 0 ? "There are currently no visible DARs." : convertFromJSON(dars);
+		    ObjectMapper mapper = new ObjectMapper();
+		    StatusResponse statusResponse = mapper.readValue(conn.getInputStream(), StatusResponse.class);
+		    
+		    List<DataAccessRequest> dataAccessRequests = statusResponse.getDataAccessRequests();
+			if(dataAccessRequests.size() == 0) {
+		    	return "There are currently no visible DARs.";
+		    }else{
+		    	return formatStatusOutput(dataAccessRequests);
+		    }
 		} catch (IOException e) {
-			returnMessage = e.getMessage();		
+			return e.getMessage();
 		}
-		return returnMessage;
 	}
 
-	private String convertFromJSON(JSONArray dars) {
-		StringBuilder sb = new StringBuilder(100);
+	private String formatStatusOutput(List<DataAccessRequest> dataAccessRequests) {
+		StringBuilder output = new StringBuilder(100);
 		
-		for (int i=0; i < dars.size(); i++) {
-			JSONObject dar = (JSONObject) dars.get(i);
-			sb.append(dar.get("monitoringURL"));
-			sb.append(": ");
-			sb.append(dar.get("monitoringStatus"));
-			sb.append("\n\n");
-			JSONArray productListJSON = (JSONArray) dar.get("productList");
-			for (int j=0; j< productListJSON.size(); j++) {
-				JSONObject product = (JSONObject)productListJSON.get(j);
-				sb.append("\t");
-				sb.append(product.get("productAccessUrl"));
-				sb.append(" (");
-				sb.append(product.get("uuid"));
-				sb.append(")");
-				sb.append("\n\t\t");
-				
-				JSONObject productProgress = (JSONObject) product.get("productProgress");
-				sb.append("Status: ");
-				sb.append(productProgress.get("status"));
-				sb.append(", ");
-				sb.append("Downloaded size: ");
-				sb.append(String.format("%,d", productProgress.get("downloadedSize")));
-				sb.append(" bytes, ");
-				sb.append("Progress: ");
-				sb.append(productProgress.get("progressPercentage"));
-				sb.append("%");
-				sb.append("\n\n");
+		for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
+			if(dataAccessRequest.isVisible()) {
+				output.append(dataAccessRequest.getMonitoringURL());
+				output.append(": ");
+				output.append(dataAccessRequest.getMonitoringStatus());
+				output.append("\n\n");
+				for (Product product : dataAccessRequest.getProductList()) {
+					if(product.isVisible()) {
+						output.append("\t");
+						output.append(product.getProductAccessUrl());
+						output.append(" (");
+						output.append(product.getUuid());
+						output.append(")");
+						output.append("\n\t\t");
+						
+						ProductProgress productProgress = product.getProductProgress();
+						output.append("Status: ");
+						output.append(productProgress.getStatus());
+						output.append(", ");
+						output.append("Downloaded size: ");
+						output.append(String.format("%,d", productProgress.getDownloadedSize()));
+						output.append(" bytes, ");
+						output.append("Progress: ");
+						output.append(productProgress.getProgressPercentage());
+						output.append("%");
+						output.append("\n\n");
+					}
+				}
 			}
 		}
 		
-		return sb.toString();
+		return output.toString();
 	}
-
 }

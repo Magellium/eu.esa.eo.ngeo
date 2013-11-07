@@ -1,12 +1,12 @@
 package int_.esa.eo.ngeo.dmtu.log;
 
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
+import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import int_.esa.eo.ngeo.dmtu.model.Product;
-import int_.esa.eo.ngeo.dmtu.model.ProductProgress;
-import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

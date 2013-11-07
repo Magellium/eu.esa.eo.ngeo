@@ -4,13 +4,13 @@ import int_.esa.eo.ngeo.dmtu.controller.DARController;
 import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
-import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
 import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntResp;
@@ -148,7 +148,7 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 			LOGGER.info("Download manager is not registered, so monitoring for products will not occur.");
 		}else{
 			LOGGER.debug("monitoring for Products from previously discovered DARs...");
-			List<DataAccessRequest> dataAccessRequests = darController.getDataAccessRequests(false);
+			List<DataAccessRequest> dataAccessRequests = darController.getDataAccessRequestStatus(false).getDataAccessRequests();
 			LOGGER.debug(String.format("%s in progress / paused DARs found.", dataAccessRequests.size()));
 			
 			String downloadManagerId = monitoringController.getSetting(SettingsManager.KEY_DM_ID);

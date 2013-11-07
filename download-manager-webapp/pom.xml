@@ -19,11 +19,6 @@
 		</dependency>
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-schemas</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-sso</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
@@ -70,7 +65,7 @@
 		<!-- Database dependencies -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
+			<artifactId>hibernate-core</artifactId>
 		</dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -80,11 +75,7 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator-annotation-processor</artifactId>
-		</dependency>
-                        
+		
 		<!-- spring-orm provides the entityManager (@Persistence) and the TransactionManager (@Transactional) -->
 		<dependency>
 			<groupId>org.springframework</groupId>

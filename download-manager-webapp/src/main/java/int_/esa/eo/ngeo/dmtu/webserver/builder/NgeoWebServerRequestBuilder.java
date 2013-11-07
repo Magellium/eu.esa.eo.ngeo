@@ -1,9 +1,9 @@
 package int_.esa.eo.ngeo.dmtu.webserver.builder;
 
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
-import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
-import int_.esa.eo.ngeo.dmtu.model.Product;
-import int_.esa.eo.ngeo.dmtu.model.ProductProgress;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
@@ -103,7 +103,7 @@ public class NgeoWebServerRequestBuilder {
 		
 		ProductDownloadStatus productDownloadStatus;
 		String productDownloadMessage;
-		Integer productDownloadProgress = null;
+		Long productDownloadProgress = null;
 
 		switch (downloadStatus) {
 		case NOT_STARTED:
@@ -149,8 +149,8 @@ public class NgeoWebServerRequestBuilder {
 		productDownloadNotification.setProductDownloadStatus(productDownloadStatus);
 		productDownloadNotification.setProductDownloadMessage(productDownloadMessage);
 		
-		if(productDownloadMessage != null) {
-			productDownloadNotification.setProductDownloadProgress(productDownloadProgress);
+		if(productDownloadProgress != null) {
+			productDownloadNotification.setProductDownloadProgress(productDownloadProgress.intValue());
 		}
 		
 		Long fileSize = product.getFileSize();

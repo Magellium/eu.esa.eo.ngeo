@@ -1,7 +1,11 @@
 package int_.esa.eo.ngeo.dmtu.model;
 
 import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
+import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
+import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,7 +41,7 @@ public class VisibleDataAccessRequests {
 	public Product addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
 		DataAccessRequest manualDataAccessRequest;
 		if(this.manualDataAccessRequestUuid == null) {
-			manualDataAccessRequest = new DataAccessRequest(MANUAL_DATA_REQUEST);
+			manualDataAccessRequest = new DataAccessRequestBuilder().buildDAR(MANUAL_DATA_REQUEST);
 			this.manualDataAccessRequestUuid = manualDataAccessRequest.getUuid();
 			dataAccessRequestMap.put(manualDataAccessRequestUuid, manualDataAccessRequest);
 		}else{
@@ -49,7 +53,7 @@ public class VisibleDataAccessRequests {
 			}
 		}
 
-		Product newProduct = new Product(productDownloadUrl);
+		Product newProduct = new ProductBuilder().buildProduct(productDownloadUrl);
 		addProductToProduct_DARMapping(newProduct, manualDataAccessRequest);
 
 		addNewProduct(manualDataAccessRequest, newProduct);
@@ -70,7 +74,7 @@ public class VisibleDataAccessRequests {
 	}
 
 	public void addNewProduct(DataAccessRequest dataAccessRequest, Product newProduct) {
-		dataAccessRequest.addProduct(newProduct);
+		dataAccessRequest.getProductList().add(newProduct);
 		addProductToProduct_DARMapping(newProduct, dataAccessRequest);
 	}
 

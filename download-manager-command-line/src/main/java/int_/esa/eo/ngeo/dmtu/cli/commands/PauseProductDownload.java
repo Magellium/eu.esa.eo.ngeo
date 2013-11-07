@@ -3,6 +3,7 @@ package int_.esa.eo.ngeo.dmtu.cli.commands;
 import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
 import int_.esa.eo.ngeo.dmtu.cli.service.DownloadManagerResponseParser;
 import int_.esa.eo.ngeo.dmtu.cli.service.DownloadManagerService;
+import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -46,8 +47,7 @@ public class PauseProductDownload implements CommandMarker {
 
 			HttpURLConnection conn = downloadManagerService.sendGetCommand(commandUrl);
 			returnMessage = downloadManagerResponseParser.parseResponse(conn, successMessage);
-		}
-		catch (IOException e) {
+		} catch (IOException | ParseException e) {
 			returnMessage = e.getMessage();
 		}
 		

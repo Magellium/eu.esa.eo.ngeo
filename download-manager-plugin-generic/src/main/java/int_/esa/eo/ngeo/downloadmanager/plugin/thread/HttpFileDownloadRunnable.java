@@ -6,7 +6,6 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.ProductDownloadProgressMonitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.Transferrer;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -87,7 +86,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 					
 					if(getFileDownloadStatus() == EDownloadStatus.RUNNING) {
 						transferrer = new Transferrer(transferrerReadLength);
-						ReadableByteChannel source = Channels.newChannel(new ByteArrayInputStream(response.getBody()));
+						ReadableByteChannel source = Channels.newChannel(response.getBodyAsStream());
 						hasTransferCompleted = transferrer.doTransfer(source, destination, fileDownloadMetadata.getUuid(), productDownloadProgressMonitor);
 					}
 					

@@ -1,12 +1,12 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import int_.esa.eo.ngeo.dmtu.builder.CommandResponse;
-import int_.esa.eo.ngeo.dmtu.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
-import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.dmtu.model.WebServerMonitoringStatus;
 import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
+import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
+import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.iicd_d_ws._1.UserOrder;
 
 import java.util.ArrayList;

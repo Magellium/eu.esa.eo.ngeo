@@ -3,26 +3,27 @@ package int_.esa.eo.ngeo.dmtu.monitor;
 import int_.esa.eo.ngeo.dmtu.callback.CallbackCommandExecutor;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadProcessCreationException;
-import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
-import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.dmtu.log.ProductTerminationLog;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
-import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
-import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
-import int_.esa.eo.ngeo.dmtu.model.Product;
-import int_.esa.eo.ngeo.dmtu.model.ProductProgress;
 import int_.esa.eo.ngeo.dmtu.observer.DownloadObserver;
 import int_.esa.eo.ngeo.dmtu.observer.ProductObserver;
 import int_.esa.eo.ngeo.dmtu.plugin.ProductDownloadListener;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadProcess;
+import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
+import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +183,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		if(previouslyKnownStatus != newStatus) {
 			LOGGER.debug(String.format("Status has changed from %s to %s, updating to database", previouslyKnownStatus, newStatus));
 			if(newStatus == EDownloadStatus.RUNNING) {
-				product.setStartOfActualDownload(new Date());
+				product.setStartOfActualDownload(new Timestamp(new Date().getTime()));
 			}
 			
 			dataAccessRequestManager.persistProductStatusChange(productUuid);
@@ -199,7 +200,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			}
 		}
 		if(productProgress.getStatus() == EDownloadStatus.COMPLETED || productProgress.getStatus() == EDownloadStatus.CANCELLED || productProgress.getStatus() == EDownloadStatus.IN_ERROR) {
-			product.setStopOfDownload(new Date());
+			product.setStopOfDownload(new Timestamp(new Date().getTime()));
 			dataAccessRequestManager.persistProductStatusChange(productUuid);
 			productTerminationLog.notifyProductDownloadTermination(product);
 		}

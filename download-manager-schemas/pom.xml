@@ -10,6 +10,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>int_.esa.eo.ngeo</groupId>
+			<artifactId>download-manager-plugin-interface</artifactId>
+			<version>${plugin-interface-version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
@@ -21,10 +27,7 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-		</dependency>
+
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -88,25 +91,6 @@
 							<goal>generate</goal>
 						</goals>
 						<phase>generate-sources</phase>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>com.googlecode.jsonschema2pojo</groupId>
-				<artifactId>jsonschema2pojo-maven-plugin</artifactId>
-				<version>0.3.7</version>
-				<configuration>
-					<sourceDirectory>${basedir}/src/main/resources/schemas/REST</sourceDirectory>
-					<annotationStyle>jackson1</annotationStyle>
-					<usePrimitives>true</usePrimitives>
-					<outputDirectory>${project.build.directory}/generated-sources/jsonschema2pojo</outputDirectory>
-					
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

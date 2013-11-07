@@ -2,13 +2,15 @@ package int_.esa.eo.ngeo.dmtu.manager;
 
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
-import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
-import int_.esa.eo.ngeo.dmtu.model.Product;
 import int_.esa.eo.ngeo.dmtu.model.VisibleDataAccessRequests;
 import int_.esa.eo.ngeo.dmtu.model.dao.DataAccessRequestDAO;
 import int_.esa.eo.ngeo.dmtu.observer.ProductObserver;
 import int_.esa.eo.ngeo.dmtu.observer.ProductSubject;
+import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
+import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.status.ValidDownloadStatusForUserAction;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
@@ -16,6 +18,7 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccess;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -111,7 +114,7 @@ public class DataAccessRequestManager implements ProductSubject {
 		if(retrievedDataAccessRequest != null) {
 			throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request for url %s already exists.", monitoringUrl));
 		}else{
-			DataAccessRequest dataAccessRequest = new DataAccessRequest(monitoringUrl.toString());
+			DataAccessRequest dataAccessRequest = new DataAccessRequestBuilder().buildDAR(monitoringUrl.toString());
 			visibleDataAccessRequests.addDAR(dataAccessRequest);
 			dataAccessRequestDao.updateDataAccessRequest(dataAccessRequest);
 			return true;
@@ -146,7 +149,7 @@ public class DataAccessRequestManager implements ProductSubject {
 		}
 		
 		MonitoringStatus previousMonitoringStatus = retrievedDataAccessRequest.getMonitoringStatus();
-		retrievedDataAccessRequest.setLastResponseDate(responseDate);
+		retrievedDataAccessRequest.setLastResponseDate(new Timestamp(responseDate.getTime()));
 		retrievedDataAccessRequest.setMonitoringStatus(monitoringStatus);
 
 		List<Product> productsWhichCanBeUpdatedToNewStatus;
@@ -171,7 +174,7 @@ public class DataAccessRequestManager implements ProductSubject {
 							productInDar.setNotified(true);
 						}
 					}else{
-						Product newProduct = new Product(productAccess.getProductAccessURL(), productAccess.getProductDownloadDirectory());
+						Product newProduct = new ProductBuilder().buildProduct(productAccess.getProductAccessURL(), productAccess.getProductDownloadDirectory());
 						visibleDataAccessRequests.addNewProduct(retrievedDataAccessRequest, newProduct);
 						newProductsAdded.add(newProduct);
 					}

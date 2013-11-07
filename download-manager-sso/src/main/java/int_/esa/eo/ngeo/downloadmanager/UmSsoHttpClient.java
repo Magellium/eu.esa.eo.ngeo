@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.CoreConnectionPNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,9 @@ import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
  * Note that this class depends on the truststore containing the appropriate server certificate(s), as per SIE-EOOP_UMSSO_JCL_TN_2.1.1.doc. <p/>
  */
 public class UmSsoHttpClient {
+	private static final int HTTP_MAX_TOTAL_CONNECTIONS = 200;
+	private static final int HTTP_DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 20;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UmSsoHttpClient.class);
 	private CommandLineCallback commandLineCallback;
 
@@ -66,6 +70,9 @@ public class UmSsoHttpClient {
 		}
 
 		clCore.getUmssoHttpClient().getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 9000);
+		PoolingClientConnectionManager cm = clCore.getConnectionManager();
+		cm.setMaxTotal(HTTP_MAX_TOTAL_CONNECTIONS);
+		cm.setDefaultMaxPerRoute(HTTP_DEFAULT_MAX_CONNECTIONS_PER_ROUTE);
 	}
 
 	public UmssoHttpGet executeGetRequest(URL requestUrl) throws UmssoCLException, IOException {

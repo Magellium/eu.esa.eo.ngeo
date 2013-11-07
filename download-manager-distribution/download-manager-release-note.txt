@@ -21,6 +21,10 @@ Features
 
 Release History
 ========================================================
+0.5.2
+    Release date TBD
+             - Updated to use version 2.2.3 of the JCL, resolves out of memory exception (DMTU-60).
+             - Initial work on REST interface
 0.5.1
     Release date 1st November 2013
     DMTU-38  - DMTU-REQ-8: PAUSED, CANCELLED and IN_PROGRESS from PAUSED state are now handled correctly.

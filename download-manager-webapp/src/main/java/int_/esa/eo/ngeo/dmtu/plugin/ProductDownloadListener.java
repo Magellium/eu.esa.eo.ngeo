@@ -1,8 +1,8 @@
 package int_.esa.eo.ngeo.dmtu.plugin;
 
-import int_.esa.eo.ngeo.dmtu.model.ProductProgress;
 import int_.esa.eo.ngeo.dmtu.observer.DownloadObserver;
 import int_.esa.eo.ngeo.dmtu.observer.DownloadSubject;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IProductDownloadListener;
 
@@ -29,7 +29,12 @@ public class ProductDownloadListener implements IProductDownloadListener, Downlo
 	@Override
 	public void progress(Integer progressPercentage, Long downloadedSize,
 			EDownloadStatus status, String message) {
-		ProductProgress productProgress = new ProductProgress(progressPercentage, downloadedSize, status, message);
+		ProductProgress productProgress = new ProductProgress();
+		productProgress.setProgressPercentage(progressPercentage);
+		productProgress.setDownloadedSize(downloadedSize);
+		productProgress.setStatus(status);
+		productProgress.setMessage(message);
+
 		notifyObserversOfProgress(productUuid, productProgress);
 	}
 	

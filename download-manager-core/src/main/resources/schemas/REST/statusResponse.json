@@ -1,0 +1,133 @@
+{
+	"title": "REST Interface Status Response",
+	"type":"object",
+	"javaType":"int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse",
+	"required":true,
+	"properties":{
+		"dataAccessRequests":{
+			"type":"array",
+			"items": {
+				"type": "object",
+				"javaType":"int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest",
+				"javaInterfaces": ["java.io.Serializable"],
+				"required":true,
+				"properties":{
+					"uuid":{
+						"type":"string",
+						"required":false
+					},
+					"monitoringURL":{
+						"type":"string",
+						"required":false
+					},
+					"lastResponseDate":{
+						"type":"object",
+						"javaType":"java.sql.Timestamp",
+						"required":false
+					},
+					"monitoringStatus":{
+						"type":"object",
+						"javaType" : "int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus",
+						"required":false
+					},
+					"visible":{
+						"type":"boolean",
+						"required":false
+					},
+					"productList":{
+						"type":"array",
+						"items": {
+							"type":"object",
+							"javaType":"int_.esa.eo.ngeo.downloadmanager.model.Product",
+							"javaInterfaces": ["java.io.Serializable"],
+							"required":false,
+							"properties":{
+								"downloadDirectory":{
+									"type":"string",
+									"required":false
+								},
+								"fileSize":{
+									"type":"integer",
+									"required":false
+								},
+								"notified":{
+									"type":"boolean",
+									"required":false
+								},
+								"numberOfFiles":{
+									"type":"integer",
+									"required":false
+								},
+								"overallSize":{
+									"type":"integer",
+									"required":false
+								},
+								"productAccessUrl":{
+									"type":"string",
+									"required":false
+								},
+								"productName":{
+									"type":"string",
+									"required":false
+								},
+								"startOfActualDownload":{
+									"type":"object",
+									"javaType":"java.sql.Timestamp",
+									"required":false
+								},
+								"startOfFirstDownloadRequest":{
+									"type":"object",
+									"javaType":"java.sql.Timestamp",
+									"required":false
+								},
+								"stopOfDownload":{
+									"type":"object",
+									"javaType":"java.sql.Timestamp",
+									"required":false
+								},
+								"uuid":{
+									"type":"string",
+									"required":false
+								},
+								"visible":{
+									"type":"boolean",
+									"default": true,
+									"required":true
+								},
+								"productProgress":{
+									"type":"object",
+									"javaType":"int_.esa.eo.ngeo.downloadmanager.model.ProductProgress",
+									"javaInterfaces": ["java.io.Serializable"],
+									"required":false,
+									"properties":{
+										"downloadedSize":{
+											"type":"integer",
+											"required":false
+										},
+										"message":{
+											"type":"string",
+											"required":false
+										},
+										"progressPercentage":{
+											"type":"integer",
+											"required":false
+										},
+										"status":{
+											"type":"object",
+											"javaType": "int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus",
+											"enum" : ["NOT_STARTED","IDLE","RUNNING","PAUSED","CANCELLED","IN_ERROR","COMPLETED"]
+										}
+									},
+									"additionalProperties": false
+								}
+							},
+							"additionalProperties": false
+						}
+					}
+				},
+				"additionalProperties": false
+			}
+		}
+	},
+	"additionalProperties": false
+}

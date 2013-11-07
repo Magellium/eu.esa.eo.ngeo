@@ -186,7 +186,7 @@ public class MonitoringUrlTask implements Runnable {
 		}
 
 		GregorianCalendar calendar = new GregorianCalendar(utc);
-		calendar.setTime(finalTime);		
+		calendar.setTime(finalTime);
 		
 		return calendar;
 	}

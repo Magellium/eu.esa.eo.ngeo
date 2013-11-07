@@ -71,7 +71,7 @@ var DownloadMonitor = {
 	monitorDownloadStatus : function(downloadStatusTable) {
 		$.getJSON("dataAccessRequests")
 		.done(function(data) {
-			DownloadMonitor.displayDownloadStatus(downloadStatusTable,data);
+			DownloadMonitor.displayDownloadStatus(downloadStatusTable,data.dataAccessRequests);
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			DownloadMonitor.displayErrorMessage(messages['error.retrieve_dar_status'], jqXHR);

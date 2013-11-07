@@ -3,9 +3,11 @@ package int_.esa.eo.ngeo.dmtu.controller;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
-import int_.esa.eo.ngeo.dmtu.model.DataAccessRequest;
-import int_.esa.eo.ngeo.dmtu.model.Product;
 import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
+import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
+import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.Product;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +41,9 @@ public class DARControllerTest {
 	public List<DataAccessRequest> setupDataAccessRequestList() {
 		List<DataAccessRequest> dataAccessRequestList;
 		dataAccessRequestList = new ArrayList<DataAccessRequest>();
-		DataAccessRequest dataAccessRequest = new DataAccessRequest(MONITORING_URL);
-		dataAccessRequest.addProduct(new Product(PRODUCT_URL_NOTEPAD_PLUSPLUS));
-		dataAccessRequest.addProduct(new Product(PRODUCT_URL_UBUNTU));
+		DataAccessRequest dataAccessRequest = new DataAccessRequestBuilder().buildDAR(MONITORING_URL);
+		dataAccessRequest.getProductList().add(new ProductBuilder().buildProduct(PRODUCT_URL_NOTEPAD_PLUSPLUS));
+		dataAccessRequest.getProductList().add(new ProductBuilder().buildProduct(PRODUCT_URL_UBUNTU));
 		
 		dataAccessRequestList.add(dataAccessRequest);
 		return dataAccessRequestList;
@@ -53,7 +55,7 @@ public class DARControllerTest {
 		
 		when(dataAccessRequestManager.getVisibleDARList(true)).thenReturn(dataAccessRequestList);
 		
-		List<DataAccessRequest> dataAccessRequests = darController.getDataAccessRequests();
+		List<DataAccessRequest> dataAccessRequests = darController.getDataAccessRequestStatus().getDataAccessRequests();
 		assertEquals(1,dataAccessRequests.size());
 		DataAccessRequest dataAccessRequest = dataAccessRequests.get(0);
 		assertEquals(MONITORING_URL, dataAccessRequest.getMonitoringURL());
