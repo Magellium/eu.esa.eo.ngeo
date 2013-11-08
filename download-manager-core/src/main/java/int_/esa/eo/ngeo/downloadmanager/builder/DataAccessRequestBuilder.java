@@ -11,7 +11,7 @@ public class DataAccessRequestBuilder {
 	public DataAccessRequest buildDAR(String monitoringURL) {
 		DataAccessRequest dataAccessRequest = new DataAccessRequest();
 		dataAccessRequest.setMonitoringURL(monitoringURL);
-		dataAccessRequest.setUuid(UUID.randomUUID().toString());
+		dataAccessRequest.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
 		dataAccessRequest.setProductList(new ArrayList<Product>());
 		dataAccessRequest.setMonitoringStatus(MonitoringStatus.IN_PROGRESS);
 		dataAccessRequest.setVisible(true);

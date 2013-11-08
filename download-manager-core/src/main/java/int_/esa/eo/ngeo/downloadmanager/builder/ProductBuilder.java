@@ -14,7 +14,7 @@ public class ProductBuilder {
 	public Product buildProduct(String productAccessUrl, String downloadDirectory) {
 		Product product = new Product();
 		product.setProductAccessUrl(productAccessUrl);
-		product.setUuid(UUID.randomUUID().toString());
+		product.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
 		product.setNotified(false);
 		product.setDownloadDirectory(downloadDirectory);
 		product.setVisible(true);
