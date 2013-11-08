@@ -25,6 +25,8 @@ Release History
     Release date TBD
              - Updated to use version 2.2.3 of the JCL, resolves out of memory exception (DMTU-60).
              - Initial work on REST interface
+    DMTU-48  - DMTU-REQ-27: Product Download Termination now supplies all required information
+    DMTU-43  - DMTU-REQ-9: Downloaded Files are now being used by the DMTU (to be output to product termination log).
 0.5.1
     Release date 1st November 2013
     DMTU-38  - DMTU-REQ-8: PAUSED, CANCELLED and IN_PROGRESS from PAUSED state are now handled correctly.
@@ -127,18 +129,11 @@ DMTU-REQ-9   -	Handling of HTTP 303s not implemented at this time.
 DMTU-REQ-9   -	Parallel downloading (multiple sources for one file in a metalink) not supported. If multiple sources are 
                 provided for a particular file, only the first is used.
 DMTU-REQ-9   -	Only one file is downloaded at a time for a product.
-DMTU-REQ-9   -	Downloaded files are currently not being used by the DMTU as output to product termination log.
 DMTU-REQ-17  -	Changes to the number of parallel download threads will only be honoured on application restart.
 DMTU-REQ-17  -	Port number for the web interface can be configured but is not honoured.
 DMTU-REQ-26  -	This setting refers to the product download threads. A product download will only download one file at 
                 time (in a metalink scenario).
 DMTU-REQ-23  -  Callback mechanism supports very basic commands at present
-DMTU-REQ-27  -	Download log does not supply the following information at this time:
-					* Name of the Data Access Request (URL?)
-					* Start date/time of first download request
-					* Start date/time of actual download
-					* Stop date/time of download
-					* Path of the saved product if completed (not specified by plugin interface)"
 DMTU-REQ-28  -	The DMTU have been started by something other than the CLI before any CLI commands can be serviced by the DMTU.
 DMTU-REQ-28  -	A list of products to be downloaded via a file parameter is yet to be implemented.
              -  There is no ability to prioritise the download of a product at this time. The product downloads are handled as as queue (FIFO). 
@@ -164,12 +159,9 @@ Assumptions
 Known Issues
 ========================================================
 
-DMTU-4  - Pause and resume buttons sometimes do not respond in the Web UI.
-DMTU-70 - Limitation: notification of product download from WEBS not handled correctly
-DMTU-80 - DAGICD: No requirement for handling HTTP 301/302 status codes
-DMTU-8  - Double clicking the FirstStartupConfig page's "Save and Register" button causes a blow-up
-DMTU-62 - Name of downloaded file may be poor in absence of Content-Disposition HTTP response header
-DMTU-60 - Siemens UM-SSO Java Client Library buffers whole of each HTTP response body in memory
-DMTU-85 - Siemens' UM-SSO JCL version 2.1.3 fails when an attempt is made to use the HTTP HEAD method
-        - As a result of the two above UM-SSO JCL issues, it is recommended to download files of no larger than 100Mb in size.
-          There will also be a short delay before downloading of products.
+DMTU-4   - Pause and resume buttons sometimes do not respond in the Web UI.
+DMTU-70  - Limitation: notification of product download from WEBS not handled correctly
+DMTU-80  - DAGICD: No requirement for handling HTTP 301/302 status codes
+DMTU-8   - Double clicking the FirstStartupConfig page's "Save and Register" button causes a blow-up
+DMTU-62  - Name of downloaded file may be poor in absence of Content-Disposition HTTP response header
+DMTU-142 - Folder path for Idle metalink products still includes a dot when the product has been completed

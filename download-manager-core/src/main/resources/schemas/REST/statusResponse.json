@@ -42,8 +42,14 @@
 							"javaInterfaces": ["java.io.Serializable"],
 							"required":false,
 							"properties":{
+								"completedDownloadPath": {
+									"type":"string",
+									"description": "The path of the download once it has been completed.",
+									"required":false
+								},
 								"downloadDirectory":{
 									"type":"string",
+									"description": "This optional field specifies a path in which this product shall be saved. The path is relative to the Download Manager root download directory.",
 									"required":false
 								},
 								"fileSize":{
@@ -70,6 +76,11 @@
 									"type":"string",
 									"required":false
 								},
+								"priority": {
+									"type":"object",
+									"javaType": "int_.esa.eo.ngeo.downloadmanager.model.Priority",
+									"enum" : ["Very High","High","Normal","Low","Very Low"]
+								},								
 								"startOfActualDownload":{
 									"type":"object",
 									"javaType":"java.sql.Timestamp",

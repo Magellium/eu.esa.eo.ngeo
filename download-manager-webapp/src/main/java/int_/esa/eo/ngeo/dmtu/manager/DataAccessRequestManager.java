@@ -135,12 +135,15 @@ public class DataAccessRequestManager implements ProductSubject {
 	public boolean addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
 		Product newProduct = visibleDataAccessRequests.addManualProductDownload(productDownloadUrl);
 		
-		DataAccessRequest manualDataAccessRequest = visibleDataAccessRequests.findDataAccessRequestByProductUuid(newProduct.getUuid());
+		DataAccessRequest manualDataAccessRequest = findDataAccessRequestByProduct(newProduct);
 		dataAccessRequestDao.updateDataAccessRequest(manualDataAccessRequest);
 		notifyObserversOfNewProduct(newProduct);
 		return true;
 	}
 	
+	public DataAccessRequest findDataAccessRequestByProduct(Product product) {
+		return visibleDataAccessRequests.findDataAccessRequestByProductUuid(product.getUuid());
+	}
 
 	public void updateDataAccessRequest(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessListObject) {
 		DataAccessRequest retrievedDataAccessRequest = getDataAccessRequestByMonitoringUrl(darMonitoringUrl);
@@ -236,13 +239,8 @@ public class DataAccessRequestManager implements ProductSubject {
 		return true;
 	}
 	
-	public void persistProductStatusChange(String productUuid) {
-		DataAccessRequest dataAccessRequest = visibleDataAccessRequests.findDataAccessRequestByProductUuid(productUuid);
-		for (Product product : dataAccessRequest.getProductList()) {
-			if(product.getUuid().equals(productUuid)) {
-				dataAccessRequestDao.updateProduct(product);
-			}
-		}
+	public void persistProductStatusChange(Product product) {
+		dataAccessRequestDao.updateProduct(product);
 	}
 	
 	public List<DataAccessRequest> getVisibleDARList(boolean includeManualDar) {

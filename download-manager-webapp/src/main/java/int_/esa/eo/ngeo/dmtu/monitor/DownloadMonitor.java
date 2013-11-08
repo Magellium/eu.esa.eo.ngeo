@@ -11,6 +11,7 @@ import int_.esa.eo.ngeo.dmtu.plugin.ProductDownloadListener;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
@@ -166,11 +167,12 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	@Override
 	public void updateProductDetails(String productUuid, String productName, Integer numberOfFiles, Long overallSize) {
 		Product product = productToDownloadList.get(productUuid);
+		product.setStartOfFirstDownloadRequest(new Timestamp(new Date().getTime()));
 		product.setProductName(productName);
 		product.setNumberOfFiles(numberOfFiles);
 		product.setOverallSize(overallSize);
 
-		dataAccessRequestManager.persistProductStatusChange(productUuid);
+		dataAccessRequestManager.persistProductStatusChange(product);
 	}
 
 	@Override
@@ -179,6 +181,12 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		EDownloadStatus previouslyKnownStatus = product.getProductProgress().getStatus();
 		EDownloadStatus newStatus = productProgress.getStatus();
 		product.setProductProgress(productProgress);
+		IDownloadProcess downloadProcess = null;
+		try {
+			downloadProcess = getDownloadProcess(productUuid);
+		} catch (DownloadOperationException e) {
+			LOGGER.error("Unable to retrieve download process for product.", e);
+		}
 
 		if(previouslyKnownStatus != newStatus) {
 			LOGGER.debug(String.format("Status has changed from %s to %s, updating to database", previouslyKnownStatus, newStatus));
@@ -186,52 +194,78 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 				product.setStartOfActualDownload(new Timestamp(new Date().getTime()));
 			}
 			
-			dataAccessRequestManager.persistProductStatusChange(productUuid);
+			dataAccessRequestManager.persistProductStatusChange(product);
 		}
 
 		if(previouslyKnownStatus == EDownloadStatus.IDLE && newStatus == EDownloadStatus.NOT_STARTED) {
-			IDownloadProcess downloadProcess;
-			try {
-				downloadProcess = getDownloadProcess(productUuid);
-				DownloadThread downloadThread = new DownloadThread(downloadProcess);
-				productDownloadExecutor.execute(downloadThread);
-			} catch (DownloadOperationException e) {
-				LOGGER.error("Unable to set the previously idle process to not started.", e);
-			}
-		}
-		if(productProgress.getStatus() == EDownloadStatus.COMPLETED || productProgress.getStatus() == EDownloadStatus.CANCELLED || productProgress.getStatus() == EDownloadStatus.IN_ERROR) {
-			product.setStopOfDownload(new Timestamp(new Date().getTime()));
-			dataAccessRequestManager.persistProductStatusChange(productUuid);
-			productTerminationLog.notifyProductDownloadTermination(product);
+			DownloadThread downloadThread = new DownloadThread(downloadProcess);
+			productDownloadExecutor.execute(downloadThread);
 		}
 		
-		if(productProgress.getStatus() == EDownloadStatus.COMPLETED) {
-			// We implement the call-back mechanism here, i.e. before we lose the list of downloaded files
-			executeCallbackMechanism(productUuid);
+		//perform actions based on terminal statuses
+		switch (newStatus) {
+		case IN_ERROR:
+			setTerminalStateOfProduct(product);
+			break;
+		case CANCELLED:
+			setTerminalStateOfProduct(product);
+			disconnectAndRemoveProcess(downloadProcess, product);
+			break;
+		case COMPLETED:
+			getCompletedDownloadPathFromProcess(downloadProcess, product);
+			setTerminalStateOfProduct(product);
+
+			executeCallbackMechanism(product);
+			disconnectAndRemoveProcess(downloadProcess, product);
+			break;
+		default:
+			break;
 		}
-		if(productProgress.getStatus() == EDownloadStatus.COMPLETED || productProgress.getStatus() == EDownloadStatus.CANCELLED) {
-			IDownloadProcess downloadProcess = downloadProcessList.get(productUuid);
-			//This disconnect ensures that we tidy up any left over threads / resources
-			try {
-				downloadProcess.disconnect();
-			} catch (DMPluginException e) {
-				//Any disconnect that fails doesn't matter - the process should be handled by the garbage collector once removed from this monitor
-			}
-			
-			downloadProcessList.remove(productUuid);
-			productToDownloadList.remove(productUuid);
-		}
-		
 	}
 	
-	private void executeCallbackMechanism(String productUuid) {
+	/**
+	 * 	Disconnect and remove the process for a completed or cancelled product.
+	 *  The disconnect ensures that we tidy up any left over threads / resources, any failure of the disconnect does not matter
+	 *  
+	 * @param downloadProcess
+	 * @param product
+	 */
+	private void disconnectAndRemoveProcess(IDownloadProcess downloadProcess, Product product) {
 		try {
-			String productDownloadCompleteCommand = settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
-			CallbackCommandExecutor callbackExecutor = new CallbackCommandExecutor();
-			callbackExecutor.invokeCallbackCommandOnProductFiles(productDownloadCompleteCommand, getDownloadProcess(productUuid).getDownloadedFiles());
-		} catch (DownloadOperationException e) { // This catch block should be unreachable
-			LOGGER.error("Unable to invoke post-download callback on product " + productUuid, e);
+			downloadProcess.disconnect();
+		} catch (DMPluginException e) { }
+		
+		downloadProcessList.remove(product.getUuid());
+		productToDownloadList.remove(product.getUuid());
+	}
+	
+	/**
+	 * Set the completed download path for the product before we lose the list of downloaded files
+	 * i.e. when the process is removed.
+	 * 
+	 * @param downloadProcess
+	 * @param product
+	 */
+	private void getCompletedDownloadPathFromProcess(IDownloadProcess downloadProcess, Product product) {
+		File[] downloadedFiles = downloadProcess.getDownloadedFiles();
+		if(downloadedFiles != null && downloadedFiles.length > 0) {
+			product.setCompletedDownloadPath(downloadedFiles[0].getAbsolutePath());
+		}else{
+			LOGGER.error("Product has been completed, but the completed download path cannot be retrieved.");
 		}
+	}
+	
+	private void executeCallbackMechanism(Product product) {
+		String productDownloadCompleteCommand = settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
+		CallbackCommandExecutor callbackExecutor = new CallbackCommandExecutor();
+		callbackExecutor.invokeCallbackCommandOnProductFiles(productDownloadCompleteCommand, product.getCompletedDownloadPath());
+	}
+	
+	private void setTerminalStateOfProduct(Product product) {
+		product.setStopOfDownload(new Timestamp(new Date().getTime()));
+		dataAccessRequestManager.persistProductStatusChange(product);
+		DataAccessRequest dataAccessRequest = dataAccessRequestManager.findDataAccessRequestByProduct(product);
+		productTerminationLog.notifyProductDownloadTermination(product, dataAccessRequest);
 	}
 
 	/**

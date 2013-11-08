@@ -22,6 +22,15 @@ public class CallbackCommandExecutor {
 
 	private static final int SUCCESSFUL_OS_COMMAND_EXIT_CODE = 0;
 
+	public void invokeCallbackCommandOnProductFiles(String unresolvedCommand, String completedDownloadPathAsString) {
+		if(completedDownloadPathAsString != null) {
+			File completedDownloadPath = new File(completedDownloadPathAsString);
+			File[] downloadedFiles = new File[]{completedDownloadPath};
+			
+			invokeCallbackCommandOnProductFiles(unresolvedCommand, downloadedFiles);
+		}
+	}
+	
 	public void invokeCallbackCommandOnProductFiles(String unresolvedCommand, File[] downloadedFiles) {
 		if (unresolvedCommand == null || unresolvedCommand.isEmpty()) {
 			LOGGER.info("No post-download call-back command has been defined");

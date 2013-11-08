@@ -1,5 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.log;
 
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
@@ -13,15 +14,15 @@ import org.slf4j.LoggerFactory;
 
 public class ProductTerminationLog {
 	private static final Logger PRODUCT_DOWNLOAD_TERMINATION_NOTIFICATION_LOGGER = LoggerFactory.getLogger("ProductDownloadTermination");
-	private static final String UTC_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss zzz";
+	private static final String UTC_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
-	public void notifyProductDownloadTermination(Product product) {
+	public void notifyProductDownloadTermination(Product product, DataAccessRequest dataAccessRequest) {
 		StringBuilder productNotificationString = new StringBuilder();
 		ProductProgress productProgress = product.getProductProgress();
 		EDownloadStatus productDownloadStatus = productProgress.getStatus();
 		productNotificationString.append(String.format("\"%s\"", productDownloadStatus));
 		productNotificationString.append(String.format(",\"%s\"", product.getProductAccessUrl()));
-		productNotificationString.append(String.format(",\"%s\"", "")); //TODO: Name of the data access request the product download belongs to
+		productNotificationString.append(String.format(",\"%s\"", dataAccessRequest.getMonitoringURL()));
 		long numberOfBytesDownloaded;
 		if(productDownloadStatus == EDownloadStatus.IN_ERROR) {
 			numberOfBytesDownloaded = 0;
@@ -34,7 +35,7 @@ public class ProductTerminationLog {
 		productNotificationString.append(String.format(",\"%s\"", convertDateToString(product.getStopOfDownload()))); //TODO: Stop Date/Time of download
 
 		if(productDownloadStatus == EDownloadStatus.COMPLETED) {
-			productNotificationString.append(String.format(",\"%s\"", "")); //TODO: The Path of the saved product (if completed)
+			productNotificationString.append(String.format(",\"%s\"", product.getCompletedDownloadPath())); //TODO: The Path of the saved product (if completed)
 		}else{
 			productNotificationString.append(",");
 		}
@@ -44,7 +45,6 @@ public class ProductTerminationLog {
 		}else{
 			productNotificationString.append(String.format(",\"%s\"", ""));
 		}
-		
 		
 		PRODUCT_DOWNLOAD_TERMINATION_NOTIFICATION_LOGGER.info(productNotificationString.toString());
 	}

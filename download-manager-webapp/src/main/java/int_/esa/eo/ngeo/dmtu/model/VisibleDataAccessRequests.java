@@ -88,8 +88,6 @@ public class VisibleDataAccessRequests {
 	}
 
 	public void removeProductFromProduct_DARMapping(Product product) {
-		
-		
 		productDarMap.remove(product.getUuid());
 	}
 
