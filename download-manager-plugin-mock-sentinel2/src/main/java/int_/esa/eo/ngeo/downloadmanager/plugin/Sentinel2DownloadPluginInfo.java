@@ -17,7 +17,7 @@ public class Sentinel2DownloadPluginInfo implements IDownloadPluginInfo {
 	}
 
 	public int[] getDMMinVersion() {
-		return new int[] { 0, 5, 2};
+		return new int[] { 0, 5, 3};
 	}
 
 	public boolean handlePause() {
