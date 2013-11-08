@@ -2,6 +2,7 @@
 	"title": "REST Interface Status Response",
 	"type":"object",
 	"javaType":"int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse",
+	"description":"Provides details of the visible Data Access Requests",
 	"required":true,
 	"properties":{
 		"dataAccessRequests":{
@@ -9,20 +10,25 @@
 			"items": {
 				"type": "object",
 				"javaType":"int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest",
+				"description":"A Data Access Request",
 				"javaInterfaces": ["java.io.Serializable"],
 				"required":true,
 				"properties":{
 					"uuid":{
 						"type":"string",
-						"required":false
+						"description":"A unique identifier for the Data Access Request.",
+						"pattern": "[0-9a-fA-F]{32}",
+						"required":true
 					},
 					"monitoringURL":{
 						"type":"string",
-						"required":false
+						"description":"The originator URL for this DAR. Used to monitor for new products in PULL mode.",
+						"required":true
 					},
 					"lastResponseDate":{
 						"type":"object",
 						"javaType":"java.sql.Timestamp",
+						"description":"The date of the last response received  URL for this DAR. Used to monitor for new products in PULL mode..",
 						"required":false
 					},
 					"monitoringStatus":{
@@ -117,7 +123,7 @@
 										},
 										"message":{
 											"type":"string",
-											"required":false
+											"required":true
 										},
 										"progressPercentage":{
 											"type":"integer",

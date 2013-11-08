@@ -21,8 +21,14 @@ Features
 
 Release History
 ========================================================
+0.5.3
+    Release date 8th November 2013
+             - Removed product message column from the UI as it is no longer necessary. This was also causing errors when displaying the home page.
+             - Changed error messages to refer to http status codes and reason phrases directly. 404s were being indicated to the user as 402s.
+             - Modified handling of IICD-D-WS service errors - errors are shorter, with debug providing more information.
+             - Reverted default log levels back to "info" instead of "debug"
 0.5.2
-    Release date TBD
+    Release date 8th November 2013
              - Updated to use version 2.2.3 of the JCL, resolves out of memory exception (DMTU-60).
              - Initial work on REST interface
     DMTU-48  - DMTU-REQ-27: Product Download Termination now supplies all required information

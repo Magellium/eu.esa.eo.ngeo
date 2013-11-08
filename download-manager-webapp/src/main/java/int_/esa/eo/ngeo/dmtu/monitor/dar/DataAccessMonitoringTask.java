@@ -94,7 +94,9 @@ public class DataAccessMonitoringTask implements Runnable {
 			
 			darController.updateDAR(darMonitoringUrl, monitoringStatus, responseDate, productAccessList);
 		} catch (ParseException | ServiceException | DateParseException e) {
-			LOGGER.error(String.format("Exception whilst calling DataAccessMonitoring %s: %s", darMonitoringUrl, e.getLocalizedMessage()), e);
+			LOGGER.error(String.format("%s whilst calling DataAccessMonitoring %s: %s", e.getClass().getName(), darMonitoringUrl, e.getLocalizedMessage()));
+			LOGGER.debug("DataAccessMonitoring exception Stack trace:", e);
+			scheduleDataAccessMonitoringTask();
 		} finally {
 			if (request != null) {
 				request.releaseConnection();
@@ -102,13 +104,17 @@ public class DataAccessMonitoringTask implements Runnable {
 		}
 		
 		if(monitoringStatus != null && (monitoringStatus == MonitoringStatus.IN_PROGRESS || monitoringStatus == MonitoringStatus.PAUSED)) {
-			Calendar c = Calendar.getInstance();
-			c.setTime(new Date());
-			c.add(Calendar.SECOND, refreshPeriod);
-			
-			DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
-			darMonitorScheduler.schedule(dataAccessMonitoringTask, c.getTime());
+			scheduleDataAccessMonitoringTask();
 		}
 		LOGGER.debug("Ending DataAccessMonitoringTask");
+	}
+	
+	private void scheduleDataAccessMonitoringTask() {
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+		c.add(Calendar.SECOND, refreshPeriod);
+		
+		DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
+		darMonitorScheduler.schedule(dataAccessMonitoringTask, c.getTime());
 	}
 }

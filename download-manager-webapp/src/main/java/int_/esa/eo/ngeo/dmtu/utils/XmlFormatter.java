@@ -27,7 +27,6 @@ public class XmlFormatter {
 
             System.setProperty(DOMImplementationRegistry.PROPERTY,"com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
 
-
             final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
             final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
             final LSSerializer writer = impl.createLSSerializer();

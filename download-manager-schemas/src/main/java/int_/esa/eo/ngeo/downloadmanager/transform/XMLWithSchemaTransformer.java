@@ -66,7 +66,8 @@ public class XMLWithSchemaTransformer {
 
 			marshaller.setEventHandler(new ValidationEventHandler() {
 				public boolean handleEvent(ValidationEvent event) {
-					throw new RuntimeException(String.format("Unable to convert Object into XML; %s", event.getLinkedException()));
+					LOGGER.error(String.format("Unable to convert Object into XML; %s", event.getLinkedException()));
+					return false;
 				}
 			});
 			
@@ -129,8 +130,9 @@ public class XMLWithSchemaTransformer {
 			unmarshaller.setEventHandler(new ValidationEventHandler() {
 				public boolean handleEvent(ValidationEvent event) {
 					String inputStreamAsString = new String(inputStreamBytes);
-					throw new RuntimeException(String.format("Unable to convert XML into Object; line %s, column %s. %nMessage: %s%nInput stream: %s",
-							event.getLocator().getLineNumber(), event.getLocator().getColumnNumber(), event.getMessage(), inputStreamAsString), event.getLinkedException());
+					LOGGER.error(String.format("Unable to convert XML into Object; line %s, column %s. %nMessage: %s", event.getLocator().getLineNumber(), event.getLocator().getColumnNumber(), event.getMessage()));
+					LOGGER.debug(String.format("Input stream: %s", inputStreamAsString), event.getLinkedException());
+					return false;
 				}
 			});
 			resultObject = unmarshaller.unmarshal(xmlInputStreamSource2, clazz).getValue();

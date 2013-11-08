@@ -56,8 +56,17 @@ public class NgeoWebServerResponseParser {
 			LOGGER.debug(String.format("status code: %s",httpStatusCode));
 			switch(httpStatusCode) {
 			case HttpStatus.SC_OK:
-				LOGGER.debug(String.format("response - %s: %n%s", resultType.getName(), new XmlFormatter().format(responseBodyAsString)));
-			    T responseAsObject = xmlWithSchemaTransformer.deserializeAndInferSchema(responseBodyAsStream, resultType);
+				T responseAsObject;
+				try {
+					responseAsObject = xmlWithSchemaTransformer.deserializeAndInferSchema(responseBodyAsStream, resultType);
+				}catch(ParseException e) {
+					LOGGER.debug(String.format("Parse exception occurred, response - %s: %n%s", resultType.getName(), responseBodyAsString));
+					throw e;
+				}
+
+				if(LOGGER.isDebugEnabled()) {
+					LOGGER.debug(String.format("response - %s: %n%s", resultType.getName(), new XmlFormatter().format(responseBodyAsString)));
+				}
 
 			    return responseAsObject;
 			default:

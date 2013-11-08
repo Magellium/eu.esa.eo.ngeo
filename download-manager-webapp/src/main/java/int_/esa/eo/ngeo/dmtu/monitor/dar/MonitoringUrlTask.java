@@ -104,7 +104,7 @@ public class MonitoringUrlTask implements Runnable {
 	
 				monitoringController.setSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
 			} catch (ParseException | ServiceException | DateParseException e) {
-				LOGGER.error(String.format("Exception whilst calling Monitoring URL %s: %s", monitoringServiceUrl, e.getLocalizedMessage()), e);
+				LOGGER.error(String.format("%s whilst calling Monitoring URL %s: %s", e.getClass().getName(), monitoringServiceUrl, e.getLocalizedMessage()), e);
 			} finally {
 				if(request != null) {
 					request.reset();

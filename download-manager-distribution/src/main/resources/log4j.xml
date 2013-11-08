@@ -57,18 +57,21 @@
 		<level value="info" />
 	</logger>
 	
+	<!-- Set to "debug" to view high-level details of communication with Web Server -->
 	<logger name="int_.esa.eo.ngeo.dmtu.monitor.dar">
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.dmtu.os.command">
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 
+	<!-- Set to "debug" to view details of building requests and parsing response with Web Server -->
 	<logger name="int_.esa.eo.ngeo.dmtu.webserver.builder">
 		<level value="info" />
 	</logger>
 
+	<!-- Set to "debug" to view low-level details of Web Server service -->
 	<logger name="int_.esa.eo.ngeo.dmtu.webserver.service">
 		<level value="info" />
 	</logger>
