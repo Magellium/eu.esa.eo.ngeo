@@ -106,7 +106,6 @@ var DownloadMonitor = {
 	    sOut += '<th class="productDownloadedSize">' + messages['product_table.heading.downloaded_size'] + '</th>';
 	    sOut += '<th class="productProgress">' + messages['product_table.heading.progress'] + '</th>';
 	    sOut += '<th class="productStatus">' + messages['product_table.heading.product_status'] + '</th>';
-	    sOut += '<th class="productMessage">' + messages['product_table.heading.message'] + '</th>';
 	    sOut += '<th class="productActions">' + messages['product_table.heading.actions'] + '</th>';
 	    sOut += '</tr></thead></table>';
 	    return sOut;
@@ -142,7 +141,6 @@ var DownloadMonitor = {
 			              { "mData": "productProgress.downloadedSize" },
 			              { "mData": "productProgress.progressPercentage" },
 			              { "mData": "productProgress.status" },
-			              { "mData": "productProgress.message" },
 			              { "mData": null }
 			          ],
 			 "aoColumnDefs": [
@@ -150,8 +148,7 @@ var DownloadMonitor = {
 				              { "sWidth": "150px", "aTargets": [ 2 ] },
 				              { "sWidth": "200px", "aTargets": [ 3 ] },
 				              { "sWidth": "150px", "aTargets": [ 4 ] },
-				              { "bVisible": false, "aTargets": [ 5 ] },
-				              { "sWidth": "50px", "aTargets": [ 6 ] },
+				              { "sWidth": "50px", "aTargets": [ 5 ] },
 			                 ],
              "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
  				$(nRow).attr("data-product-id",aData.uuid);
@@ -165,7 +162,7 @@ var DownloadMonitor = {
  				if(productStatus == "IN_ERROR") {
  					var iconWarning = fileProductStatus.find(".iconWarning");
  					iconWarning.remove();
- 					fileProductStatus.append("<span class=\"iconWarning ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-alert\" title=\"" + messages['error.product_download'] + ": " + aData.productProgress.message + "\">!</span></span>");
+ 					fileProductStatus.append("<span class=\"iconWarning ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-alert\" title=\"" + messages['error.product_download'] + ": " + aData.productProgress.message + "\" alt=\"" + messages['error.product_download'] + ": " + aData.productProgress.message + "\">!</span></span>");
  				}
  				var fileOverallSizeCell = $(nRow).find("td:eq(" + DownloadMonitor.productOverallSizeColumnIndex + ")");
  				fileOverallSizeCell.html(DownloadMonitor.getReadableFileSizeString(aData.overallSize));
