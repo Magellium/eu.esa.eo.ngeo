@@ -105,6 +105,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 			productDownloadRequest = umSsoHttpClient.executeHeadRequest(productURI.toURL());
 			productDownloadResponse = umSsoHttpClient.getUmssoHttpResponse(productDownloadRequest);
 			int responseCode = productDownloadResponse.getStatusLine().getStatusCode();
+			String reasonPhrase = productDownloadResponse.getStatusLine().getReasonPhrase();
 			switch (responseCode) {
 			case HttpStatus.SC_OK:
 				productMetadata = new ProductDownloadMetadata();
@@ -182,8 +183,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
 				}catch(ParseException | SchemaNotFoundException ex) {
-					LOGGER.error("HTTP response code 400 (Bad Request), unable to parse response details.", ex);
-					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, "HTTP response code 400 (Bad Request), unable to parse response details.");
+					String errorMessage = String.format("HTTP response code %s (%s), unable to parse response details.", responseCode, reasonPhrase);
+					LOGGER.error(errorMessage, ex);
 				}
 				break;
 			case HttpStatus.SC_FORBIDDEN:
@@ -195,12 +196,13 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, missingProductResponse.getResponseMessage());
 				}catch(ParseException | SchemaNotFoundException ex) {
-					LOGGER.error("HTTP response code 402 (Not Found), unable to parse response details.", ex);
-					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, "HTTP response code 402 (Not Found), unable to parse response details.");
+					String errorMessage = String.format("HTTP response code %s (%s), unable to parse response details.", responseCode, reasonPhrase);
+					LOGGER.error(errorMessage, ex);
+					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, errorMessage);
 				}
 				break;
 			default:
-				productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, String.format("Unexpected response, HTTP response code %s",responseCode));
+				productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, String.format("Unexpected response, HTTP response code %s (%s)",responseCode, reasonPhrase));
 				break;
 			}
 		} catch (UmssoCLException | IOException | DMPluginException | ParseException | SchemaNotFoundException ex) {
