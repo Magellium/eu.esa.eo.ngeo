@@ -2,15 +2,18 @@
 	"title": "REST Interface Command Response",
 	"type":"object",
 	"javaType": "int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse",
+	"description":"The response provided as a result of a command sent to the Download Manager.",
 	"required":true,
 	"properties":{
-		"message": {
-			"type":"string",
-			"required":true
-		},
 		"success": {
 			"type":"boolean",
+			"description":"Whether the command has been executed successfully.<br />Note that this flag does not provide feedback on asynchronous actions e.g. the success of an \"add\" command can be provided, but any subsequent detail of product download statuses cannot be supplied.",
 			"default":true,
+			"required":true
+		},
+		"message": {
+			"type":"string",
+			"description":"A message provided to explain why a command has not been executed successfully (coincides with a \"success\" value of false).",
 			"required":true
 		}
 	},
