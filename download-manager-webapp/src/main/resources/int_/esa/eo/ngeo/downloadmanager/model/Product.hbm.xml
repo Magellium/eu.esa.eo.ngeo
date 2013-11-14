@@ -6,7 +6,7 @@
         <id name="uuid" type="string">
             <column name="product_id" />
         </id>
-		<property name="productAccessUrl" column="productAccessUrl" type="string" />
+		<property name="productAccessUrl" column="productAccessUrl" type="string" length="8190" />
 		<property name="downloadDirectory" column="downloadDirectory" type="string" />
 		<property name="fileSize" column="fileSize" type="long" />
 		<property name="productName" column="productName" type="string" />
