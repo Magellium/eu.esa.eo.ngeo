@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
-import int_.esa.eo.ngeo.downloadmanager.model.Priority;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse;
@@ -52,7 +52,7 @@ public class StatusResponseTransformerTest {
     	assertFalse(product.isNotified());
     	assertEquals(1, product.getNumberOfFiles());
     	assertEquals("slitaz-4.0 (5).iso", product.getProductName());
-    	assertEquals(Priority.NORMAL, product.getPriority());
+    	assertEquals(ProductPriority.NORMAL, product.getPriority());
     	assertEquals(1384516074957L, product.getStartOfFirstDownloadRequest().getTime());
     	assertEquals(1384516074968L, product.getStartOfActualDownload().getTime());
     	assertEquals(1384516108385L, product.getStopOfDownload().getTime());
