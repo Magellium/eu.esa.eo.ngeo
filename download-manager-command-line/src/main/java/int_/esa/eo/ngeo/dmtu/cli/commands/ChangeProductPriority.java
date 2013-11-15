@@ -4,11 +4,11 @@ import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
 import int_.esa.eo.ngeo.dmtu.cli.service.DownloadManagerResponseParser;
 import int_.esa.eo.ngeo.dmtu.cli.service.DownloadManagerService;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
@@ -26,30 +26,28 @@ import org.springframework.stereotype.Component;
  *  Note that this might make the availability of other commands dependent on configuration having been performed.
  */
 @Component
-public class AddDAR implements CommandMarker {
-	private final static String successMessage = "Added. Please use the \"status\" command to monitor the progress of the request.";
-	
-	@CliAvailabilityIndicator({"add-dar"})
-	public boolean isAddAvailable() {
+public class ChangeProductPriority implements CommandMarker {
+	private final static String successMessage = "Product priority changed.";
+
+	@CliAvailabilityIndicator({"change-priority"})
+	public boolean isCancelAvailable() {
 		return true;
 	}
 	
-	@CliCommand(value = "add-dar", help = "Manually add a DAR")
+	@CliCommand(value = "change-priority", help = "Change the priority of a product download")
 	public String add(
-		@CliOption(key = { "url" }, mandatory = true, help = "URL of a Data Access Request") final String darUrl) {
+		@CliOption(key = { "uuid" }, mandatory = true, help = "The uuid of the product to change priority") final String productUuid,
+		@CliOption(key = { "priority" }, mandatory = true, help = "The priority to change this product to") final ProductPriority newPriority) {
 		
 		DownloadManagerService downloadManagerService = new DownloadManagerService();
 		DownloadManagerResponseParser downloadManagerResponseParser = new DownloadManagerResponseParser();
 
 		String returnMessage;
 		try {
-			String urlAsString = String.format("%s/download", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL));
+			String urlAsString = String.format("%s/products/%s?action=changePriority&newPriority=%s", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL), productUuid, newPriority.name());
 			URL commandUrl = new URL(urlAsString);
-			String parameters = null;
 
-			parameters = String.format("darUrl=%s", URLEncoder.encode(darUrl, "UTF-8"));
-			
-			HttpURLConnection conn = downloadManagerService.sendPostCommand(commandUrl, parameters);
+			HttpURLConnection conn = downloadManagerService.sendGetCommand(commandUrl);
 			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, successMessage);
 		} catch (IOException | ParseException e) {
 			returnMessage = e.getMessage();

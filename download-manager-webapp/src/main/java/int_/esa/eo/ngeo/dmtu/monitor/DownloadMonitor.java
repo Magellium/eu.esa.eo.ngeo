@@ -14,6 +14,7 @@ import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,7 +149,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			String proxyHost = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_HOST);
 			String proxyPortString = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PORT);
 			int proxyPort;
-			if (proxyPortString == null || proxyPortString.isEmpty()) {
+			if (StringUtils.isEmpty(proxyPortString)) {
 				proxyPort = -1;
 			}else{
 				proxyPort = Integer.parseInt(proxyPortString);
@@ -173,7 +175,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		product.setNumberOfFiles(numberOfFiles);
 		product.setTotalFileSize(totalFileSize);
 
-		dataAccessRequestManager.persistProductStatusChange(product);
+		dataAccessRequestManager.persistProduct(product);
 	}
 
 	@Override
@@ -195,7 +197,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 				product.setStartOfActualDownload(new Timestamp(new Date().getTime()));
 			}
 			
-			dataAccessRequestManager.persistProductStatusChange(product);
+			dataAccessRequestManager.persistProduct(product);
 		}
 
 		if(previouslyKnownStatus == EDownloadStatus.IDLE && newStatus == EDownloadStatus.NOT_STARTED) {
@@ -264,7 +266,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	
 	private void setTerminalStateOfProduct(Product product) {
 		product.setStopOfDownload(new Timestamp(new Date().getTime()));
-		dataAccessRequestManager.persistProductStatusChange(product);
+		dataAccessRequestManager.persistProduct(product);
 		DataAccessRequest dataAccessRequest = dataAccessRequestManager.findDataAccessRequestByProduct(product);
 		productTerminationLog.notifyProductDownloadTermination(product, dataAccessRequest);
 	}
@@ -323,7 +325,18 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		}
 		return true;
 	}
+	
+	public boolean changeProductPriority(String productUuid, ProductPriority productPriority) throws ProductNotFoundException {
+		Product product = getProduct(productUuid);
 
+		product.setPriority(productPriority);
+		
+		dataAccessRequestManager.persistProduct(product);
+
+		return true;
+	}
+	
+	
 	private IDownloadProcess getDownloadProcess(String productUuid) throws ProductNotFoundException {
 		IDownloadProcess downloadProcess = downloadProcessList.get(productUuid);
 		if(downloadProcess == null) {
@@ -332,6 +345,14 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		return downloadProcess;
 	}
 
+	private Product getProduct(String productUuid) throws ProductNotFoundException {
+		Product product = productToDownloadList.get(productUuid);
+		if(product == null) {
+			throw new ProductNotFoundException(String.format("Unable to find product with UUID %s. This product may have already been completed.", productUuid));
+		}
+		return product;
+	}
+	
 	public void shutdown() {
 		LOGGER.info("Shutting down Download Monitor.");
 

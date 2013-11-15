@@ -239,7 +239,7 @@ public class DataAccessRequestManager implements ProductSubject {
 		return true;
 	}
 	
-	public void persistProductStatusChange(Product product) {
+	public void persistProduct(Product product) {
 		dataAccessRequestDao.updateProduct(product);
 	}
 	

@@ -29,12 +29,12 @@ import org.springframework.stereotype.Component;
 public class AddProductDownload implements CommandMarker {
 	private final static String successMessage = "Added. Please use the \"status\" command to monitor the progress.";
 	
-	@CliAvailabilityIndicator({"addProduct"})
+	@CliAvailabilityIndicator({"add-product"})
 	public boolean isAddAvailable() {
 		return true;
 	}
 	
-	@CliCommand(value = "addProduct", help = "Manually add a product")
+	@CliCommand(value = "add-product", help = "Manually add a product")
 	public String add(
 		@CliOption(key = { "url" }, mandatory = true, help = "URL of a single product to be downloaded") final String productDownloadUrl) { 
 		

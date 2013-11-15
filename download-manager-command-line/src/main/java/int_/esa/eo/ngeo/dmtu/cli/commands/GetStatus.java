@@ -97,7 +97,7 @@ public class GetStatus implements CommandMarker {
 						terminalStatuses.add(EDownloadStatus.COMPLETED);
 						terminalStatuses.add(EDownloadStatus.IN_ERROR);
 						if(!terminalStatuses.contains(productProgress.getStatus())) {
-							output.append("\nPriority: ");
+							output.append("\n\t\tPriority: ");
 							output.append(product.getPriority());
 						}
 						output.append("\n\n");

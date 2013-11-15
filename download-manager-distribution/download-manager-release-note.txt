@@ -27,6 +27,7 @@ Release History
                The maximum length is now 8190 characters.
              - Added the ability to manually add a DAR from the Web UI and CLI.
              - Modified expand / collapse DAR icons to be consistent with the rest of the Web UI.
+             - Added the ability to change the priority of a product from the CLI / REST interface. Note that the priority is not currently being honored by the Download Manager.
 0.5.3
     Release date 8th November 2013
              - Removed product message column from the UI as it is no longer necessary. This was also causing errors when displaying the home page.
@@ -147,8 +148,8 @@ DMTU-REQ-26  -	This setting refers to the product download threads. A product do
                 time (in a metalink scenario).
 DMTU-REQ-23  -  Callback mechanism supports very basic commands at present
 DMTU-REQ-28  -	The DMTU have been started by something other than the CLI before any CLI commands can be serviced by the DMTU.
-DMTU-REQ-28  -	A list of products to be downloaded via a file parameter is yet to be implemented.
-             -  There is no ability to prioritise the download of a product at this time. The product downloads are handled as as queue (FIFO). 
+             -  There priority for the download of a product is not honoured at this time.
+             -  Product downloads are handled as as queue (FIFO). 
                 If any product download is paused and then resumed, the download will lose its place in the queue.
              -  DMTU only allows for integration with one ngEO Web Server
 
@@ -164,7 +165,7 @@ Assumptions
 *  If the download manager is shut down, and a product is in the process of being downloaded, the progress can be persisted but the 
    resumption of the file download depends entirely on the plugin checking the location it expects the file to be and resuming if possible.
 *  If a download is cancelled, all progress is lost - the plugin will tidy up after a cancel command has been sent to it.
-*  Download Options for a product URL are asummed to be provided by the Web Server within the URL itself.
+*  Download Options for a product URL are assumed to be provided by the Web Server within the URL itself.
 *  For any product for which the download directory has been specified by the Web Server, the download directory name will not be prefixed with a ".", because it is likely that products within a DAR will share the same download directory.
    This is implied by DMTU-REQ-24.
 
