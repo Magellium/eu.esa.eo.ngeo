@@ -52,12 +52,19 @@ All paths provided are relative to the context path of the deployed WAR e.g. dow
     - any subsequent monitoring service request to this server will be responded to with a STOP_IMMEDIATELY user order.
       see section 3.3 of IICD-D-WS for further details.
 	  
+*   Static Manual DAR (/static/ManualDAR)
+    - a static DAR for use with the add manual DAR command.
+
+
 The supply features allow for better control of supply for DARs / products in demonstration situations, and are one-off commands.
 In order to reset these features i.e. to not provide the DAR / products, the web server application must be restarted.
 
 Release History
 ======================================================================
 
+0.5.4
+    Release date 15th November 2013
+    - Added static DAR for use with adding a manual DAR.
 0.5.1
     Release date 1st November 2013
     - Added support for pause, resume and cancel of a DAR.

@@ -19,6 +19,24 @@ footer {
 	margin-right: auto;
 }
 
+hr {
+	border:0px;
+	color: #434343;
+	background-color: #434343;
+	height: 1px;
+	margin-top:10px;
+	margin-bottom:10px;
+}
+
+form ul {
+	list-style-type: none;
+	margin: 0px;
+}
+form li {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
 input:focus,input[type=search]:focus {
 	outline: none;
 	border-color: #4D90C7;
@@ -97,6 +115,10 @@ table.dataTable td.productProgress {
 	color: black;
 }
 
+#actions {
+	font-size: 0.9em;
+}
+
 ul#actions li {
 	margin: 2px;
 	position: relative;
@@ -106,7 +128,7 @@ ul#actions li {
 }
 
 .iconWarning {
-	margin: 2px;
+	margin-right: 2px;
 	cursor: help;
 	float: right;
 }
@@ -142,7 +164,7 @@ ul#actions li {
 }
 /* end of top bar styles */
 
-/* main section styles, including left nav */
+/* main section styles */
 #main {
 	display: block;
 	position: relative;
@@ -150,7 +172,6 @@ ul#actions li {
 }
 
 #content {
-	margin-left: 10px;
 	padding: 5px;
 }
 
@@ -158,14 +179,16 @@ ul#actions li {
 	text-align: center;
 	margin-bottom: 10px;
 }
-/* end of main section styles, including left nav */
-.dataTable {
-	border-collapse: collapse;
+
+#manualDownloadForm label {
+	display: inline-block;
+	width: 80px;
+	text-align: right;
 }
 
-.errorConsole {
-	border: solid 1px #CCCCCC;
-	display: none;
+/* end of main section styles */
+.dataTable {
+	border-collapse: collapse;
 }
 
 /* menu styles */
@@ -208,4 +231,23 @@ ul#actions li {
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
+}
+
+div.clearboth {
+	clear: both;
+	width: 0px;
+	height: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+}
+
+#downloadStatusTable {
+	margin-left: 5px;
+}
+
+.darDetails {
+	margin: 2px;
+	float: left;
 }

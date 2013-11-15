@@ -8,10 +8,9 @@
         </id>
 		<property name="productAccessUrl" column="productAccessUrl" type="string" length="8190" />
 		<property name="downloadDirectory" column="downloadDirectory" type="string" />
-		<property name="fileSize" column="fileSize" type="long" />
+		<property name="totalFileSize" column="totalFileSize" type="long" />
 		<property name="productName" column="productName" type="string" />
 		<property name="numberOfFiles" column="numberOfFiles" type="long" />
-		<property name="overallSize" column="overallSize" type="long" />
 		
 		<component name="ProductProgress" class="int_.esa.eo.ngeo.downloadmanager.model.ProductProgress">
 			<property name="progressPercentage" type="long">

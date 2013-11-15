@@ -1,6 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
+import int_.esa.eo.ngeo.dmtu.exception.ProductNotFoundException;
 import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
@@ -28,8 +29,8 @@ public class ProductController {
 	public CommandResponse pauseProductDownload(@PathVariable String productUuid) {
 		try {
 			return commandResponseBuilder.buildCommandResponse(downloadMonitor.pauseProductDownload(productUuid), "Unable to pause product");
-		} catch (DownloadOperationException e) {
-			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage());
+		} catch (DownloadOperationException | ProductNotFoundException e) {
+			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());
 		}
 	}
 	
@@ -38,8 +39,8 @@ public class ProductController {
 	public CommandResponse resumeProductDownload(@PathVariable String productUuid) {
 		try {
 			return commandResponseBuilder.buildCommandResponse(downloadMonitor.resumeProductDownload(productUuid), "Unable to resume product");
-		} catch (DownloadOperationException e) {
-			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage());
+		} catch (DownloadOperationException | ProductNotFoundException e) {
+			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());
 		}
 	}
 	
@@ -48,8 +49,8 @@ public class ProductController {
 	public CommandResponse cancelProductDownload(@PathVariable String productUuid) {
 		try {
 			return commandResponseBuilder.buildCommandResponse(downloadMonitor.cancelProductDownload(productUuid), "Unable to cancel product");
-		} catch (DownloadOperationException e) {
-			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage());
+		} catch (DownloadOperationException | ProductNotFoundException e) {
+			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());
 		}
 	}
 }

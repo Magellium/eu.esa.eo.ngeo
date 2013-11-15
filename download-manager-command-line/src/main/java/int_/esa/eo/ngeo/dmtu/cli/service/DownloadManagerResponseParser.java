@@ -2,33 +2,34 @@ package int_.esa.eo.ngeo.dmtu.cli.service;
 
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
+import int_.esa.eo.ngeo.downloadmanager.transform.JSONTransformer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 
 public class DownloadManagerResponseParser {
 	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_PREFIX = "{\"response\":"; 
 	private static final String MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_SUFFIX = "}"; 
 	private static final Logger LOGGER = Logger.getLogger(DownloadManagerResponseParser.class.getName());
 
-	public String parseResponse(HttpURLConnection conn, String successMessage) throws IOException, ParseException {
+	public String parseCommandResponse(HttpURLConnection conn, String successMessage) throws IOException, ParseException {
 		String returnMessage;
 		CommandResponse commandResponse;
-	    ObjectMapper mapper = new ObjectMapper();
 		final int httpResponseCode = conn.getResponseCode();
 		LOGGER.debug("HTTP response code = " + httpResponseCode);
 		switch (httpResponseCode) {
 		case HttpURLConnection.HTTP_OK:
-		    commandResponse = mapper.readValue(conn.getInputStream(), CommandResponse.class);
+			commandResponse = JSONTransformer.getInstance().deserialize(conn.getInputStream(), CommandResponse.class);
 		    if (commandResponse.isSuccess()) {
 		    	returnMessage = successMessage;
 		    }
-		    else if (commandResponse.getMessage() != null) {
-		    	returnMessage = String.format("Error: %s", commandResponse.getMessage());
+		    else if (commandResponse.getErrorMessage() != null) {
+		    	returnMessage = String.format("Error: %s", commandResponse.getErrorMessage());
 		    }
 		    else {
 		    	returnMessage = "Error (No message provided)";
@@ -46,8 +47,8 @@ public class DownloadManagerResponseParser {
 			String trimmedErrorStreamContent = errorStreamContent.substring(MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_PREFIX.length(),
 																			unTrimmedLength - MANUAL_PRODUCT_DOWNLOAD_HTTP_500_RESPONSE_SUFFIX.length());
 		    
-		    commandResponse = mapper.readValue(trimmedErrorStreamContent, CommandResponse.class);
-			returnMessage = String.format("Error: HTTP %s response code received from the Download Manager: %s", httpResponseCode, commandResponse.getMessage());
+		    commandResponse = JSONTransformer.getInstance().deserialize(new ByteArrayInputStream(trimmedErrorStreamContent.getBytes(StandardCharsets.UTF_8)), CommandResponse.class);
+			returnMessage = String.format("Error: HTTP %s response code received from the Download Manager: %s", httpResponseCode, commandResponse.getErrorMessage());
 		}
 		
 		return returnMessage;

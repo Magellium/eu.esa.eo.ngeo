@@ -33,4 +33,31 @@ public class SSOClientBuilder {
 			return new UmSsoHttpClient(umSsoUsername, umSsoPassword);
 		}
 	}
+
+	public UmSsoHttpClient buildSSOClientFromSettings(SettingsManager settingsManager) {
+		String umSsoUsername = settingsManager.getSetting(SettingsManager.KEY_SSO_USERNAME);
+		String umSsoPassword = settingsManager.getSetting(SettingsManager.KEY_SSO_PASSWORD);
+		
+		String proxyHost = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_HOST);
+		String proxyPortString = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PORT);
+		int proxyPort;
+		if (proxyPortString == null || proxyPortString.isEmpty()) {
+			proxyPort = -1;
+		}else{
+			proxyPort = Integer.parseInt(proxyPortString);
+		}
+		String proxyUsername = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_USERNAME);
+		String proxyPassword = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PASSWORD);
+		
+		if (!StringUtils.isEmpty(proxyHost)) {
+			if (!StringUtils.isEmpty(proxyUsername)) {
+				return new UmSsoHttpClient(umSsoUsername, umSsoPassword, proxyHost, proxyPort, proxyUsername, proxyPassword);
+			}
+			else {
+				return new UmSsoHttpClient(umSsoUsername, umSsoPassword, proxyHost, proxyPort);
+			}
+		}else{
+			return new UmSsoHttpClient(umSsoUsername, umSsoPassword);
+		}
+	}
 }

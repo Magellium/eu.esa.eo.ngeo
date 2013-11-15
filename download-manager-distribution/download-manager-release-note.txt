@@ -21,6 +21,12 @@ Features
 
 Release History
 ========================================================
+0.5.4
+    Release date 15th November 2013
+             - DREAM-CVC-NCR2 - Fixed bug where attempting to persist a URL with length greater than 255 characters failed.
+               The maximum length is now 8190 characters.
+             - Added the ability to manually add a DAR from the Web UI and CLI.
+             - Modified expand / collapse DAR icons to be consistent with the rest of the Web UI.
 0.5.3
     Release date 8th November 2013
              - Removed product message column from the UI as it is no longer necessary. This was also causing errors when displaying the home page.

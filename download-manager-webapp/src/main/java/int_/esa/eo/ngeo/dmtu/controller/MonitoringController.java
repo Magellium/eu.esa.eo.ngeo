@@ -82,8 +82,14 @@ public class MonitoringController {
 
 			return commandResponseBuilder.buildCommandResponse(sendUserOrder(userOrder, includeManualDownloads), String.format("Unable to execute stop command %s.", type));
 		} catch (DownloadOperationException e) {
-			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage());
+			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());
 		}
+	}
+
+	@RequestMapping(value="/products", method = RequestMethod.GET, params="action=stop")
+	@ResponseBody
+	public CommandResponse stopAllProducts() {
+		return stopMonitoringForDARs("all");
 	}
 
 	public boolean isDarMonitoringRunning() {

@@ -1,0 +1,32 @@
+{
+   "dataAccessRequests":[
+      {
+         "uuid":"f392d546-b419-465e-b8c3-3f1ddff10323",
+         "darURL":"Manual Data Access Request",
+         "monitoringStatus":"IN_PROGRESS",
+         "monitored":false,
+         "visible":true,
+         "productList":[
+            {
+               "uuid":"0ba7d260-0de0-4ba5-af59-72e2062fd5ad",
+               "productAccessUrl":"http://mirror.slitaz.org/iso/4.0/slitaz-4.0.iso",
+               "completedDownloadPath":"C:\\Users\\lkn\\ngEO-Downloads\\slitaz-4.0 (5).iso",
+               "totalFileSize":-1,
+               "notified":false,
+               "numberOfFiles":1,
+               "productName":"slitaz-4.0 (5).iso",
+               "priority":"Normal",
+               "startOfFirstDownloadRequest":1384516074957,
+               "startOfActualDownload":1384516074968,
+               "stopOfDownload":1384516108385,
+               "visible":true,
+               "productProgress":{
+                  "downloadedSize":35857862,
+                  "progressPercentage":100,
+                  "status":"COMPLETED"
+               }
+            }
+         ]
+      }
+   ]
+}

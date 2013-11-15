@@ -26,29 +26,31 @@ import org.springframework.stereotype.Component;
  *  Note that this might make the availability of other commands dependent on configuration having been performed.
  */
 @Component
-public class ManualProductDownload implements CommandMarker {
+public class AddDAR implements CommandMarker {
 	private final static String successMessage = "Added. Please use the \"status\" command to monitor the progress of the request.";
 	
-	@CliAvailabilityIndicator({"add"})
+	@CliAvailabilityIndicator({"addDAR"})
 	public boolean isAddAvailable() {
 		return true;
 	}
 	
-	@CliCommand(value = "add", help = "Manually add a product")
+	@CliCommand(value = "addDAR", help = "Manually add a DAR")
 	public String add(
-		@CliOption(key = { "url" }, mandatory = true, help = "The URL of the product of interest") final String productDownloadUrl) {
+		@CliOption(key = { "url" }, mandatory = true, help = "URL of a Data Access Request") final String darUrl) {
 		
 		DownloadManagerService downloadManagerService = new DownloadManagerService();
 		DownloadManagerResponseParser downloadManagerResponseParser = new DownloadManagerResponseParser();
 
 		String returnMessage;
 		try {
-			String urlAsString = String.format("%s/manualProductDownload", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL));
+			String urlAsString = String.format("%s/download", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL));
 			URL commandUrl = new URL(urlAsString);
-			String parameters = String.format("productDownloadUrl=%s", URLEncoder.encode(productDownloadUrl, "UTF-8"));
+			String parameters = null;
+
+			parameters = String.format("darUrl=%s", URLEncoder.encode(darUrl, "UTF-8"));
 			
 			HttpURLConnection conn = downloadManagerService.sendPostCommand(commandUrl, parameters);
-			returnMessage = downloadManagerResponseParser.parseResponse(conn, successMessage);
+			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, successMessage);
 		} catch (IOException | ParseException e) {
 			returnMessage = e.getMessage();
 		}

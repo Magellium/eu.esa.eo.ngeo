@@ -153,7 +153,7 @@ public class NgeoWebServerRequestBuilder {
 			productDownloadNotification.setProductDownloadProgress(productDownloadProgress.intValue());
 		}
 		
-		Long fileSize = product.getFileSize();
+		Long fileSize = product.getTotalFileSize();
 		productDownloadNotification.setProductDownloadSize(fileSize);
 		
 		return productDownloadNotification;

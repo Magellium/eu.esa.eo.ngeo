@@ -2,10 +2,20 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <div id="actions">
 	<div style="float:left;">
-	<form name="downloadForm" id="downloadForm" action="">
-		<spring:message code="label.add_manual_download" var="label_add_manual_download" />
-		<label for="downloadURL"><spring:message code="label.manual_download_url" />&nbsp;</label><input type="text" size="30" name="downloadUrl" id="downloadUrl" autofocus="autofocus">&nbsp;<input name="submit" type="submit" value="${label_add_manual_download}" />
-	</form>
+		<form name="manualDownloadForm" id="manualDownloadForm" action="">
+			<spring:message code="label.add_product" var="label_add_product" />
+			<spring:message code="label.add_dar" var="label_add_dar" />
+			<ul>
+				<li>
+					<label for="productDownloadUrl" class="downloadLabel"><spring:message code="label.product_url" />&nbsp;</label>
+					<input type="text" size="50" name="productDownloadUrl" id="productDownloadUrl" autofocus="autofocus">&nbsp;<input name="addProductDownload" id="addProductDownload" type="button" value="${label_add_product}" />
+				</li>
+				<li>
+					<label for="darUrl" class="downloadLabel" style="text-align:right;"><spring:message code="label.dar_url" />&nbsp;</label>
+					<input type="text" size="50" name="darUrl" id="darUrl">&nbsp;<input name="addDAR" id="addDAR" type="button" value="${label_add_dar}" />
+				</li>
+			</ul>
+		</form>
 	</div>
 	<div style="float:right;">
 		<spring:message code="label.clear_activity_history" var="label_clear_activity_history" />
@@ -41,6 +51,7 @@
 	</div>
 	<br /><br />
 </div>
+<div class="clearboth"></div>
 <hr />
 <table id="downloadStatusTable">
 	<thead>
@@ -54,12 +65,9 @@
 	</tbody>
 </table>
 <p><br /><br /></p>
-<div id="message" class="errorConsole">
-	<p>AJAX Error console: <br /></p>
-</div>
 <script>
 	$(document).ready(function() {
-		DownloadMonitor.initialiseDownloadForm($("#downloadForm"),$("#downloadStatusTable"));
+		DownloadMonitor.initialiseDownloadForm($("#manualDownloadForm"),$("#downloadStatusTable"));
 		DownloadMonitor.initialiseDownloadStatusTable($("#downloadStatusTable"));
 		$("#menu").menu( { icons: { submenu: "ui-icon-carat-1-s" }, position: { my: "right top", at: "left center" } });
 		$(".clearActivityHistory").click(function() {

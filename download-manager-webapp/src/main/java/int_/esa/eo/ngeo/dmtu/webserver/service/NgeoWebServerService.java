@@ -1,11 +1,11 @@
 package int_.esa.eo.ngeo.dmtu.webserver.service;
 
 import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
-import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
 import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.exception.SchemaNotFoundException;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
+import int_.esa.eo.ngeo.downloadmanager.transform.JSONTransformer;
 import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
@@ -36,12 +36,12 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	@Autowired
 	private SettingsManager settingsManager;
 
-	private ResponseHeaderParser httpUtils = new ResponseHeaderParser();
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(NgeoWebServerService.class);
 	private final int BYTE_ARRAY_SIZE = 2000;
 
 	//XXX: temporary method to integrate with Terradue's ngEO Web Server implementation
+	private boolean displayTempLoginWarning = true;
+
 	public void login(UmSsoHttpClient umSsoHttpClient, String umSsoUsername, String umSsoPassword) {
 		String loginUrlString = settingsManager.getSetting("TEMP_WEBS_LOGIN_URL");
 	    try {
@@ -56,7 +56,14 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 			String responseString = writer.toString();
 			LOGGER.debug(String.format("Login response: %s", responseString));
 	    } catch(Exception ex) {
-    		LOGGER.warn(String.format("Cannot perform the login that's temporarily necessary because of the non-UM-SSO-conformant nature of the ngEO Web Server's security. URL used was %s.%nYou can ignore this warning if you are using the mock web server.", loginUrlString));
+	    	if(displayTempLoginWarning) {
+	    		LOGGER.warn(String.format("Cannot perform the temporary login due to the non-UM-SSO-conformant nature of the ngEO Web Server's security.%n" +
+	    				"URL used was %s.%n" +
+	    				"You can ignore this warning if you are using the mock web server.%n" +
+	    				"This warning will only be displayed the first time the temporary login is attempted.", loginUrlString));
+	    		
+	    		displayTempLoginWarning = false;
+	    	}
     	}
 	}
 	

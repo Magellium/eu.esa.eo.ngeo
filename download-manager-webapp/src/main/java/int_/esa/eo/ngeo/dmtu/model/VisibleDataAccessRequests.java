@@ -19,7 +19,7 @@ public class VisibleDataAccessRequests {
 	private Map<String, DataAccessRequest> dataAccessRequestMap;
 	private Map<String, String> productDarMap;
 	private String manualDataAccessRequestUuid;
-	public static final String MANUAL_DATA_REQUEST = "Manual Data Access Request";
+	public static final String MANUAL_PRODUCT_DAR = "Manual Data Access Request";
 
 	public VisibleDataAccessRequests() {
 		this.dataAccessRequestMap = new LinkedHashMap<String, DataAccessRequest>();
@@ -29,7 +29,7 @@ public class VisibleDataAccessRequests {
 	public void addDAR(DataAccessRequest dataAccessRequest) {
 		String uuid = dataAccessRequest.getUuid();
 		dataAccessRequestMap.put(uuid, dataAccessRequest);
-		if(dataAccessRequest.getMonitoringURL().equals(MANUAL_DATA_REQUEST)) {
+		if(dataAccessRequest.getDarURL().equals(MANUAL_PRODUCT_DAR)) {
 			manualDataAccessRequestUuid = uuid;
 		}
 	}
@@ -41,7 +41,7 @@ public class VisibleDataAccessRequests {
 	public Product addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
 		DataAccessRequest manualDataAccessRequest;
 		if(this.manualDataAccessRequestUuid == null) {
-			manualDataAccessRequest = new DataAccessRequestBuilder().buildDAR(MANUAL_DATA_REQUEST);
+			manualDataAccessRequest = new DataAccessRequestBuilder().buildDAR(MANUAL_PRODUCT_DAR, false);
 			this.manualDataAccessRequestUuid = manualDataAccessRequest.getUuid();
 			dataAccessRequestMap.put(manualDataAccessRequestUuid, manualDataAccessRequest);
 		}else{
@@ -49,7 +49,7 @@ public class VisibleDataAccessRequests {
 
 			Product productInDar = findProductInDar(manualDataAccessRequest, productDownloadUrl);
 			if(productInDar != null) {
-				throw new ProductAlreadyExistsInDarException(String.format("Product %s already exists in DAR %s", productDownloadUrl, manualDataAccessRequest.getMonitoringURL()));
+				throw new ProductAlreadyExistsInDarException(String.format("Product %s already exists in DAR %s", productDownloadUrl, manualDataAccessRequest.getDarURL()));
 			}
 		}
 
@@ -60,13 +60,13 @@ public class VisibleDataAccessRequests {
 		return newProduct;
 	}
 	
-	public List<DataAccessRequest> getDARList(boolean includeManualDar) {
+	public List<DataAccessRequest> getDARList(boolean includeManualProductDar) {
 		List<DataAccessRequest> darList = new ArrayList<>();
 		Collection<DataAccessRequest> dataAccessRequests = dataAccessRequestMap.values();
 		for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
 			//TODO: Write a unit test to ensure this is correct.
 			//Include all visible DARs, except the manual DAR is specified.
-			if(dataAccessRequest.isVisible() && (includeManualDar || !MANUAL_DATA_REQUEST.equals(dataAccessRequest.getMonitoringURL()))) {
+			if(dataAccessRequest.isVisible() && (includeManualProductDar || !MANUAL_PRODUCT_DAR.equals(dataAccessRequest.getDarURL()))) {
 				darList.add(dataAccessRequest);
 			}
 		}
@@ -102,7 +102,7 @@ public class VisibleDataAccessRequests {
 	public DataAccessRequest getDataAccessRequestByMonitoringUrl(URL monitoringUrl) {
 		Collection<DataAccessRequest> dataAccessRequests = this.dataAccessRequestMap.values();
 		for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
-			if(dataAccessRequest.getMonitoringURL().equals(monitoringUrl.toString())) {
+			if(dataAccessRequest.getDarURL().equals(monitoringUrl.toString())) {
 				return dataAccessRequest;
 			}
 		}

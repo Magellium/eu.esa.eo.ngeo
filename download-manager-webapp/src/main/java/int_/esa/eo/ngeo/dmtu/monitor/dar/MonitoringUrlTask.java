@@ -137,7 +137,7 @@ public class MonitoringUrlTask implements Runnable {
 							darMonitoringUrl = new URL(darMonitoringUrlString);
 							boolean darAdded = false;
 							try {
-								darAdded = darController.addDataAccessRequest(darMonitoringUrl);
+								darAdded = darController.addDataAccessRequest(darMonitoringUrl, true);
 							} catch (DataAccessRequestAlreadyExistsException e) {
 								LOGGER.warn(String.format("Monitoring URL has %s already been added to the Download Manager.",darMonitoringUrl));
 							}

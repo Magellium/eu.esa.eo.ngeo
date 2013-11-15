@@ -22,7 +22,7 @@ public class ProductTerminationLog {
 		EDownloadStatus productDownloadStatus = productProgress.getStatus();
 		productNotificationString.append(String.format("\"%s\"", productDownloadStatus));
 		productNotificationString.append(String.format(",\"%s\"", product.getProductAccessUrl()));
-		productNotificationString.append(String.format(",\"%s\"", dataAccessRequest.getMonitoringURL()));
+		productNotificationString.append(String.format(",\"%s\"", dataAccessRequest.getDarURL()));
 		long numberOfBytesDownloaded;
 		if(productDownloadStatus == EDownloadStatus.IN_ERROR) {
 			numberOfBytesDownloaded = 0;

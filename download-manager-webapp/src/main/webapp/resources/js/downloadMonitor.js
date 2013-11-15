@@ -4,18 +4,21 @@ var DownloadMonitor = {
 	monitorDownloadStatusTimer: null,
 	monitorProductDownloadStatusTimer: {},
 	darExpandColumnIndex: 0,
-	darMonitoringURLColumnIndex: 1,
+	dardarURLColumnIndex: 1,
 	darMonitoringStatusColumnIndex: 2,
 	productAccessURLColumnIndex: 0,
-    productOverallSizeColumnIndex: 1,
+    productTotalFileSizeColumnIndex: 1,
     productProgressDownloadedSizeColumnIndex: 2,
     productProgressProgressPercentageColumnIndex: 3,
     productProgressStatusColumnIndex: 4,
     productActionsColumnIndex: 5,
-	initialiseDownloadForm : function(downloadForm,downloadStatusTable) {
-		downloadForm.submit(function() {
-	    	DownloadMonitor.addDownload(downloadForm.find("#downloadUrl").val(),downloadStatusTable);
-
+	initialiseDownloadForm : function(manualDownloadForm, downloadStatusTable) {
+		manualDownloadForm.find("#addProductDownload").click(function() {
+	    	DownloadMonitor.addProductDownload(manualDownloadForm.find("#productDownloadUrl").val(),downloadStatusTable);
+	    	return false;
+	    });
+		manualDownloadForm.find("#addDAR").click(function() {
+	    	DownloadMonitor.addDAR(manualDownloadForm.find("#darUrl").val(),downloadStatusTable);
 	    	return false;
 	    });
 	},
@@ -25,15 +28,15 @@ var DownloadMonitor = {
 			"aoColumns": [
 			              {
 		                    	"mData": null, 
-			                    "sDefaultContent": '<img class="darDetails" src="'+DownloadMonitor.sImageUrl+'details_open.png'+'" />'
+			                    "sDefaultContent": '<span class=\"darDetails ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-plus\">+</span></span>'
 		                  },
 //			              { "mData": "uuid" },
-			              { "mData": "monitoringURL" },
+			              { "mData": "darURL" },
 			              { "mData": "monitoringStatus" }
 			          ],
 			"aoColumnDefs": [
 			                 { "sWidth": "20px", "aTargets": [ DownloadMonitor.darExpandColumnIndex ] },
-			                 { "sWidth": "150px", "aTargets": [ DownloadMonitor.darMonitoringStatusColumnIndex ] },
+			                 { "sWidth": "140px", "aTargets": [ DownloadMonitor.darMonitoringStatusColumnIndex ] },
 			                 ],
 			"fnRowCallback": function( nRow, aData, iDisplayIndex ) {
 				$(nRow).attr("data-dataAccessRequest-id",aData.uuid);
@@ -50,18 +53,37 @@ var DownloadMonitor = {
             "bSort": false
 		});
 		DownloadMonitor.monitorDownloadStatus(downloadStatusTable);
-	},		
-	addDownload: function(productDownloadUrl, downloadStatusTable) {
+	},
+	addProductDownload: function(productDownloadUrl, downloadStatusTable) {
 		$.ajax({
 			  type: "POST",
-			  url: "manualProductDownload",
+			  url: "download",
 			  data: {productDownloadUrl : productDownloadUrl},
 			  dataType: "json"})
 		.done(function(response) {
 			if(response.success === false) {
-				DownloadMonitor.displayMessage(messages['error.unable_to_add_manual_download'] + ": " + response.message, "ruby");
+				DownloadMonitor.displayMessage(messages['error.unable_to_add_manual_download'] + ": " + response.errorMessage, "ruby");
 			}else{
 				DownloadMonitor.resetDownloadDisplay(downloadStatusTable);
+				$("#productDownloadUrl").val("");
+			}
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			DownloadMonitor.displayErrorMessage(messages['error.download_failed'], jqXHR.responseText);
+		});
+	},
+	addDAR: function(darUrl, downloadStatusTable) {
+		$.ajax({
+			  type: "POST",
+			  url: "download",
+			  data: {darUrl : darUrl},
+			  dataType: "json"})
+		.done(function(response) {
+			if(response.success === false) {
+				DownloadMonitor.displayMessage(messages['error.unable_to_add_manual_download'] + ": " + response.errorMessage, "ruby");
+			}else{
+				DownloadMonitor.resetDownloadDisplay(downloadStatusTable);
+				$("#darUrl").val("");
 			}
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
@@ -90,7 +112,7 @@ var DownloadMonitor = {
 				downloadStatusTable.dataTable().fnAddData(dataAccessRequest);
 				dataAccessRequestRow = downloadStatusTable.dataTable().$("tr[data-dataAccessRequest-id='" + dataAccessRequest.uuid + "']").get(0);
 
-				rowExpandImage = $(dataAccessRequestRow).find('img.darDetails');
+				rowExpandImage = $(dataAccessRequestRow).find('span.darDetails');
 		        DownloadMonitor.expandDataAccessRequestRow(downloadStatusTable, dataAccessRequestRow, rowExpandImage);
 			}else{
 				downloadStatusTable.dataTable().fnUpdate(dataAccessRequest.monitoringStatus, dataAccessRequestRow, DownloadMonitor.darMonitoringStatusColumnIndex);
@@ -113,20 +135,20 @@ var DownloadMonitor = {
 	allowDataAccessRequestRowExpand : function(downloadStatusTable) {
 		$(downloadStatusTable).find('tbody tr').each(function() {
 			var rowToExpand = this;
-			$(rowToExpand).find('img.darDetails').off('click').on('click', function () {
+			$(rowToExpand).find('span.darDetails').off('click').on('click', function () {
 				DownloadMonitor.expandDataAccessRequestRow(downloadStatusTable, rowToExpand, this);
 			});
 	    });
 	},
-	expandDataAccessRequestRow : function(downloadStatusTable, rowToExpand, rowExpandImage) {
+	expandDataAccessRequestRow : function(downloadStatusTable, rowToExpand, rowExpandSpan) {
 		if (downloadStatusTable.dataTable().fnIsOpen(rowToExpand))
         {
             /* This row is already open - close it */
-			$(rowExpandImage).attr("src", DownloadMonitor.sImageUrl+"/details_open.png");
+			$(rowExpandSpan).find("span:first-child").toggleClass("ui-icon-minus ui-icon-plus");
             downloadStatusTable.dataTable().fnClose(rowToExpand);
         }else{
             /* Open this row */
-			$(rowExpandImage).attr("src", DownloadMonitor.sImageUrl+"/details_close.png");
+			$(rowExpandSpan).find("span:first-child").toggleClass("ui-icon-plus ui-icon-minus");
             downloadStatusTable.dataTable().fnOpen(rowToExpand, DownloadMonitor.formatProductList(downloadStatusTable.dataTable(), rowToExpand), 'details' );
             var aData = downloadStatusTable.dataTable().fnGetData(rowToExpand);
             DownloadMonitor.initialiseProductListTable(aData);
@@ -137,17 +159,17 @@ var DownloadMonitor = {
         $("#productList"+aData.uuid).dataTable({
     		"aoColumns": [
 			              { "mData": "productAccessUrl" },
-			              { "mData": "overallSize" },
+			              { "mData": "totalFileSize" },
 			              { "mData": "productProgress.downloadedSize" },
 			              { "mData": "productProgress.progressPercentage" },
 			              { "mData": "productProgress.status" },
 			              { "mData": null }
 			          ],
 			 "aoColumnDefs": [
-				              { "sWidth": "150px", "aTargets": [ 1 ] },
-				              { "sWidth": "150px", "aTargets": [ 2 ] },
-				              { "sWidth": "200px", "aTargets": [ 3 ] },
-				              { "sWidth": "150px", "aTargets": [ 4 ] },
+				              { "sWidth": "100px", "aTargets": [ 1 ] },
+				              { "sWidth": "100px", "aTargets": [ 2 ] },
+				              { "sWidth": "120px", "aTargets": [ 3 ] },
+				              { "sWidth": "80px", "aTargets": [ 4 ] },
 				              { "sWidth": "50px", "aTargets": [ 5 ] },
 			                 ],
              "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
@@ -164,8 +186,8 @@ var DownloadMonitor = {
  					iconWarning.remove();
  					fileProductStatus.append("<span class=\"iconWarning ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-alert\" title=\"" + messages['error.product_download'] + ": " + aData.productProgress.message + "\" alt=\"" + messages['error.product_download'] + ": " + aData.productProgress.message + "\">!</span></span>");
  				}
- 				var fileOverallSizeCell = $(nRow).find("td:eq(" + DownloadMonitor.productOverallSizeColumnIndex + ")");
- 				fileOverallSizeCell.html(DownloadMonitor.getReadableFileSizeString(aData.overallSize));
+ 				var fileTotalFileSizeCell = $(nRow).find("td:eq(" + DownloadMonitor.productTotalFileSizeColumnIndex + ")");
+ 				fileTotalFileSizeCell.html(DownloadMonitor.getReadableFileSizeString(aData.totalFileSize));
  				var fileDownloadedSizeCell = $(nRow).find("td:eq(" + DownloadMonitor.productProgressDownloadedSizeColumnIndex + ")");
  				fileDownloadedSizeCell.html(DownloadMonitor.getReadableFileSizeString(aData.productProgress.downloadedSize));
             	 
@@ -175,7 +197,7 @@ var DownloadMonitor = {
  				progressCell.find(".progressbar").progressbar({
  					value: Math.floor(aData.productProgress.progressPercentage),
  					create: function() {
- 						if(aData.overallSize === -1 && aData.productProgress.progressPercentage === -1) {
+ 						if(aData.totalFileSize === -1 && aData.productProgress.progressPercentage === -1) {
  	 						$(this).children(".progress-label").text( messages['label.unknown'] );
  						}else{
  	 						$(this).children(".progress-label").text( $(this).progressbar( "value" ) + "%" );
@@ -235,7 +257,7 @@ var DownloadMonitor = {
 				sending_product_download_command_error = sending_product_download_command_error.replace("*a*", action);
 				sending_product_download_command_error = sending_product_download_command_error.replace("*p*", productUuid);
 				
-				DownloadMonitor.displayMessage(sending_product_download_command_error + ": " + response.message);
+				DownloadMonitor.displayMessage(sending_product_download_command_error + ": " + response.errorMessage);
 			}
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
@@ -265,9 +287,6 @@ var DownloadMonitor = {
 	},
 	displayProductDetails : function(downloadStatusTable, darUuid, productList) {
 		//TODO: modify so that after first display we are only updating the downloaded size and progress
-//		$("#productList"+darUuid).dataTable().fnClearTable();
-//		$("#productList"+darUuid).dataTable().fnAddData(productList);
-		
 		var productDataTable = $("#productList"+darUuid).dataTable();
 		for(var i = 0; i < productList.length; i++) {
 			var product = productList[i];
@@ -277,16 +296,6 @@ var DownloadMonitor = {
 				productDataTable.fnAddData(product);
 			}else{
 				productDataTable.fnUpdate(product, productRow);
-/*
- 				var currentProductStatus = productDataTable.fnGetData(productRow, DownloadMonitor.productProgressStatusColumnIndex);
-				var newProductStatus = product.productProgress.status;
-				if(currentProductStatus != newProductStatus) {
-					productDataTable.fnUpdate(newProductStatus, productRow, DownloadMonitor.productProgressStatusColumnIndex);
-				}
-				productDataTable.fnUpdate(product.productProgress.message, productRow, DownloadMonitor.productMessageColumnIndex);
-				productDataTable.fnUpdate(product.productProgress.downloadedSize, productRow, DownloadMonitor.productProgressDownloadedSizeColumnIndex);
-				productDataTable.fnUpdate(product.productProgress.progressPercentage, productRow, DownloadMonitor.productProgressProgressPercentageColumnIndex);
-*/
 			}
 		}
 
@@ -323,7 +332,7 @@ var DownloadMonitor = {
 				errorMessage = "Error: HTTP " + error.status + ", "+ error.statusText;
 			}else{
 				var errorObject = jQuery.parseJSON(error);
-				errorMessage = errorObject.response.message;
+				errorMessage = errorObject.response.errorMessage;
 			}
 		}else{
 			if(!DownloadMonitor.communicationLost) {
@@ -346,7 +355,7 @@ var DownloadMonitor = {
 		$.getJSON("clearActivityHistory")
 		.done(function(response) {
 			if(response.success === false) {
-				DownloadMonitor.displayMessage(messages['error.clear_activity_history'] + ": " + response.message, "lemon");
+				DownloadMonitor.displayMessage(messages['error.clear_activity_history'] + ": " + response.errorMessage, "lemon");
 			}else{
 				DownloadMonitor.resetDownloadDisplay(downloadStatusTable);
 			}
@@ -367,7 +376,7 @@ var DownloadMonitor = {
 		$.getJSON("monitoring/stop?type=" + stopType)
 		.done(function(response) {
 			if(response.success === false) {
-				DownloadMonitor.displayMessage(messages['error.stop_download_function'] + ": " + response.message, "ruby");
+				DownloadMonitor.displayMessage(messages['error.stop_download_function'] + ": " + response.errorMessage, "ruby");
 			}
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {

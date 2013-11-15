@@ -3,6 +3,7 @@ package int_.esa.eo.ngeo.dmtu.monitor;
 import int_.esa.eo.ngeo.dmtu.callback.CallbackCommandExecutor;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadProcessCreationException;
+import int_.esa.eo.ngeo.dmtu.exception.ProductNotFoundException;
 import int_.esa.eo.ngeo.dmtu.log.ProductTerminationLog;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
 import int_.esa.eo.ngeo.dmtu.observer.DownloadObserver;
@@ -116,7 +117,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			default:
 				break;
 			}
-		} catch (DownloadOperationException e) {
+		} catch (DownloadOperationException | ProductNotFoundException e) {
 			LOGGER.error(String.format("Unable to change status of product %s to %s", product.getProductAccessUrl(), downloadStatus));
 		}
 	}	
@@ -165,12 +166,12 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	}
 	
 	@Override
-	public void updateProductDetails(String productUuid, String productName, Integer numberOfFiles, Long overallSize) {
+	public void updateProductDetails(String productUuid, String productName, Integer numberOfFiles, Long totalFileSize) {
 		Product product = productToDownloadList.get(productUuid);
 		product.setStartOfFirstDownloadRequest(new Timestamp(new Date().getTime()));
 		product.setProductName(productName);
 		product.setNumberOfFiles(numberOfFiles);
-		product.setOverallSize(overallSize);
+		product.setTotalFileSize(totalFileSize);
 
 		dataAccessRequestManager.persistProductStatusChange(product);
 	}
@@ -184,7 +185,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		IDownloadProcess downloadProcess = null;
 		try {
 			downloadProcess = getDownloadProcess(productUuid);
-		} catch (DownloadOperationException e) {
+		} catch (ProductNotFoundException e) {
 			LOGGER.error("Unable to retrieve download process for product.", e);
 		}
 
@@ -290,7 +291,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		}
 	}
 
-	public boolean pauseProductDownload(String productUuid) throws DownloadOperationException {
+	public boolean pauseProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
 		IDownloadProcess downloadProcess = getDownloadProcess(productUuid);
 		try {
 			downloadProcess.pauseDownload();
@@ -300,7 +301,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		return true;
 	}
 	
-	public boolean resumeProductDownload(String productUuid) throws DownloadOperationException {
+	public boolean resumeProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
 		IDownloadProcess downloadProcess = getDownloadProcess(productUuid);
 		DownloadThread downloadThread = new DownloadThread(downloadProcess);
 		try {
@@ -313,7 +314,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		return true;
 	}
 	
-	public boolean cancelProductDownload(String productUuid) throws DownloadOperationException {
+	public boolean cancelProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
 		IDownloadProcess downloadProcess = getDownloadProcess(productUuid);
 		try {
 			downloadProcess.cancelDownload();
@@ -323,10 +324,10 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		return true;
 	}
 
-	private IDownloadProcess getDownloadProcess(String productUuid) throws DownloadOperationException {
+	private IDownloadProcess getDownloadProcess(String productUuid) throws ProductNotFoundException {
 		IDownloadProcess downloadProcess = downloadProcessList.get(productUuid);
 		if(downloadProcess == null) {
-			throw new DownloadOperationException(String.format("Unable to find product with UUID %s. This product may have already been completed.", productUuid));
+			throw new ProductNotFoundException(String.format("Unable to find product with UUID %s. This product may have already been completed.", productUuid));
 		}
 		return downloadProcess;
 	}
@@ -360,7 +361,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			}
 		}
 		if(!downloadsCancelledCompletely) {
-			throw new DownloadOperationException("Unable to send cancel request to all applicable downloads.");
+			throw new DownloadOperationException("Unable to send cancel request to all applicable downloads. Note that some products may be cancelled.");
 		}
 		return downloadsCancelledCompletely;
 	}

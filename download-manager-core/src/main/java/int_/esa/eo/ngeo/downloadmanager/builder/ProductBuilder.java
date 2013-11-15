@@ -1,5 +1,6 @@
 package int_.esa.eo.ngeo.downloadmanager.builder;
 
+import int_.esa.eo.ngeo.downloadmanager.model.Priority;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
@@ -14,9 +15,10 @@ public class ProductBuilder {
 	public Product buildProduct(String productAccessUrl, String downloadDirectory) {
 		Product product = new Product();
 		product.setProductAccessUrl(productAccessUrl);
-		product.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
+		product.setUuid(UUID.randomUUID().toString());
 		product.setNotified(false);
 		product.setDownloadDirectory(downloadDirectory);
+		product.setPriority(Priority.NORMAL);
 		product.setVisible(true);
 
 		ProductProgress productProgress = new ProductProgress();

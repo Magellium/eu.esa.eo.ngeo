@@ -10,129 +10,152 @@
 			"items": {
 				"type": "object",
 				"javaType":"int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest",
-				"description":"A Data Access Request",
 				"javaInterfaces": ["java.io.Serializable"],
+				"description":"A Data Access Request",
 				"required":true,
 				"properties":{
 					"uuid":{
 						"type":"string",
 						"description":"A unique identifier for the Data Access Request.",
-						"pattern": "[0-9a-fA-F]{32}",
+						"pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
 						"required":true
 					},
-					"monitoringURL":{
+					"darURL":{
 						"type":"string",
-						"description":"The originator URL for this DAR. Used to monitor for new products in PULL mode.",
+						"description":"The originator URL for this DAR. Used to monitor for new products if provided by a Web Server.",
+						"required":true
+					},
+					"monitoringStatus":{
+						"type":"object",
+						"javaType" : "int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus",
+						"enum" : ["IN_PROGRESS","PAUSED","CANCELLED","COMPLETED"],
+						"description":"The monitoring status for this DAR. Used by the Web Server to issue pause / resume / cancel commands to the Download Manager, and to indicate when the DAR is completed and therefore does not need to be monitored anymore.",
+						"required":true
+					},
+					"monitored":{
+						"type":"boolean",
+						"description":"Whether the DAR has been received by a Web Server and therefore needs to be monitored for new products.",
 						"required":true
 					},
 					"lastResponseDate":{
 						"type":"object",
 						"javaType":"java.sql.Timestamp",
-						"description":"The date of the last response received  URL for this DAR. Used to monitor for new products in PULL mode..",
-						"required":false
-					},
-					"monitoringStatus":{
-						"type":"object",
-						"javaType" : "int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus",
+						"description":"The date of the last response received URL for this DAR. Used to monitor for new products if provided by a Web Server.",
 						"required":false
 					},
 					"visible":{
 						"type":"boolean",
-						"required":false
+						"description":"Whether the DAR is visible to the user. The visibility can be set to false if the monitoring status is \"COMPLETED\" and the user has clicked on the \"Clear Activity History\" button on the Web UI.",
+						"required":true
 					},
 					"productList":{
 						"type":"array",
+						"description":"A list of products assigned to this DAR.",
 						"items": {
 							"type":"object",
 							"javaType":"int_.esa.eo.ngeo.downloadmanager.model.Product",
 							"javaInterfaces": ["java.io.Serializable"],
 							"required":false,
 							"properties":{
-								"completedDownloadPath": {
+								"uuid":{
 									"type":"string",
-									"description": "The path of the download once it has been completed.",
-									"required":false
+									"description":"A unique identifier for the Product.",
+									"pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
+									"required":true
+								},
+								"productAccessUrl":{
+									"type":"string",
+									"description":"The URL provided in order to access the product. An HTTP GET request to this URL may provide subsequent information e.g. redirects, metalink etc.",
+									"required":true
 								},
 								"downloadDirectory":{
 									"type":"string",
 									"description": "This optional field specifies a path in which this product shall be saved. The path is relative to the Download Manager root download directory.",
 									"required":false
 								},
-								"fileSize":{
+								"completedDownloadPath": {
+									"type":"string",
+									"description": "The absolute path of the product once it has been completed. This can either be a path for a single file or a path to a folder for a product with multiple files (metalink).  This path is formed from the Download Manager root download directory, the downloadDirectory, and the productName.",
+									"required":false
+								},
+								"totalFileSize":{
 									"type":"integer",
+									"description": "The size of the file(s) within this product in bytes. The file size is -1 if the total file size cannot be determined i.e. a file in this product is downloaded using chunked encoding.",
 									"required":false
 								},
 								"notified":{
 									"type":"boolean",
+									"description": "Whether the completion of the product has been notified by the Web Server during monitoring.",
 									"required":false
 								},
 								"numberOfFiles":{
 									"type":"integer",
-									"required":false
-								},
-								"overallSize":{
-									"type":"integer",
-									"required":false
-								},
-								"productAccessUrl":{
-									"type":"string",
+									"description": "The number of files within this product.",
 									"required":false
 								},
 								"productName":{
 									"type":"string",
+									"description": "The name of the downloaded product on the file system. This can either be the name of a single file or a folder name for a product with multiple files (metalink).",
 									"required":false
 								},
 								"priority": {
 									"type":"object",
-									"javaType": "int_.esa.eo.ngeo.downloadmanager.model.Priority",
-									"enum" : ["Very High","High","Normal","Low","Very Low"]
+									"javaType": "int_.esa.eo.ngeo.downloadmanager.model.ProductPriority",
+									"enum" : ["Very High","High","Normal","Low","Very Low"],
+									"description": "The download priority of this product."
 								},								
-								"startOfActualDownload":{
-									"type":"object",
-									"javaType":"java.sql.Timestamp",
-									"required":false
-								},
 								"startOfFirstDownloadRequest":{
 									"type":"object",
 									"javaType":"java.sql.Timestamp",
+									"description": "A timestamp which indicates when the first request to download this product occurred. The Download Manager plugin should provide this when initial product details (size, number of files etc.) is determined.",
+									"required":false
+								},
+								"startOfActualDownload":{
+									"type":"object",
+									"javaType":"java.sql.Timestamp",
+									"description": "A timestamp which indicates when the start of the download this product occurred.",
 									"required":false
 								},
 								"stopOfDownload":{
 									"type":"object",
 									"javaType":"java.sql.Timestamp",
-									"required":false
-								},
-								"uuid":{
-									"type":"string",
+									"description": "A timestamp which indicates when the download of the product was terminated. The terminal states of a product are COMPLETED, CANCELLED and IN_ERROR.",
 									"required":false
 								},
 								"visible":{
 									"type":"boolean",
 									"default": true,
+									"description":"Whether the product is visible to the user. The visibility can be set to false if the product is in a terminal state (COMPLETED, CANCELLED or IN_ERROR) and the user has clicked on the \"Clear Activity History\" button on the Web UI.",
 									"required":true
 								},
 								"productProgress":{
 									"type":"object",
 									"javaType":"int_.esa.eo.ngeo.downloadmanager.model.ProductProgress",
 									"javaInterfaces": ["java.io.Serializable"],
+									"description":"Provides download progress for the product.",
 									"required":false,
 									"properties":{
 										"downloadedSize":{
 											"type":"integer",
-											"required":false
+											"description": "The number of bytes that have been downloaded for this product.",
+											"required":true
 										},
 										"message":{
 											"type":"string",
+											"description": "A user-friendly message related to the download progress of the product. This is used to provide details about product download errors.",
 											"required":true
 										},
 										"progressPercentage":{
 											"type":"integer",
-											"required":false
+											"description": "The percentage of this product which has been downloaded.",
+											"required":true
 										},
 										"status":{
 											"type":"object",
 											"javaType": "int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus",
-											"enum" : ["NOT_STARTED","IDLE","RUNNING","PAUSED","CANCELLED","IN_ERROR","COMPLETED"]
+											"enum" : ["NOT_STARTED","IDLE","RUNNING","PAUSED","CANCELLED","IN_ERROR","COMPLETED"],
+											"description": "The download status of this product.",
+											"required":true
 										}
 									},
 									"additionalProperties": false

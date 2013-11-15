@@ -11,10 +11,15 @@
 			"default":true,
 			"required":true
 		},
-		"message": {
+		"errorMessage": {
 			"type":"string",
-			"description":"A message provided to explain why a command has not been executed successfully (coincides with a \"success\" value of false).",
-			"required":true
+			"description":"A user-friendly explanation of why a command has not been executed successfully (coincides with a \"success\" value of false).",
+			"required":false
+		},
+		"errorType": {
+			"type":"string",
+			"description":"An error type to explain why a command has not been executed successfully (coincides with a \"success\" value of false).",
+			"required":false
 		}
 	},
 	"additionalProperties": false

@@ -4,11 +4,16 @@ import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
 
 
 public class CommandResponseBuilder {
-	public CommandResponse buildCommandResponse(boolean success, String messageIfFailed) {
+	public CommandResponse buildCommandResponse(boolean success, String errorMessage) {
+		return buildCommandResponse(success, errorMessage, null);
+	}
+
+	public CommandResponse buildCommandResponse(boolean success, String errorMessage, String errorType) {
 		CommandResponse response = new CommandResponse();
 		response.setSuccess(success);
 		if(!success) {
-			response.setMessage(messageIfFailed);
+			response.setErrorMessage(errorMessage);
+			response.setErrorType(errorType);
 		}
 		return response;
 	}

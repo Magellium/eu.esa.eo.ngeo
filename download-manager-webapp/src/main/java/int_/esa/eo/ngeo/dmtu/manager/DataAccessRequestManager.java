@@ -47,7 +47,7 @@ public class DataAccessRequestManager implements ProductSubject {
 		LOGGER.debug("Loading DARs from the database");
 		List<DataAccessRequest> loadVisibleDars = this.dataAccessRequestDao.loadVisibleDars();
 		for (DataAccessRequest dataAccessRequest : loadVisibleDars) {
-			LOGGER.debug(String.format("DAR: %s %s", dataAccessRequest.getUuid(), dataAccessRequest.getMonitoringURL()));
+			LOGGER.debug(String.format("DAR: %s %s", dataAccessRequest.getUuid(), dataAccessRequest.getDarURL()));
 			visibleDataAccessRequests.addDAR(dataAccessRequest);
 			
 			for (Product product : dataAccessRequest.getProductList()) {
@@ -109,12 +109,12 @@ public class DataAccessRequestManager implements ProductSubject {
 		}
 	}
 
-	public boolean addDataAccessRequest(URL monitoringUrl) throws DataAccessRequestAlreadyExistsException {
+	public boolean addDataAccessRequest(URL monitoringUrl, boolean monitored) throws DataAccessRequestAlreadyExistsException {
 		DataAccessRequest retrievedDataAccessRequest = getDataAccessRequestByMonitoringUrl(monitoringUrl);
 		if(retrievedDataAccessRequest != null) {
 			throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request for url %s already exists.", monitoringUrl));
 		}else{
-			DataAccessRequest dataAccessRequest = new DataAccessRequestBuilder().buildDAR(monitoringUrl.toString());
+			DataAccessRequest dataAccessRequest = new DataAccessRequestBuilder().buildDAR(monitoringUrl.toString(), monitored);
 			visibleDataAccessRequests.addDAR(dataAccessRequest);
 			dataAccessRequestDao.updateDataAccessRequest(dataAccessRequest);
 			return true;
@@ -243,8 +243,8 @@ public class DataAccessRequestManager implements ProductSubject {
 		dataAccessRequestDao.updateProduct(product);
 	}
 	
-	public List<DataAccessRequest> getVisibleDARList(boolean includeManualDar) {
-		return visibleDataAccessRequests.getDARList(includeManualDar);
+	public List<DataAccessRequest> getVisibleDARList(boolean includeManualProductDar) {
+		return visibleDataAccessRequests.getDARList(includeManualProductDar);
 	}
 		
 	public boolean isProductDownloadManual(String productUuid) {

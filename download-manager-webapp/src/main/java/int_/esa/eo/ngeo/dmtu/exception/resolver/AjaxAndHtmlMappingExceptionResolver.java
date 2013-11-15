@@ -34,7 +34,7 @@ public class AjaxAndHtmlMappingExceptionResolver extends SimpleMappingExceptionR
 		String acceptHeader = request.getHeader("Accept");
 		if (acceptHeader.contains(ACCEPT_TYPE_JSON)) {
 			Map<String, Object> modelMap = new ModelMap();
-			CommandResponse commandResponse = new CommandResponseBuilder().buildCommandResponse(false, ex.getLocalizedMessage());
+			CommandResponse commandResponse = new CommandResponseBuilder().buildCommandResponse(false, ex.getLocalizedMessage(), ex.getClass().getName());
 			modelMap.put("response", commandResponse);
 			return new ModelAndView(new MappingJacksonJsonView(), modelMap);
 		} else if (acceptHeader.contains(ACCEPT_TYPE_HTML)) {

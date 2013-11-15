@@ -27,9 +27,9 @@ public class DataAccessRequestDAO {
 	}
 	
 	@Transactional(readOnly = true)
-	public DataAccessRequest getDarByMonitoringUrl(String monitoringURL) {
-		Query query = sessionFactory.getCurrentSession().createQuery(String.format("FROM DataAccessRequest as dar WHERE monitoringURL = :monitoringURL"));
-		query.setString("monitoringURL", monitoringURL);
+	public DataAccessRequest getDarByMonitoringUrl(String darURL) {
+		Query query = sessionFactory.getCurrentSession().createQuery(String.format("FROM DataAccessRequest as dar WHERE darURL = :darURL"));
+		query.setString("darURL", darURL);
 		
 		Object uniqueResult = query.uniqueResult();
 		return (DataAccessRequest) uniqueResult;

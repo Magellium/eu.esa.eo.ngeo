@@ -161,14 +161,14 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 			}
 
 			for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
-				if(dataAccessRequest.getMonitoringStatus() != MonitoringStatus.COMPLETED) {
+				if(dataAccessRequest.isMonitored() && dataAccessRequest.getMonitoringStatus() != MonitoringStatus.COMPLETED) {
 					URL darMonitoringUrl;
 					try {
-						darMonitoringUrl = new URL(dataAccessRequest.getMonitoringURL());
+						darMonitoringUrl = new URL(dataAccessRequest.getDarURL());
 						DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl , refreshPeriod);
 						darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());
 					} catch (MalformedURLException e) {
-						LOGGER.error(String.format("Unable to parse ngEO Web Server DAR Monitoring URL %s", dataAccessRequest.getMonitoringURL()),e);
+						LOGGER.error(String.format("Unable to parse ngEO Web Server DAR Monitoring URL %s", dataAccessRequest.getDarURL()),e);
 					}
 				}
 			}

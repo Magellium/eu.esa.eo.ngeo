@@ -46,7 +46,7 @@ public class ResumeProductDownload implements CommandMarker {
 			URL commandUrl = new URL(urlAsString);
 
 			HttpURLConnection conn = downloadManagerService.sendGetCommand(commandUrl);
-			returnMessage = downloadManagerResponseParser.parseResponse(conn, successMessage);
+			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, successMessage);
 		} catch (IOException | ParseException e) {
 			returnMessage = e.getMessage();
 		}

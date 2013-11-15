@@ -42,7 +42,7 @@ public class VisibleDataAccessRequestsTest {
 		DataAccessRequest manualDataAccessRequest = visibleDataAccessRequests.getDARList(true).get(0);
 		assertNotNull(manualDataAccessRequest);
 		
-		assertEquals(VisibleDataAccessRequests.MANUAL_DATA_REQUEST,manualDataAccessRequest.getMonitoringURL());
+		assertEquals(VisibleDataAccessRequests.MANUAL_PRODUCT_DAR,manualDataAccessRequest.getDarURL());
 		List<Product> productList = manualDataAccessRequest.getProductList();
 		assertEquals(1, productList.size());
 		assertEquals(productList.get(0).getProductAccessUrl(), downloadUrl.toString());
@@ -65,7 +65,7 @@ public class VisibleDataAccessRequestsTest {
 			visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString());
 			fail("adding the same manual download twice should cause an exception to be thrown.");
 		}catch(ProductAlreadyExistsInDarException ex) {
-			assertEquals(String.format("Product %s already exists in DAR %s", downloadUrl.toString(), VisibleDataAccessRequests.MANUAL_DATA_REQUEST), ex.getLocalizedMessage());
+			assertEquals(String.format("Product %s already exists in DAR %s", downloadUrl.toString(), VisibleDataAccessRequests.MANUAL_PRODUCT_DAR), ex.getLocalizedMessage());
 		}
 		
 	}

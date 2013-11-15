@@ -60,8 +60,8 @@ public class DataAccessRequestManagerTest {
 	
 	@Test
 	public void testGetDataAccessRequestByMonitoringUrl() throws DataAccessRequestAlreadyExistsException {
-		dataAccessRequestManager.addDataAccessRequest(testDarUrl2);
-		dataAccessRequestManager.addDataAccessRequest(testDarUrl);
+		dataAccessRequestManager.addDataAccessRequest(testDarUrl2, true);
+		dataAccessRequestManager.addDataAccessRequest(testDarUrl, true);
 		DataAccessRequest addedDataAccessRequest = dataAccessRequestManager.getVisibleDARList(true).get(1);
 
 		DataAccessRequest retrievedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
@@ -94,7 +94,7 @@ public class DataAccessRequestManagerTest {
 	}
 
 	private void addTestDAR() throws DataAccessRequestAlreadyExistsException {
-		dataAccessRequestManager.addDataAccessRequest(testDarUrl);
+		dataAccessRequestManager.addDataAccessRequest(testDarUrl, true);
 	}
 
 	@Test

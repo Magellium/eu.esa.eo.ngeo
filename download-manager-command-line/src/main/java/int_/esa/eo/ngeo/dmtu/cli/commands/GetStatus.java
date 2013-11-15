@@ -4,14 +4,16 @@ import int_.esa.eo.ngeo.dmtu.cli.config.ConfigurationProvider;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
+import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse;
+import int_.esa.eo.ngeo.downloadmanager.transform.JSONTransformer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -40,8 +42,7 @@ public class GetStatus implements CommandMarker {
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 			conn.addRequestProperty("Accept", "application/json");
 
-		    ObjectMapper mapper = new ObjectMapper();
-		    StatusResponse statusResponse = mapper.readValue(conn.getInputStream(), StatusResponse.class);
+			StatusResponse statusResponse = JSONTransformer.getInstance().deserialize(conn.getInputStream(), StatusResponse.class);
 		    
 		    List<DataAccessRequest> dataAccessRequests = statusResponse.getDataAccessRequests();
 			if(dataAccessRequests.size() == 0) {
@@ -59,12 +60,13 @@ public class GetStatus implements CommandMarker {
 		
 		for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
 			if(dataAccessRequest.isVisible()) {
-				output.append(dataAccessRequest.getMonitoringURL());
+				output.append(dataAccessRequest.getDarURL());
 				output.append(": ");
 				output.append(dataAccessRequest.getMonitoringStatus());
 				output.append("\n\n");
 				for (Product product : dataAccessRequest.getProductList()) {
 					if(product.isVisible()) {
+						ProductProgress productProgress = product.getProductProgress();
 						output.append("\t");
 						output.append(product.getProductAccessUrl());
 						output.append(" (");
@@ -72,16 +74,32 @@ public class GetStatus implements CommandMarker {
 						output.append(")");
 						output.append("\n\t\t");
 						
-						ProductProgress productProgress = product.getProductProgress();
+						output.append("Downloaded: ");
+						output.append(String.format("%,d", productProgress.getDownloadedSize()));
+						output.append(" / ");
+						if(product.getTotalFileSize() > -1) {
+							output.append(String.format("%,d", product.getTotalFileSize()));
+						}else{
+							output.append("Unknown");
+						}
+						output.append(" (");
+						if(productProgress.getProgressPercentage() > -1) {
+							output.append(productProgress.getProgressPercentage());
+						}else{
+							output.append("Unknown ");
+						}
+						output.append("%)\n\t\t");
+						
 						output.append("Status: ");
 						output.append(productProgress.getStatus());
-						output.append(", ");
-						output.append("Downloaded size: ");
-						output.append(String.format("%,d", productProgress.getDownloadedSize()));
-						output.append(" bytes, ");
-						output.append("Progress: ");
-						output.append(productProgress.getProgressPercentage());
-						output.append("%");
+						List<EDownloadStatus> terminalStatuses = new ArrayList<>();
+						terminalStatuses.add(EDownloadStatus.CANCELLED);
+						terminalStatuses.add(EDownloadStatus.COMPLETED);
+						terminalStatuses.add(EDownloadStatus.IN_ERROR);
+						if(!terminalStatuses.contains(productProgress.getStatus())) {
+							output.append("\nPriority: ");
+							output.append(product.getPriority());
+						}
 						output.append("\n\n");
 					}
 				}
