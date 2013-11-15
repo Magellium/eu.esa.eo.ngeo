@@ -9,7 +9,7 @@ public class HTTPDownloadPluginInfo implements IDownloadPluginInfo {
 	}
 
 	public int[] getPluginVersion() {
-		return new int[] { 0, 5, 3};
+		return new int[] { 0, 5, 4};
 	}
 
 	public String[] getMatchingPatterns() {
@@ -17,7 +17,7 @@ public class HTTPDownloadPluginInfo implements IDownloadPluginInfo {
 	}
 
 	public int[] getDMMinVersion() {
-		return new int[] { 0, 5, 3};
+		return new int[] { 0, 5, 4};
 	}
 
 	public boolean handlePause() {
