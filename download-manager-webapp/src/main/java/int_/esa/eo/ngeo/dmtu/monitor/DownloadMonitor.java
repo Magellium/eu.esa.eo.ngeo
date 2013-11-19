@@ -6,6 +6,7 @@ import int_.esa.eo.ngeo.dmtu.exception.DownloadProcessCreationException;
 import int_.esa.eo.ngeo.dmtu.exception.ProductNotFoundException;
 import int_.esa.eo.ngeo.dmtu.log.ProductTerminationLog;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
+import int_.esa.eo.ngeo.dmtu.model.ActiveProducts;
 import int_.esa.eo.ngeo.dmtu.observer.DownloadObserver;
 import int_.esa.eo.ngeo.dmtu.observer.ProductObserver;
 import int_.esa.eo.ngeo.dmtu.plugin.ProductDownloadListener;
@@ -29,11 +30,12 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -51,11 +53,10 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	
 	private DataAccessRequestManager dataAccessRequestManager;
 	
-	private Map<String, IDownloadProcess> downloadProcessList;
-
 	private ExecutorService productDownloadExecutor;
+	private BlockingQueue<Runnable> downloadQueue;
 	
-	private Map<String, Product> productToDownloadList;
+	private ActiveProducts activeProducts;
 
 	private ProductTerminationLog productTerminationLog;
 	
@@ -65,22 +66,21 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	public DownloadMonitor(DataAccessRequestManager dataAccessRequestManager) {
 		this.dataAccessRequestManager = dataAccessRequestManager;
 		dataAccessRequestManager.registerObserver(this);
-		this.downloadProcessList = new ConcurrentHashMap<>();
-		this.productToDownloadList = new ConcurrentHashMap<>();
 		this.productTerminationLog = new ProductTerminationLog();
+		activeProducts = new ActiveProducts();
 	}
 
 	public void initDowloadPool() {
 		String noOfParallelProductDownloadThreads = settingsManager.getSetting("NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS");
 		int concurrentProductDownloadThreads = Integer.parseInt(noOfParallelProductDownloadThreads);
 		LOGGER.info(String.format("Creating thread pool for %s concurrent product download threads", concurrentProductDownloadThreads));
-		productDownloadExecutor = Executors.newFixedThreadPool(concurrentProductDownloadThreads);
+        downloadQueue = new ArrayBlockingQueue<>(200);
+		productDownloadExecutor = new ThreadPoolExecutor(concurrentProductDownloadThreads, concurrentProductDownloadThreads, 0L, TimeUnit.MILLISECONDS, downloadQueue);
 	}
 	
 	@Override
 	public void newProduct(Product product) {
 		LOGGER.debug("Product update has occurred");
-		productToDownloadList.put(product.getUuid(), product);
 		
 		try {
 			IDownloadProcess downloadProcess = createDownloadProcess(product);
@@ -89,14 +89,14 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			case NOT_STARTED:
 			case IDLE:
 			case RUNNING:
-				DownloadThread downloadThread = new DownloadThread(downloadProcess);
-				productDownloadExecutor.execute(downloadThread);
+				ProductDownloadThread productDownloadThread = new ProductDownloadThread(downloadProcess);
+				productDownloadExecutor.execute(productDownloadThread);
 				break;
 			default:
 				break;
 			}
 			
-			downloadProcessList.put(product.getUuid(), downloadProcess);
+			activeProducts.addProduct(product, downloadProcess);
 		}catch(DownloadProcessCreationException e) {
 			//This exception does not need to be rethrown, as the product has already been set in error.
 		}
@@ -169,24 +169,35 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	
 	@Override
 	public void updateProductDetails(String productUuid, String productName, Integer numberOfFiles, Long totalFileSize) {
-		Product product = productToDownloadList.get(productUuid);
-		product.setStartOfFirstDownloadRequest(new Timestamp(new Date().getTime()));
-		product.setProductName(productName);
-		product.setNumberOfFiles(numberOfFiles);
-		product.setTotalFileSize(totalFileSize);
+		Product product;
+		try {
+			product = activeProducts.getProduct(productUuid);
+			product.setStartOfFirstDownloadRequest(new Timestamp(new Date().getTime()));
+			product.setProductName(productName);
+			product.setNumberOfFiles(numberOfFiles);
+			product.setTotalFileSize(totalFileSize);
 
-		dataAccessRequestManager.persistProduct(product);
+			dataAccessRequestManager.persistProduct(product);
+		} catch (ProductNotFoundException e) {
+			throw new NonRecoverableException("Unable to retrieve download process for product.", e);
+		}
 	}
 
 	@Override
 	public void updateProgress(String productUuid, ProductProgress productProgress) {
-		Product product = productToDownloadList.get(productUuid);
+		Product product = null;
+		try {
+			product = activeProducts.getProduct(productUuid);
+		} catch (ProductNotFoundException e1) {
+			throw new NonRecoverableException("Unable to retrieve download process for product.", e1);
+		}
+		
 		EDownloadStatus previouslyKnownStatus = product.getProductProgress().getStatus();
 		EDownloadStatus newStatus = productProgress.getStatus();
 		product.setProductProgress(productProgress);
 		IDownloadProcess downloadProcess = null;
 		try {
-			downloadProcess = getDownloadProcess(productUuid);
+			downloadProcess = activeProducts.getDownloadProcess(productUuid);
 		} catch (ProductNotFoundException e) {
 			LOGGER.error("Unable to retrieve download process for product.", e);
 		}
@@ -201,8 +212,8 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		}
 
 		if(previouslyKnownStatus == EDownloadStatus.IDLE && newStatus == EDownloadStatus.NOT_STARTED) {
-			DownloadThread downloadThread = new DownloadThread(downloadProcess);
-			productDownloadExecutor.execute(downloadThread);
+			ProductDownloadThread productDownloadThread = new ProductDownloadThread(downloadProcess);
+			productDownloadExecutor.execute(productDownloadThread);
 		}
 		
 		//perform actions based on terminal statuses
@@ -238,8 +249,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			downloadProcess.disconnect();
 		} catch (DMPluginException e) { }
 		
-		downloadProcessList.remove(product.getUuid());
-		productToDownloadList.remove(product.getUuid());
+		activeProducts.removeProduct(product);
 	}
 	
 	/**
@@ -271,30 +281,8 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		productTerminationLog.notifyProductDownloadTermination(product, dataAccessRequest);
 	}
 
-	/**
-	 * Thread to download a file
-	 */
-	protected class DownloadThread implements Runnable {
-		private final IDownloadProcess downloadProcess;
-		
-		public DownloadThread(IDownloadProcess downloadProcess) {
-			this.downloadProcess = downloadProcess;
-		}
-		
-		@Override
-		public void run() {
-			try {
-				LOGGER.debug("Starting download thread");
-
-				downloadProcess.startDownload();
-			} catch (DMPluginException e) {
-				throw new NonRecoverableException("Unable to start download.", e);
-			}
-		}
-	}
-
 	public boolean pauseProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
-		IDownloadProcess downloadProcess = getDownloadProcess(productUuid);
+		IDownloadProcess downloadProcess = activeProducts.getDownloadProcess(productUuid);
 		try {
 			downloadProcess.pauseDownload();
 		} catch (DMPluginException e) {
@@ -304,10 +292,10 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	}
 	
 	public boolean resumeProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
-		IDownloadProcess downloadProcess = getDownloadProcess(productUuid);
-		DownloadThread downloadThread = new DownloadThread(downloadProcess);
+		IDownloadProcess downloadProcess = activeProducts.getDownloadProcess(productUuid);
+		ProductDownloadThread productDownloadThread = new ProductDownloadThread(downloadProcess);
 		try {
-			productDownloadExecutor.execute(downloadThread);
+			productDownloadExecutor.execute(productDownloadThread);
 
 			downloadProcess.resumeDownload();
 		} catch (DMPluginException e) {
@@ -317,7 +305,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	}
 	
 	public boolean cancelProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
-		IDownloadProcess downloadProcess = getDownloadProcess(productUuid);
+		IDownloadProcess downloadProcess = activeProducts.getDownloadProcess(productUuid);
 		try {
 			downloadProcess.cancelDownload();
 		} catch (DMPluginException e) {
@@ -327,7 +315,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	}
 	
 	public boolean changeProductPriority(String productUuid, ProductPriority productPriority) throws ProductNotFoundException {
-		Product product = getProduct(productUuid);
+		Product product = activeProducts.getProduct(productUuid);
 
 		product.setPriority(productPriority);
 		
@@ -336,29 +324,12 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		return true;
 	}
 	
-	
-	private IDownloadProcess getDownloadProcess(String productUuid) throws ProductNotFoundException {
-		IDownloadProcess downloadProcess = downloadProcessList.get(productUuid);
-		if(downloadProcess == null) {
-			throw new ProductNotFoundException(String.format("Unable to find product with UUID %s. This product may have already been completed.", productUuid));
-		}
-		return downloadProcess;
-	}
-
-	private Product getProduct(String productUuid) throws ProductNotFoundException {
-		Product product = productToDownloadList.get(productUuid);
-		if(product == null) {
-			throw new ProductNotFoundException(String.format("Unable to find product with UUID %s. This product may have already been completed.", productUuid));
-		}
-		return product;
-	}
-	
 	public void shutdown() {
 		LOGGER.info("Shutting down Download Monitor.");
 
 		productDownloadExecutor.shutdown();		
 
-		for (IDownloadProcess downloadProcess : downloadProcessList.values()) {
+		for (IDownloadProcess downloadProcess : activeProducts.getDownloadProcesses()) {
 			try {
 				downloadProcess.disconnect();
 			} catch (DMPluginException e) {
@@ -369,7 +340,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	
 	public boolean cancelDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel, boolean includeManualDownloads) throws DownloadOperationException {
 		boolean downloadsCancelledCompletely = true;
-		for (Entry<String, IDownloadProcess> downloadProcessEntry: downloadProcessList.entrySet()) {
+		for (Entry<String, IDownloadProcess> downloadProcessEntry: activeProducts.getDownloadProcessList().entrySet()) {
 			String productUuid = downloadProcessEntry.getKey();
 			IDownloadProcess downloadProcess = downloadProcessEntry.getValue();
 			if((includeManualDownloads || !dataAccessRequestManager.isProductDownloadManual(productUuid)) && statusesToCancel.contains(downloadProcess.getStatus())) {
