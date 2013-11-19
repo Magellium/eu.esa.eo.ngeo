@@ -21,6 +21,9 @@ Features
 
 Release History
 ========================================================
+0.5.5
+    Release date 19th November 2013
+             - Improvements to the handling of UM-SSO and non- UM-SSO environments.
 0.5.4
     Release date 15th November 2013
              - DREAM-CVC-NCR2 - Fixed bug where attempting to persist a URL with length greater than 255 characters failed.
