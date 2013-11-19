@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>int_.esa.eo.ngeo</groupId>
 		<artifactId>download-manager-parent</artifactId>
-		<version>0.5.5</version>
+		<version>0.5.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>download-manager-core</artifactId>
 	<name>Download Manager Core</name>
