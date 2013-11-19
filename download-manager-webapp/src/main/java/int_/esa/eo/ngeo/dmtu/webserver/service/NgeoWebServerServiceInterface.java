@@ -14,7 +14,4 @@ public interface NgeoWebServerServiceInterface {
 	UmssoHttpPost registrationMgmt(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, DMRegistrationMgmntRequ registrationMgmntRequest) throws ServiceException;
 	UmssoHttpPost monitoringURL(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, MonitoringURLRequ monitoringUrlRequest) throws ServiceException;
 	UmssoHttpPost dataAccessMonitoring(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, DataAccessMonitoringRequ dataAccessMonitoringRequest) throws ServiceException;
-
-	//XXX: temporary method to integrate with Terradue's ngEO Web Server implementation
-	void login(UmSsoHttpClient umSsoHttpClient, String umSsoUsername, String umSsopassword);
 }

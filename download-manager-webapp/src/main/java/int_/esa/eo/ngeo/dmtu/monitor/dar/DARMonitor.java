@@ -82,7 +82,7 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 		String downloadManagerId = UUID.randomUUID().toString().replaceAll("-", "");
 		monitoringController.setSetting(SettingsManager.KEY_DM_ID, downloadManagerId);
 		String downloadManagerFriendlyName = monitoringController.getSetting(SettingsManager.KEY_DM_FRIENDLY_NAME);
-		String ngEOWebServer = monitoringController.getSetting(SettingsManager.NGEO_WEB_SERVER_REGISTRATION_URLS);
+		String ngEOWebServer = monitoringController.getSetting(SettingsManager.KEY_NGEO_WEB_SERVER_REGISTRATION_URLS);
 		URL ngEOWebServerUrl;
 		try {
 			ngEOWebServerUrl = new URL(ngEOWebServer);
@@ -92,15 +92,6 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 
 		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController);
 
-		/* 
-		 * XXX: This should be removed once the Web Client no longer relies on the hooky Web Server 
-		 * login procedure to identify the user
-		 * The path of this login procedure is /ngeo/login?username=<u>&password=<p>
-		 */
-		String umSsoUsername = monitoringController.getSetting(SettingsManager.KEY_SSO_USERNAME);
-		String umSsoPassword = monitoringController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
-		ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
-		
 		DMRegistrationMgmntRequ registrationMgmntRequest = ngeoWebServerRequestBuilder.buildDMRegistrationMgmntRequest(downloadManagerId, downloadManagerFriendlyName);
 		UmssoHttpPost request = null;
 		try {
@@ -111,7 +102,7 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 		
 			String montoringServiceUrl = registrationMgmtResponse.getMonitoringServiceUrl();
 			monitoringController.setSetting(SettingsManager.KEY_DM_IS_REGISTERED, "true");
-			monitoringController.setSetting(SettingsManager.NGEO_WEB_SERVER_DAR_MONITORING_URLS, montoringServiceUrl);
+			monitoringController.setSetting(SettingsManager.KEY_NGEO_WEB_SERVER_DAR_MONITORING_URLS, montoringServiceUrl);
 			LOGGER.info(String.format("Registration complete, monitoring service URL: %s", montoringServiceUrl));
 		} catch (ParseException | ServiceException e) {
 			throw new WebServerServiceException(String.format("Exception occurred whilst attempting to register the Download Manager: %s", e.getLocalizedMessage()));
@@ -129,7 +120,7 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 		}else{
 			LOGGER.debug("monitoring for DARs...");
 			String downloadManagerId = monitoringController.getSetting(SettingsManager.KEY_DM_ID);
-			String monitoringService = monitoringController.getSetting(SettingsManager.NGEO_WEB_SERVER_DAR_MONITORING_URLS);
+			String monitoringService = monitoringController.getSetting(SettingsManager.KEY_NGEO_WEB_SERVER_DAR_MONITORING_URLS);
 			URL monitoringServiceUrl;
 			try {
 				monitoringServiceUrl = new URL(monitoringService);

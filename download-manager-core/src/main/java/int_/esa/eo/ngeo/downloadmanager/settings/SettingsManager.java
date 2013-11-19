@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +30,9 @@ public class SettingsManager {
 	public static final String KEY_DM_IS_REGISTERED                  		= "DM_IS_REGISTERED";
 	public static final String KEY_DM_IS_SETUP                       		= "DM_IS_SETUP";
 	public static final String KEY_DM_ID                       		 		= "DM_ID";
-	public static final String NGEO_WEB_SERVER_REGISTRATION_URLS       		= "NGEO_WEB_SERVER_REGISTRATION_URLS";
-	public static final String NGEO_WEB_SERVER_DAR_MONITORING_URLS       	= "NGEO_WEB_SERVER_DAR_MONITORING_URLS";
+	public static final String KEY_NGEO_WEB_SERVER_REGISTRATION_URLS       	= "NGEO_WEB_SERVER_REGISTRATION_URLS";
+	public static final String KEY_NGEO_WEB_SERVER_DAR_MONITORING_URLS      = "NGEO_WEB_SERVER_DAR_MONITORING_URLS";
+	public static final String KEY_NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL      = "NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL";
 	public static final String KEY_NGEO_MONITORING_SERVICE_SET_TIME  		= "NGEO_MONITORING_SERVICE_SET_TIME";
 	public static final String KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD 		= "IICD_D_WS_DEFAULT_REFRESH_PERIOD";
 	public static final String KEY_NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS  = "NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS";
@@ -45,7 +47,6 @@ public class SettingsManager {
 	public static final String KEY_WEB_PROXY_USERNAME                		= "WEB_PROXY_USERNAME";
 	public static final String KEY_WEB_PROXY_PASSWORD                		= "WEB_PROXY_PASSWORD";
 	
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsManager.class);
 	
 	private final String NAME_OF_CONF_DIR = "conf";
@@ -88,15 +89,8 @@ public class SettingsManager {
 		} 
 		catch (IOException e) {
 				throw new NonRecoverableException(e);
-		}
-		finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// Swallow
-				}
-			}
+		} finally {
+			IOUtils.closeQuietly(in);
 		}
 	}
 	
@@ -112,7 +106,7 @@ public class SettingsManager {
 	public String getSetting(String settingName) {
 		String setting = getSettingInternal(settingName);
 		if (setting == null || setting.isEmpty()) {
-			LOGGER.info(String.format("There is no setting for %s", settingName));
+			LOGGER.debug(String.format("There is no setting for %s", settingName));
 		}
 		if (settingName.equals(KEY_SSO_PASSWORD)) { 
 			setting = decrypt(setting);

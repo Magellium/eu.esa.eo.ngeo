@@ -105,14 +105,25 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>import-task-6-reverse-proxy-certificate</id>
+						<id>import-task-6-tpz-reverse-proxy-certificate</id>
 						<phase>generate-resources</phase>
 						<goals>
 							<goal>importCertificate</goal>
 						</goals>
 						<configuration>
 							<file>${basedir}/certs/ngEO_Task6/ngEO-S2-Gate.int.oivv.org.crt</file>
-							<alias>task-6-reverse-proxy-certificate</alias>
+							<alias>task-6-tpz-reverse-proxy-certificate</alias>
+						</configuration>
+					</execution>
+					<execution>
+						<id>import-task-6-tpz-idp-certificate</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>importCertificate</goal>
+						</goals>
+						<configuration>
+							<file>${basedir}/certs/ngEO_Task6/um-sso-idp.eo.esa.int.crt</file>
+							<alias>task-6-tpz-idp-certificate</alias>
 						</configuration>
 					</execution>
 				</executions>

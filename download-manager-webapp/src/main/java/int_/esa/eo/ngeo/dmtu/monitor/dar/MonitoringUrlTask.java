@@ -82,15 +82,6 @@ public class MonitoringUrlTask implements Runnable {
 			
 			UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController);
 
-			/* 
-			 * XXX: This should be removed once the Web Client no longer relies on the hooky Web Server 
-			 * login procedure to identify the user
-			 * The path of this login procedure is /ngeo/login?username=<u>&password=<p>
-			 */
-			String umSsoUsername = monitoringController.getSetting(SettingsManager.KEY_SSO_USERNAME);
-			String umSsoPassword = monitoringController.getSetting(SettingsManager.KEY_SSO_PASSWORD);
-			ngeoWebServerService.login(umSsoHttpClient, umSsoUsername, umSsoPassword);
-	
 			MonitoringURLRequ monitoringUrlRequest = ngeoWebServerRequestBuilder.buildMonitoringURLRequest(downloadManagerId, downloadManagerSetTime);
 			UserOrder userOrder = null;
 			UmssoHttpPost request = null;

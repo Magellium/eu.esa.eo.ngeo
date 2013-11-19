@@ -5,7 +5,6 @@ import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.exception.SchemaNotFoundException;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
-import int_.esa.eo.ngeo.downloadmanager.transform.JSONTransformer;
 import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
@@ -18,6 +17,7 @@ import java.io.StringWriter;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,41 +32,13 @@ import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	@Autowired
 	private XMLWithSchemaTransformer xmlWithSchemaTransformer;
-
+	
 	@Autowired
-	private SettingsManager settingsManager;
+	SettingsManager settingsManager;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(NgeoWebServerService.class);
 	private final int BYTE_ARRAY_SIZE = 2000;
 
-	//XXX: temporary method to integrate with Terradue's ngEO Web Server implementation
-	private boolean displayTempLoginWarning = true;
-
-	public void login(UmSsoHttpClient umSsoHttpClient, String umSsoUsername, String umSsoPassword) {
-		String loginUrlString = settingsManager.getSetting("TEMP_WEBS_LOGIN_URL");
-	    try {
-			URL loginUrl = new URL(loginUrlString);
-		    LOGGER.debug(String.format("loginUrl: %s", loginUrl));
-
-		    UmssoHttpGet loginRequest = umSsoHttpClient.executeGetRequest(loginUrl);
-		    UmssoHttpResponse loginResponse = umSsoHttpClient.getUmssoHttpResponse(loginRequest);
-		    
-			StringWriter writer = new StringWriter();
-			IOUtils.copy(new ByteArrayInputStream(loginResponse.getBody()), writer, "UTF-8");
-			String responseString = writer.toString();
-			LOGGER.debug(String.format("Login response: %s", responseString));
-	    } catch(Exception ex) {
-	    	if(displayTempLoginWarning) {
-	    		LOGGER.warn(String.format("Cannot perform the temporary login due to the non-UM-SSO-conformant nature of the ngEO Web Server's security.%n" +
-	    				"URL used was %s.%n" +
-	    				"You can ignore this warning if you are using the mock web server.%n" +
-	    				"This warning will only be displayed the first time the temporary login is attempted.", loginUrlString));
-	    		
-	    		displayTempLoginWarning = false;
-	    	}
-    	}
-	}
-	
 	@Override
 	public UmssoHttpPost registrationMgmt(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, DMRegistrationMgmntRequ registrationMgmntRequest) throws ServiceException {
 		return sendNgeoWebServerRequest(ngEOWebServerUrl, umSsoHttpClient, registrationMgmntRequest);
@@ -83,7 +55,9 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	}
 
 	private UmssoHttpPost sendNgeoWebServerRequest(URL ngEOWebServerUrl, UmSsoHttpClient umSsoHttpClient, Object requestObject) throws ServiceException {
-	    try {
+		attemptLoginUsingNonUmssoCredentials(umSsoHttpClient);
+		
+		try {
 		    ByteArrayOutputStream baos = new ByteArrayOutputStream(BYTE_ARRAY_SIZE);
 		    xmlWithSchemaTransformer.serializeAndInferSchema(requestObject, baos);
 		    LOGGER.debug(String.format("ngEO Web Server request (%s):%n %s", ngEOWebServerUrl.toString(), baos.toString()));
@@ -91,6 +65,38 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 		    return umSsoHttpClient.executePostRequest(ngEOWebServerUrl, baos, "application/xml", "application/xml");
 		} catch (UmssoCLException | IOException | SchemaNotFoundException | ParseException e) {
 			throw new ServiceException(e);
+		}
+	}
+
+	private boolean displayNonUmssoLoginWarning = true;
+
+	/*
+	 * non-UM-SSO method to integrate with ngEO Web Server. This should only be used when UM-SSO is not available.
+	 */
+	private void attemptLoginUsingNonUmssoCredentials(UmSsoHttpClient umSsoHttpClient) {
+		String nonUmssoLoginUrl = settingsManager.getSetting(SettingsManager.KEY_NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL);
+		if(StringUtils.isNotBlank(nonUmssoLoginUrl)) {
+			try {
+			    LOGGER.debug(String.format("Performing login to Web Server using non-UM-SSO credentials: %s", nonUmssoLoginUrl));
+				URL loginUrl = new URL(nonUmssoLoginUrl);
+	
+			    UmssoHttpGet loginRequest = umSsoHttpClient.executeGetRequest(loginUrl);
+			    UmssoHttpResponse loginResponse = umSsoHttpClient.getUmssoHttpResponse(loginRequest);
+			    
+				StringWriter writer = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(loginResponse.getBody()), writer, "UTF-8");
+				String responseString = writer.toString();
+				LOGGER.debug(String.format("Login response: %s", responseString));
+		    } catch(Exception ex) {
+		    	if(displayNonUmssoLoginWarning) {
+		    		LOGGER.warn(String.format("Cannot perform non-UM-SSO login to ngEO Web Server.%n" +
+		    				"URL used was %s.%n" +
+		    				"Exception: %s%n" +
+		    				"This warning will only be displayed the first time the non-UM-SSO login is attempted.", nonUmssoLoginUrl, ex.getMessage()));
+		    		
+		    		displayNonUmssoLoginWarning = false;
+		    	}
+	    	}
 		}
 	}
 }
