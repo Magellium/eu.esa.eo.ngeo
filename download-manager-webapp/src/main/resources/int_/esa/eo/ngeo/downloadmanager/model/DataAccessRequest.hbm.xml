@@ -18,7 +18,8 @@
 			<one-to-many class="int_.esa.eo.ngeo.downloadmanager.model.Product" />
 		</list>
 		
-		<property name="lastResponseDate" column="lastResponseDate" type="timestamp" />
+		<property name="lastResponseDate" column="lastResponseDate" type="timestamp" />		
+		<property name="monitored" column="monitored" type="boolean" />
 		<property name="visible" column="visible" type="boolean" />
     </class>
 </hibernate-mapping>
