@@ -20,24 +20,24 @@
 			<artifactId>download-manager-plugin-mock-sentinel2</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>oracle</groupId>
-			<artifactId>jre-win-i586</artifactId>
-			<version>${jre.version}</version>
-			<type>tar.gz</type>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>oracle</groupId> -->
+<!-- 			<artifactId>jre-win-i586</artifactId> -->
+<!-- 			<version>${jre.version}</version> -->
+<!-- 			<type>tar.gz</type> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>jre-win-x64</artifactId>
 			<version>${jre.version}</version>
 			<type>tar.gz</type>
 		</dependency>
-		<dependency>
-			<groupId>oracle</groupId>
-			<artifactId>jre-linux-i586</artifactId>
-			<version>${jre.version}</version>
-			<type>tar.gz</type>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>oracle</groupId> -->
+<!-- 			<artifactId>jre-linux-i586</artifactId> -->
+<!-- 			<version>${jre.version}</version> -->
+<!-- 			<type>tar.gz</type> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>jre-linux-x64</artifactId>
@@ -58,20 +58,20 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
 				<executions>
-					<execution>
-						<id>install-jre-win-i586-locally</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${basedir}/jre/jre-7u21-windows-i586.tar.gz</file>
-							<groupId>oracle</groupId>
-							<artifactId>jre-win-i586</artifactId>
-							<version>${jre.version}</version>
-							<packaging>tar.gz</packaging>
-						</configuration>
-					</execution>
+<!-- 					<execution> -->
+<!-- 						<id>install-jre-win-i586-locally</id> -->
+<!-- 						<phase>initialize</phase> -->
+<!-- 						<goals> -->
+<!-- 							<goal>install-file</goal> -->
+<!-- 						</goals> -->
+<!-- 						<configuration> -->
+<!-- 							<file>${basedir}/jre/jre-7u21-windows-i586.tar.gz</file> -->
+<!-- 							<groupId>oracle</groupId> -->
+<!-- 							<artifactId>jre-win-i586</artifactId> -->
+<!-- 							<version>${jre.version}</version> -->
+<!-- 							<packaging>tar.gz</packaging> -->
+<!-- 						</configuration> -->
+<!-- 					</execution> -->
 					<execution>
 						<id>install-jre-win-x64-locally</id>
 						<phase>initialize</phase>
@@ -86,20 +86,20 @@
 							<packaging>tar.gz</packaging>
 						</configuration>
 					</execution>
-					<execution>
-						<id>install-jre-linux-i586-locally</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${basedir}/jre/jre-7u21-linux-i586.tar.gz</file>
-							<groupId>oracle</groupId>
-							<artifactId>jre-linux-i586</artifactId>
-							<version>${jre.version}</version>
-							<packaging>tar.gz</packaging>
-						</configuration>
-					</execution>
+<!-- 					<execution> -->
+<!-- 						<id>install-jre-linux-i586-locally</id> -->
+<!-- 						<phase>initialize</phase> -->
+<!-- 						<goals> -->
+<!-- 							<goal>install-file</goal> -->
+<!-- 						</goals> -->
+<!-- 						<configuration> -->
+<!-- 							<file>${basedir}/jre/jre-7u21-linux-i586.tar.gz</file> -->
+<!-- 							<groupId>oracle</groupId> -->
+<!-- 							<artifactId>jre-linux-i586</artifactId> -->
+<!-- 							<version>${jre.version}</version> -->
+<!-- 							<packaging>tar.gz</packaging> -->
+<!-- 						</configuration> -->
+<!-- 					</execution> -->
 					<execution>
 						<id>install-jre-linux-x64-locally</id>
 						<phase>initialize</phase>
@@ -141,9 +141,9 @@
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>src/assemble/download-manager-win_i586-assembly.xml</descriptor>
+<!-- 								<descriptor>src/assemble/download-manager-win_i586-assembly.xml</descriptor> -->
 								<descriptor>src/assemble/download-manager-win_x64-assembly.xml</descriptor>
-								<descriptor>src/assemble/download-manager-linux_i586-assembly.xml</descriptor>
+<!-- 								<descriptor>src/assemble/download-manager-linux_i586-assembly.xml</descriptor> -->
 								<descriptor>src/assemble/download-manager-linux_x64-assembly.xml</descriptor>
 								<descriptor>src/assemble/download-manager-macosx_x64-assembly.xml</descriptor>
 							</descriptors>
