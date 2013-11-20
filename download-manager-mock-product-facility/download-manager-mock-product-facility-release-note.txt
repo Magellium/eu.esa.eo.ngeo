@@ -1,0 +1,59 @@
+Download Manager Test Unit (DMTU) Mock Product Facility Release Note ${project.parent.version}
+======================================================================
+
+The Download Manager Test Unit application communicates with an ngEO Product Facility via a series of plugins.
+This mock Product Facility provides basic ngEO Product Facility functionality, and can allow the DMTU to be used independently
+of the ngEO system for testing and demo purposes.
+
+Acronyms
+======================================================================
+ngEO	-	EO User Services Next Generation
+DMTU	-	Download Manager Test Unit
+DAR		-	Data Access Request
+SSO		-	Single Signon
+
+Features
+======================================================================
+All paths provided are relative to the context path of the deployed WAR e.g. download-manager-mock-product-facility/metalink
+
+*   Idle Product (/idle)
+    - Provides a product which is initially idle.
+      An HTTP 202 (Accepted) is returned before the "Idle product available" feature is initiated.
+      A metalink containing one file is returned after the "Idle product available" feature is initiated.
+*   Idle product available (/feature/idleProductAvailable)
+    - Enables the availability of the product to be downloaded.
+
+*   Product containing multiple files - Metalink (/metalink)
+    - Provides a metalink file which the Download Manager can use to download multiple files for this product.
+    
+*   Download file with chunked encoding (/download/chunked)
+    - Provides a file which can be downloaded with cunked encoding. An HTTP response header with "Content-Length" is not provided,
+      consequently the "Total Size" and "Completion" values displayed in the GUI are "Unknown".
+
+The "Idle product available" feature indicated above allows the ability to control when a product is available and is a one-off command.
+In order to reset this feature i.e. the product is idle, the web server application must be restarted.
+
+Release History
+======================================================================
+
+0.5.6
+    Release date TBD
+    - First public release
+
+How to use
+======================================================================
+
+	Note that the hostnames and port numbers described below will vary depending on the set-up of the application server.
+	All stubs referred to can be found in the WEB-INF/classes/stubs folder once the application is deployed.
+
+* 	Deploy the download-manager-mock-product-facility.war to an application server (e.g. tomcat).
+* 	To ensure that the mock web server is successfully deployed, access the following URL from your web browser:
+	http://localhost/download-manager-mock-product-facility
+	A "Welcome!" message should be shown in the browser.
+*   In order for a Download Manager to use this mock product facility, the following URLs should be used:
+
+    Metalink     - http://localhost:8080/download-manager-mock-product-facility/metalink
+    Idle Product - http://localhost:8080/download-manager-mock-product-facility/idle
+
+*	The SSO username / password are not used by the mock product facility, consequently any credentials can be supplied
+	(subject to validation criteria).

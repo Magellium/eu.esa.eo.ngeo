@@ -118,5 +118,15 @@
 		        </configuration>
 		    </plugin>
         </plugins>
+		<resources>
+			<resource>
+				<directory>${basedir}</directory>
+				<targetPath>${project.build.directory}</targetPath>
+				<filtering>true</filtering>
+				<includes>
+					<include>download-manager-mock-product-facility-release-note.txt</include>
+				</includes>
+			</resource>
+		</resources>
     </build>
 </project>
