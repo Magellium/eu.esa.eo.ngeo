@@ -8,10 +8,13 @@ import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
 import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
+import int_.esa.eo.ngeo.downloadmanager.builder.SSOClientBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
+import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
@@ -51,7 +54,10 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 
 	@Autowired
 	private MonitoringController monitoringController;
-		
+
+	@Autowired
+	private SettingsManager settingsManager;
+
 	@Autowired
 	private ThreadPoolTaskScheduler darMonitorScheduler;
 	
@@ -71,18 +77,18 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 	 * </ul>
 	 */
 	public void registerDownloadManager() throws WebServerServiceException {
-		boolean isAlreadyRegistered = Boolean.parseBoolean(monitoringController.getSetting(SettingsManager.KEY_DM_IS_REGISTERED));
+		boolean isAlreadyRegistered = Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED));
 		if (isAlreadyRegistered) throw new NonRecoverableException("This download manager is already registered!");
 		
-		boolean setup = Boolean.parseBoolean(monitoringController.getSetting(SettingsManager.KEY_DM_IS_SETUP));
+		boolean setup = Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP));
 		if (!setup) throw new NonRecoverableException("Download manager cannot be registered before the \"First Startup configuration\" has been carried out");
 		
 		LOGGER.info("Registering download manager.");
 
 		String downloadManagerId = UUID.randomUUID().toString().replaceAll("-", "");
-		monitoringController.setSetting(SettingsManager.KEY_DM_ID, downloadManagerId);
-		String downloadManagerFriendlyName = monitoringController.getSetting(SettingsManager.KEY_DM_FRIENDLY_NAME);
-		String ngEOWebServer = monitoringController.getSetting(SettingsManager.KEY_NGEO_WEB_SERVER_REGISTRATION_URLS);
+		settingsManager.setSetting(NonUserModifiableSetting.DM_ID, downloadManagerId);
+		String downloadManagerFriendlyName = settingsManager.getSetting(UserModifiableSetting.DM_FRIENDLY_NAME);
+		String ngEOWebServer = settingsManager.getSetting(NonUserModifiableSetting.NGEO_WEB_SERVER_REGISTRATION_URLS);
 		URL ngEOWebServerUrl;
 		try {
 			ngEOWebServerUrl = new URL(ngEOWebServer);
@@ -90,7 +96,7 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 			throw new WebServerServiceException(String.format("Unable to parse ngEO Web Server URL %s",ngEOWebServer),e);
 		}
 
-		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController);
+		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(settingsManager);
 
 		DMRegistrationMgmntRequ registrationMgmntRequest = ngeoWebServerRequestBuilder.buildDMRegistrationMgmntRequest(downloadManagerId, downloadManagerFriendlyName);
 		UmssoHttpPost request = null;
@@ -101,8 +107,8 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 			DMRegistrationMgmntResp registrationMgmtResponse = ngeoWebServerResponseParser.parseDMRegistrationMgmntResponse(ngEOWebServerUrl, response);
 		
 			String montoringServiceUrl = registrationMgmtResponse.getMonitoringServiceUrl();
-			monitoringController.setSetting(SettingsManager.KEY_DM_IS_REGISTERED, "true");
-			monitoringController.setSetting(SettingsManager.KEY_NGEO_WEB_SERVER_DAR_MONITORING_URLS, montoringServiceUrl);
+			settingsManager.setSetting(NonUserModifiableSetting.DM_IS_REGISTERED, "true");
+			settingsManager.setSetting(NonUserModifiableSetting.NGEO_WEB_SERVER_DAR_MONITORING_URLS, montoringServiceUrl);
 			LOGGER.info(String.format("Registration complete, monitoring service URL: %s", montoringServiceUrl));
 		} catch (ParseException | ServiceException e) {
 			throw new WebServerServiceException(String.format("Exception occurred whilst attempting to register the Download Manager: %s", e.getLocalizedMessage()));
@@ -114,13 +120,13 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 	}
 
 	public void monitorForDARs() {
-		boolean isAlreadyRegistered = Boolean.parseBoolean(monitoringController.getSetting(SettingsManager.KEY_DM_IS_REGISTERED));
+		boolean isAlreadyRegistered = Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED));
 		if (!isAlreadyRegistered) {
 			LOGGER.info("Download manager is not registered, so monitoring for DARs will not occur.");
 		}else{
 			LOGGER.debug("monitoring for DARs...");
-			String downloadManagerId = monitoringController.getSetting(SettingsManager.KEY_DM_ID);
-			String monitoringService = monitoringController.getSetting(SettingsManager.KEY_NGEO_WEB_SERVER_DAR_MONITORING_URLS);
+			String downloadManagerId = settingsManager.getSetting(NonUserModifiableSetting.DM_ID);
+			String monitoringService = settingsManager.getSetting(NonUserModifiableSetting.NGEO_WEB_SERVER_DAR_MONITORING_URLS);
 			URL monitoringServiceUrl;
 			try {
 				monitoringServiceUrl = new URL(monitoringService);
@@ -128,13 +134,13 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 				throw new NonRecoverableException(String.format("Unable to parse monitoring service URL %s",monitoringService),e);
 			}
 	
-			MonitoringUrlTask monitoringUrlTask = new MonitoringUrlTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, monitoringServiceUrl);
+			MonitoringUrlTask monitoringUrlTask = new MonitoringUrlTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, settingsManager, downloadManagerId, monitoringServiceUrl);
 			darMonitorScheduler.schedule(monitoringUrlTask, new Date());
 		}
 	}
 	
 	public void monitorForProductsFromLoadedDARs() {
-		boolean isAlreadyRegistered = Boolean.parseBoolean(monitoringController.getSetting(SettingsManager.KEY_DM_IS_REGISTERED));
+		boolean isAlreadyRegistered = Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED));
 		if (!isAlreadyRegistered) {
 			LOGGER.info("Download manager is not registered, so monitoring for products will not occur.");
 		}else{
@@ -142,8 +148,8 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 			List<DataAccessRequest> dataAccessRequests = darController.getDataAccessRequestStatus(false).getDataAccessRequests();
 			LOGGER.debug(String.format("%s in progress / paused DARs found.", dataAccessRequests.size()));
 			
-			String downloadManagerId = monitoringController.getSetting(SettingsManager.KEY_DM_ID);
-			String defaultRefreshPeriod = monitoringController.getSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD);
+			String downloadManagerId = settingsManager.getSetting(NonUserModifiableSetting.DM_ID);
+			String defaultRefreshPeriod = settingsManager.getSetting(NonUserModifiableSetting.IICD_D_WS_REFRESH_PERIOD);
 			int refreshPeriod;
 			if(defaultRefreshPeriod != null && !defaultRefreshPeriod.isEmpty()) {
 				refreshPeriod = Integer.parseInt(defaultRefreshPeriod, 10);
@@ -156,7 +162,7 @@ public class DARMonitor implements ApplicationListener<ContextClosedEvent> {
 					URL darMonitoringUrl;
 					try {
 						darMonitoringUrl = new URL(dataAccessRequest.getDarURL());
-						DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl , refreshPeriod);
+						DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, settingsManager, downloadManagerId, darMonitoringUrl , refreshPeriod);
 						darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());
 					} catch (MalformedURLException e) {
 						LOGGER.error(String.format("Unable to parse ngEO Web Server DAR Monitoring URL %s", dataAccessRequest.getDarURL()),e);

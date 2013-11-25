@@ -1,10 +1,12 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import int_.esa.eo.ngeo.downloadmanager.configuration.AdvancedConfigSettings;
-import int_.esa.eo.ngeo.downloadmanager.configuration.ConfigSettings;
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
 import int_.esa.eo.ngeo.dmtu.monitor.dar.DARMonitor;
+import int_.esa.eo.ngeo.downloadmanager.configuration.AdvancedConfigSettings;
+import int_.esa.eo.ngeo.downloadmanager.configuration.ConfigSettings;
+import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
+import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,8 +39,8 @@ public class ConfigController {
 	
 	@RequestMapping(value="/firststartup", method=RequestMethod.GET)
 	public String showFirstStartupConfigForm(ModelMap model){
-		if (Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP))
-				&& Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_DM_IS_REGISTERED))) {
+		if (Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP))
+				&& Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED))) {
 			return "redirect:/";
 		}
 		
@@ -55,7 +57,7 @@ public class ConfigController {
 		}
 
 		setConfigSettingsToManager(firstStartupConfigSettings);
-		settingsManager.setSetting(SettingsManager.KEY_DM_IS_SETUP, "true");
+		settingsManager.setSetting(NonUserModifiableSetting.DM_IS_SETUP, "true");
 		
 		try {
 			createBaseDownloadFolder(firstStartupConfigSettings.getBaseDownloadFolder());
@@ -82,17 +84,17 @@ public class ConfigController {
 	public String showAdvancedConfigForm(ModelMap model) {
 		
 		// XXX: The following if statement is a shameless copy/paste from HomeController; we ought to factor out the common code instead.
-		if (!Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP))) {
+		if (!Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP))) {
 			return "redirect:/config/firststartup";
 		}
 		
 		AdvancedConfigSettings advancedConfigSettings = new AdvancedConfigSettings();
 		getConfigSettingsFromManager(advancedConfigSettings);
-		advancedConfigSettings.setNoOfParallelProductDownloadThreads(Integer.parseInt(settingsManager.getSetting(SettingsManager.KEY_NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS)));
-		advancedConfigSettings.setProductDownloadCompleteCommand(settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND));
-		advancedConfigSettings.setWebInterfaceUsername(settingsManager.getSetting(SettingsManager.KEY_WEB_INTERFACE_USERNAME));
-		advancedConfigSettings.setWebInterfacePassword(settingsManager.getSetting(SettingsManager.KEY_WEB_INTERFACE_PASSWORD));
-		advancedConfigSettings.setWebInterfaceRemoteAccessEnabled(Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_WEB_INTERFACE_REMOTE_ACCESS_ENABLED)));
+		advancedConfigSettings.setNoOfParallelProductDownloadThreads(Integer.parseInt(settingsManager.getSetting(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS)));
+		advancedConfigSettings.setProductDownloadCompleteCommand(settingsManager.getSetting(UserModifiableSetting.PRODUCT_DOWNLOAD_COMPLETE_COMMAND));
+		advancedConfigSettings.setWebInterfaceUsername(settingsManager.getSetting(UserModifiableSetting.WEB_INTERFACE_USERNAME));
+		advancedConfigSettings.setWebInterfacePassword(settingsManager.getSetting(UserModifiableSetting.WEB_INTERFACE_PASSWORD));
+		advancedConfigSettings.setWebInterfaceRemoteAccessEnabled(Boolean.parseBoolean(settingsManager.getSetting(UserModifiableSetting.WEB_INTERFACE_REMOTE_ACCESS_ENABLED)));
 		model.addAttribute("ADVANCEDCONFIGSETTINGS", advancedConfigSettings);
 		return ADVANCEDCONFIG_VIEW_NAME;
 	}
@@ -105,11 +107,11 @@ public class ConfigController {
 
 		setConfigSettingsToManager(advancedConfigSettings);
 		
-		settingsManager.setSetting(SettingsManager.KEY_NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS, Integer.toString(advancedConfigSettings.getNoOfParallelProductDownloadThreads()));
-		settingsManager.setSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND, advancedConfigSettings.getProductDownloadCompleteCommand());
-		settingsManager.setSetting(SettingsManager.KEY_WEB_INTERFACE_USERNAME, advancedConfigSettings.getWebInterfaceUsername());
-		settingsManager.setSetting(SettingsManager.KEY_WEB_INTERFACE_PASSWORD, advancedConfigSettings.getWebInterfacePassword());
-		settingsManager.setSetting(SettingsManager.KEY_WEB_INTERFACE_REMOTE_ACCESS_ENABLED, Boolean.toString(advancedConfigSettings.isWebInterfaceRemoteAccessEnabled()));
+		settingsManager.setSetting(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS, Integer.toString(advancedConfigSettings.getNoOfParallelProductDownloadThreads()));
+		settingsManager.setSetting(UserModifiableSetting.PRODUCT_DOWNLOAD_COMPLETE_COMMAND, advancedConfigSettings.getProductDownloadCompleteCommand());
+		settingsManager.setSetting(UserModifiableSetting.WEB_INTERFACE_USERNAME, advancedConfigSettings.getWebInterfaceUsername());
+		settingsManager.setSetting(UserModifiableSetting.WEB_INTERFACE_PASSWORD, advancedConfigSettings.getWebInterfacePassword());
+		settingsManager.setSetting(UserModifiableSetting.WEB_INTERFACE_REMOTE_ACCESS_ENABLED, Boolean.toString(advancedConfigSettings.isWebInterfaceRemoteAccessEnabled()));
 		
 		try {
 			createBaseDownloadFolder(advancedConfigSettings.getBaseDownloadFolder());
@@ -123,32 +125,32 @@ public class ConfigController {
 	}
 	
 	private void getConfigSettingsFromManager(ConfigSettings configSettings) {
-		configSettings.setSsoPassword(settingsManager.getSetting(SettingsManager.KEY_SSO_PASSWORD));
-		configSettings.setSsoUsername(settingsManager.getSetting(SettingsManager.KEY_SSO_USERNAME));
+		configSettings.setSsoPassword(settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD));
+		configSettings.setSsoUsername(settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME));
 
-		String baseDownloadFolderAbsolute = settingsManager.getSetting(SettingsManager.KEY_BASE_DOWNLOAD_FOLDER_ABSOLUTE);
-		if (!Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP))) {
+		String baseDownloadFolderAbsolute = settingsManager.getSetting(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE);
+		if (!Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP))) {
 			baseDownloadFolderAbsolute = Paths.get(System.getProperty("user.home"), "ngEO-Downloads").toString(); // Default value
 		}
 		configSettings.setBaseDownloadFolder(baseDownloadFolderAbsolute);
-		configSettings.setDmFriendlyName(settingsManager.getSetting(SettingsManager.KEY_DM_FRIENDLY_NAME));
-		configSettings.setWebInterfacePortNo(settingsManager.getSetting(SettingsManager.KEY_WEB_INTERFACE_PORT_NO));
-		configSettings.setWebProxyHost(settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_HOST));
-		configSettings.setWebProxyPort(settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PORT));
-		configSettings.setWebProxyPassword(settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PASSWORD));
-		configSettings.setWebProxyUsername(settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_USERNAME));
+		configSettings.setDmFriendlyName(settingsManager.getSetting(UserModifiableSetting.DM_FRIENDLY_NAME));
+		configSettings.setWebInterfacePortNo(settingsManager.getSetting(UserModifiableSetting.WEB_INTERFACE_PORT_NO));
+		configSettings.setWebProxyHost(settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_HOST));
+		configSettings.setWebProxyPort(settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PORT));
+		configSettings.setWebProxyPassword(settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PASSWORD));
+		configSettings.setWebProxyUsername(settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_USERNAME));
 	}	
 
 	private void setConfigSettingsToManager(ConfigSettings configSettings) {
-		settingsManager.setSetting(SettingsManager.KEY_SSO_USERNAME, configSettings.getSsoUsername());
-		settingsManager.setSetting(SettingsManager.KEY_SSO_PASSWORD, configSettings.getSsoPassword());
-		settingsManager.setSetting(SettingsManager.KEY_DM_FRIENDLY_NAME, configSettings.getDmFriendlyName());
-		settingsManager.setSetting(SettingsManager.KEY_BASE_DOWNLOAD_FOLDER_ABSOLUTE, configSettings.getBaseDownloadFolder());
-		settingsManager.setSetting(SettingsManager.KEY_WEB_INTERFACE_PORT_NO, configSettings.getWebInterfacePortNo());
-		settingsManager.setSetting(SettingsManager.KEY_WEB_PROXY_HOST, configSettings.getWebProxyHost());
-		settingsManager.setSetting(SettingsManager.KEY_WEB_PROXY_PORT, configSettings.getWebProxyPort());
-		settingsManager.setSetting(SettingsManager.KEY_WEB_PROXY_USERNAME, configSettings.getWebProxyUsername());
-		settingsManager.setSetting(SettingsManager.KEY_WEB_PROXY_PASSWORD, configSettings.getWebProxyPassword());
+		settingsManager.setSetting(UserModifiableSetting.SSO_USERNAME, configSettings.getSsoUsername());
+		settingsManager.setSetting(UserModifiableSetting.SSO_PASSWORD, configSettings.getSsoPassword());
+		settingsManager.setSetting(UserModifiableSetting.DM_FRIENDLY_NAME, configSettings.getDmFriendlyName());
+		settingsManager.setSetting(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE, configSettings.getBaseDownloadFolder());
+		settingsManager.setSetting(UserModifiableSetting.WEB_INTERFACE_PORT_NO, configSettings.getWebInterfacePortNo());
+		settingsManager.setSetting(UserModifiableSetting.WEB_PROXY_HOST, configSettings.getWebProxyHost());
+		settingsManager.setSetting(UserModifiableSetting.WEB_PROXY_PORT, configSettings.getWebProxyPort());
+		settingsManager.setSetting(UserModifiableSetting.WEB_PROXY_USERNAME, configSettings.getWebProxyUsername());
+		settingsManager.setSetting(UserModifiableSetting.WEB_PROXY_PASSWORD, configSettings.getWebProxyPassword());
 	}
 
 	// XXX: The controller should ultimately not be responsible for creating this directory if it doesn't exist

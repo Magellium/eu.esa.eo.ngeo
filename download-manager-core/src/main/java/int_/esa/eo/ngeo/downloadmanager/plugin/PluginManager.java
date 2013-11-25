@@ -4,6 +4,7 @@ import int_.esa.eo.ngeo.downloadmanager.configuration.DownloadManagerProperties;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
 import java.nio.file.Path;
@@ -40,10 +41,9 @@ public class PluginManager {
 	 public void detectPlugins() {
 		LOGGER.info("Detecting plugins.");
 		final String dmHome = System.getenv("DM_HOME");
-		final String dirPlugins = SettingsManager.KEY_DIR_PLUGINS;
 		LOGGER.debug(String.format("DM_HOME = \"%s\"", dmHome));
-		LOGGER.debug(String.format("dirPlugins = \"%s\"", dirPlugins));
-		Path pluginFolder = Paths.get(dmHome, settingsManager.getSetting(dirPlugins));
+		String dirPlugins = settingsManager.getSetting(NonUserModifiableSetting.DIR_PLUGINS);
+		Path pluginFolder = Paths.get(dmHome, dirPlugins);
 		String pluginsPathAsString = pluginFolder.toString();
 		if (!pluginFolder.toFile().exists()) {
 			throw new NonRecoverableException(String.format("Plugin directory %s does not exist", pluginsPathAsString));

@@ -2,6 +2,7 @@ package int_.esa.eo.ngeo.dmtu.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
+import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
 import org.junit.Test;
@@ -17,22 +18,22 @@ public class HomeControllerTest {
 
 	@Test
 	public void testHomeControllerWhenDmIsSetupAndIsRegistered() {
-		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP)).thenReturn("true");
-		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_REGISTERED)).thenReturn("true");
+		when(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP)).thenReturn("true");
+		when(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED)).thenReturn("true");
 		assertEquals("home", controller.home());
 	}
 
 	@Test
 	public void testHomeControllerWhenDmIsSetupAndIsNotRegistered() {
-		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP)).thenReturn("true");
-		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_REGISTERED)).thenReturn("false");
+		when(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP)).thenReturn("true");
+		when(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED)).thenReturn("false");
 		assertEquals("redirect:/config/firststartup", controller.home());
 	}
 
 	@Test
 	public void testHomeControllerWhenDmIsNotSetupAndIsNotRegistered() {
-		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP)).thenReturn("false");
-		when(settingsManager.getSetting(SettingsManager.KEY_DM_IS_REGISTERED)).thenReturn("false");
+		when(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP)).thenReturn("false");
+		when(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED)).thenReturn("false");
 		assertEquals("redirect:/config/firststartup", controller.home());
 	}
 }

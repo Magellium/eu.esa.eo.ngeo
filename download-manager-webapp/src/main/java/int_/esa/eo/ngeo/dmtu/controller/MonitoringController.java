@@ -6,7 +6,6 @@ import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
-import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.iicd_d_ws._1.UserOrder;
 
 import java.util.ArrayList;
@@ -22,23 +21,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class MonitoringController {
 	@Autowired
-	private SettingsManager settingsManager;
-	
-	@Autowired
 	private DownloadMonitor downloadMonitor;
 
 	private WebServerMonitoringStatus webServerMonitoringStatus; 
 
 	private MonitoringController() {
 		webServerMonitoringStatus = new WebServerMonitoringStatus();
-	}
-	
-	public String getSetting(String key) {
-		return settingsManager.getSetting(key);
-	}
-
-	public void setSetting(String key, String value) {
-		settingsManager.setSetting(key, value);
 	}
 
 	public boolean sendUserOrder(UserOrder userOrder) throws DownloadOperationException {

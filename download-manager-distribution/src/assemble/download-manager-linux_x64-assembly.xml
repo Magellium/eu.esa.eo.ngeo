@@ -54,6 +54,33 @@
 			</sources>
 		</moduleSet>
 		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>${project.groupId}:download-manager-core</include>
+			</includes>
+			<sources>
+				<fileSets>
+					<fileSet>
+						<directory>src/main/resources</directory>
+						<outputDirectory>conf</outputDirectory>
+						<includes>
+							<include>log4j.xml</include>
+						</includes>
+				 	</fileSet>
+					<fileSet>
+						<directory>src/main/resources/META-INF</directory>
+						<outputDirectory>conf</outputDirectory>
+						<includes>
+							<include>user-modifiable-settings.properties</include>
+							<include>non-user-modifiable-settings.properties</include>
+						</includes>
+						<filtered>true</filtered>
+				 	</fileSet>
+				</fileSets>
+				<includeModuleDirectory>false</includeModuleDirectory>
+			</sources>
+		</moduleSet>
+		<moduleSet>
 			<!-- Enable access to all projects in the current multimodule build! -->
 			<useAllReactorProjects>true</useAllReactorProjects>
 		
@@ -122,11 +149,6 @@
 			<includes>
 				<include>INSTALLATION_INSTRUCTIONS.txt</include>
 			</includes>
-		</fileSet>
-		<fileSet>
-			<outputDirectory>conf</outputDirectory>
-			<directory>src/main/resources</directory>
-			<filtered>true</filtered>
 		</fileSet>
 		<fileSet>
 			<outputDirectory>logs</outputDirectory>

@@ -21,37 +21,11 @@ import org.slf4j.LoggerFactory;
  * NB: We may not currently support distinguishing between cases where a setting has been defined to have a blank value and cases where the setting has not been defined. 
  */
 public class SettingsManager {
-	
-	// TODO: If time allows, create a SettingKey enum (giving us type safety), rather than using Strings
-	public static final String KEY_SSO_PASSWORD                     		= "SSO_PASSWORD";
-	public static final String KEY_BASE_DOWNLOAD_FOLDER_ABSOLUTE     		= "BASE_DOWNLOAD_FOLDER_ABSOLUTE";
-	public static final String KEY_DIR_PLUGINS                       		= "DIR_PLUGINS";
-	public static final String KEY_DM_FRIENDLY_NAME                  		= "DM_FRIENDLY_NAME";
-	public static final String KEY_DM_IS_REGISTERED                  		= "DM_IS_REGISTERED";
-	public static final String KEY_DM_IS_SETUP                       		= "DM_IS_SETUP";
-	public static final String KEY_DM_ID                       		 		= "DM_ID";
-	public static final String KEY_NGEO_WEB_SERVER_REGISTRATION_URLS       	= "NGEO_WEB_SERVER_REGISTRATION_URLS";
-	public static final String KEY_NGEO_WEB_SERVER_DAR_MONITORING_URLS      = "NGEO_WEB_SERVER_DAR_MONITORING_URLS";
-	public static final String KEY_NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL      = "NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL";
-	public static final String KEY_NGEO_MONITORING_SERVICE_SET_TIME  		= "NGEO_MONITORING_SERVICE_SET_TIME";
-	public static final String KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD 		= "IICD_D_WS_DEFAULT_REFRESH_PERIOD";
-	public static final String KEY_NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS  = "NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS";
-	public static final String KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND 		= "PRODUCT_DOWNLOAD_COMPLETE_COMMAND";
-	public static final String KEY_SSO_USERNAME                      		= "SSO_USERNAME";
-	public static final String KEY_WEB_INTERFACE_PASSWORD            		= "WEB_INTERFACE_PASSWORD";
-	public static final String KEY_WEB_INTERFACE_PORT_NO             		= "WEB_INTERFACE_PORT_NO";
-	public static final String KEY_WEB_INTERFACE_REMOTE_ACCESS_ENABLED 		= "WEB_INTERFACE_REMOTE_ACCESS_ENABLED";
-	public static final String KEY_WEB_INTERFACE_USERNAME            		= "WEB_INTERFACE_USERNAME";
-	public static final String KEY_WEB_PROXY_HOST                    		= "WEB_PROXY_HOST";
-	public static final String KEY_WEB_PROXY_PORT                    		= "WEB_PROXY_PORT";
-	public static final String KEY_WEB_PROXY_USERNAME                		= "WEB_PROXY_USERNAME";
-	public static final String KEY_WEB_PROXY_PASSWORD                		= "WEB_PROXY_PASSWORD";
-	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsManager.class);
 	
 	private final String NAME_OF_CONF_DIR = "conf";
-	private final String NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE     =    "userModifiableSettingsPersistentStore.properties";
-	private final String NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE = "nonUserModifiableSettingsPersistentStore.properties";
+	private final String NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE     = "user-modifiable-settings.properties";
+	private final String NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE = "non-user-modifiable-settings.properties";
 	
 	private Properties nonUserModifiableProperties = new Properties();
 	private Properties userModifiableProperties = new Properties();
@@ -64,12 +38,12 @@ public class SettingsManager {
 	public void init() {
 		// Load non-user-modifiable settings
 		String persistentStoreAbsolutePath = System.getenv("DM_HOME") + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
-		String defaultValuesPathRelativeToClasspath = "/META-INF/non-user-modifiable-settings-defaults.properties";
+		String defaultValuesPathRelativeToClasspath = "/META-INF/non-user-modifiable-settings.properties";
 		loadPropertiesFromPersistentStoreOrDefaults(nonUserModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
 
 		// Load the user-modifiable settings
 		persistentStoreAbsolutePath = System.getenv("DM_HOME") + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
-		defaultValuesPathRelativeToClasspath = "/META-INF/user-modifiable-settings-defaults.properties";
+		defaultValuesPathRelativeToClasspath = "/META-INF/user-modifiable-settings.properties";
 		loadPropertiesFromPersistentStoreOrDefaults(userModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
 	}
 
@@ -94,46 +68,45 @@ public class SettingsManager {
 		}
 	}
 	
-	private String getSettingInternal(String settingName) {
-		String setting = null;
-		setting = nonUserModifiableProperties.getProperty(settingName);
-		if (setting == null) {
-			setting = userModifiableProperties.getProperty(settingName);
-		}
-		return setting;
-	}
-	
-	public String getSetting(String settingName) {
-		String setting = getSettingInternal(settingName);
+	public String getSetting(UserModifiableSetting userModifiableSetting) {
+		String settingName = userModifiableSetting.toString();
+		String setting = userModifiableProperties.getProperty(settingName);
 		if (setting == null || setting.isEmpty()) {
 			LOGGER.debug(String.format("There is no setting for %s", settingName));
 		}
-		if (settingName.equals(KEY_SSO_PASSWORD)) { 
-			setting = decrypt(setting);
+		switch (userModifiableSetting) {
+		case SSO_PASSWORD:
+			return decrypt(setting);
+		default:
+			return setting;
+		}
+	}
+
+	public String getSetting(NonUserModifiableSetting nonUserModifiableSetting) {
+		String settingName = nonUserModifiableSetting.toString();
+		String setting = nonUserModifiableProperties.getProperty(settingName);
+		if (setting == null || setting.isEmpty()) {
+			LOGGER.debug(String.format("There is no setting for %s", settingName));
 		}
 		return setting;
 	}
-	
+
 	private String decrypt(String setting) {
 		Base64 base64 = new Base64();
 		return new String(base64.decode(setting.getBytes()));
 	}
 
-	public void setSetting(String settingName, String value) {
-		if (settingName.equals(KEY_SSO_PASSWORD)) {
+	public void setSetting(UserModifiableSetting userModifiableSetting, String value) {
+		if (userModifiableSetting.equals(UserModifiableSetting.SSO_PASSWORD)) {
 			value = encrypt(value);
 		}
-		if (nonUserModifiableProperties.containsKey(settingName)) {
-			nonUserModifiableProperties.setProperty(settingName, value);
-			updatePersistentStore(SettingsType.NON_USER_MODIFIABLE);
-		}
-		else if (userModifiableProperties.containsKey(settingName)) {
-			userModifiableProperties.setProperty(settingName, value);
-			updatePersistentStore(SettingsType.USER_MODIFIABLE);
-		}
-		else {
-			throw new NonRecoverableException(String.format("Unable to set value of setting \"%s\"; there is no corresponding settings repository.", settingName));
-		}
+		userModifiableProperties.setProperty(userModifiableSetting.toString(), value);
+		updatePersistentStore(SettingsType.USER_MODIFIABLE);
+	}
+
+	public void setSetting(NonUserModifiableSetting nonUserModifiableSetting, String value) {
+		nonUserModifiableProperties.setProperty(nonUserModifiableSetting.toString(), value);
+		updatePersistentStore(SettingsType.NON_USER_MODIFIABLE);
 	}
 
 	private String encrypt(String value) {

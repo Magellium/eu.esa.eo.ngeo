@@ -19,10 +19,7 @@
 	</dependencySets>
 	<moduleSets>
 		<moduleSet>
-			<!-- Enable access to all projects in the current multimodule build! -->
 			<useAllReactorProjects>true</useAllReactorProjects>
-		
-			<!-- Now, select which projects to include in this module-set. -->
 			<includes>
 				<include>${project.groupId}:download-manager-command-line</include>
 			</includes>
@@ -33,10 +30,7 @@
 			</binaries>
 		</moduleSet>
 		<moduleSet>
-			<!-- Enable access to all projects in the current multimodule build! -->
 			<useAllReactorProjects>true</useAllReactorProjects>
-		
-			<!-- Now, select which projects to include in this module-set. -->
 			<includes>
 				<include>${project.groupId}:download-manager-webapp</include>
 			</includes>
@@ -54,10 +48,34 @@
 			</sources>
 		</moduleSet>
 		<moduleSet>
-			<!-- Enable access to all projects in the current multimodule build! -->
 			<useAllReactorProjects>true</useAllReactorProjects>
-		
-			<!-- Now, select which projects to include in this module-set. -->
+			<includes>
+				<include>${project.groupId}:download-manager-core</include>
+			</includes>
+			<sources>
+				<fileSets>
+					<fileSet>
+						<directory>src/main/resources</directory>
+						<outputDirectory>conf</outputDirectory>
+						<includes>
+							<include>log4j.xml</include>
+						</includes>
+				 	</fileSet>
+					<fileSet>
+						<directory>src/main/resources/META-INF</directory>
+						<outputDirectory>conf</outputDirectory>
+						<includes>
+							<include>user-modifiable-settings.properties</include>
+							<include>non-user-modifiable-settings.properties</include>
+						</includes>
+						<filtered>true</filtered>
+				 	</fileSet>
+				</fileSets>
+				<includeModuleDirectory>false</includeModuleDirectory>
+			</sources>
+		</moduleSet>
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
 				<include>${project.groupId}:download-manager-plugin-generic</include>
 				<include>${project.groupId}:download-manager-plugin-mock-sentinel2</include>
@@ -77,10 +95,7 @@
 			</binaries>
 		</moduleSet>
 		<moduleSet>
-			<!-- Enable access to all projects in the current multimodule build! -->
 			<useAllReactorProjects>true</useAllReactorProjects>
-		
-			<!-- Now, select which projects to include in this module-set. -->
 			<includes>
 				<include>${project.groupId}:download-manager-sso</include>
 			</includes>
@@ -111,11 +126,6 @@
 		<fileSet>
 			<outputDirectory></outputDirectory>
 			<directory>os_files/windows</directory>
-			<filtered>true</filtered>
-		</fileSet>
-		<fileSet>
-			<outputDirectory>conf</outputDirectory>
-			<directory>src/main/resources</directory>
 			<filtered>true</filtered>
 		</fileSet>
 		<fileSet>

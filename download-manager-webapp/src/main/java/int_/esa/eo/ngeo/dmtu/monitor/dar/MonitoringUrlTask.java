@@ -10,8 +10,10 @@ import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
 import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
 import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
+import int_.esa.eo.ngeo.downloadmanager.builder.SSOClientBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLList;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLRequ;
@@ -47,13 +49,14 @@ public class MonitoringUrlTask implements Runnable {
 	private DARController darController;
 	private MonitoringController monitoringController;
 	private TaskScheduler darMonitorScheduler;
+	private SettingsManager settingsManager;
  
 	private String downloadManagerId;
 	private URL monitoringServiceUrl;
 	
 	private int refreshPeriod;
 	
-	public MonitoringUrlTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService,  DARController darController, MonitoringController monitoringController, TaskScheduler darMonitorScheduler, String downloadManagerId, URL monitoringServiceUrl) {
+	public MonitoringUrlTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService,  DARController darController, MonitoringController monitoringController, TaskScheduler darMonitorScheduler, SettingsManager settingsManager, String downloadManagerId, URL monitoringServiceUrl) {
 		this.ngeoWebServerRequestBuilder = ngeoWebServerRequestBuilder;
 		this.ngeoWebServerResponseParser = ngeoWebServerResponseParser;
 		this.ngeoWebServerService = ngeoWebServerService;
@@ -62,7 +65,8 @@ public class MonitoringUrlTask implements Runnable {
 		this.darMonitorScheduler = darMonitorScheduler;
 		this.downloadManagerId = downloadManagerId;
 		this.monitoringServiceUrl = monitoringServiceUrl;
-		String defaultRefreshPeriod = monitoringController.getSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD);
+		this.settingsManager = settingsManager; 
+		String defaultRefreshPeriod = settingsManager.getSetting(NonUserModifiableSetting.IICD_D_WS_REFRESH_PERIOD);
 		if(defaultRefreshPeriod != null && !defaultRefreshPeriod.isEmpty()) {
 			this.refreshPeriod = Integer.parseInt(defaultRefreshPeriod, 10);
 		}else{
@@ -73,14 +77,14 @@ public class MonitoringUrlTask implements Runnable {
 	public void run() {
 		LOGGER.debug("Starting MonitoringUrlTask");
 		if(monitoringController.isDarMonitoringRunning()) {
-			String downloadManagerSetTimeAsString = monitoringController.getSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME);
+			String downloadManagerSetTimeAsString = settingsManager.getSetting(NonUserModifiableSetting.NGEO_MONITORING_SERVICE_SET_TIME);
 	
 			GregorianCalendar downloadManagerSetTime = null;
 			if(downloadManagerSetTimeAsString != null && !downloadManagerSetTimeAsString.isEmpty()) {
 				downloadManagerSetTime = convertDateTimeAsStringToGregorianCalendar(downloadManagerSetTimeAsString);
 			}
 			
-			UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(monitoringController);
+			UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(settingsManager);
 
 			MonitoringURLRequ monitoringUrlRequest = ngeoWebServerRequestBuilder.buildMonitoringURLRequest(downloadManagerId, downloadManagerSetTime);
 			UserOrder userOrder = null;
@@ -93,7 +97,7 @@ public class MonitoringUrlTask implements Runnable {
 				monitoringUrlResponse = ngeoWebServerResponseParser.parseMonitoringURLResponse(monitoringServiceUrl, response);
 				Date responseDate = new ResponseHeaderParser().searchForResponseDate(response);
 	
-				monitoringController.setSetting(SettingsManager.KEY_NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
+				settingsManager.setSetting(NonUserModifiableSetting.NGEO_MONITORING_SERVICE_SET_TIME, convertDateToString(responseDate));
 			} catch (ParseException | ServiceException | DateParseException e) {
 				LOGGER.error(String.format("%s whilst calling Monitoring URL %s: %s", e.getClass().getName(), monitoringServiceUrl, e.getLocalizedMessage()), e);
 			} finally {
@@ -117,7 +121,7 @@ public class MonitoringUrlTask implements Runnable {
 						LOGGER.error(String.format("Exception whilst sending user order %s", userOrder.toString()), e);					}
 				}else{
 					refreshPeriod = monitoringUrlResponse.getRefreshPeriod().intValue();
-					monitoringController.setSetting(SettingsManager.KEY_IICD_D_WS_DEFAULT_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));
+					settingsManager.setSetting(NonUserModifiableSetting.IICD_D_WS_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));
 					
 					MonitoringURLList monitoringUrls = monitoringUrlResponse.getMonitoringURLList();
 					List<String> monitoringUrlList = monitoringUrls.getMonitoringURLs();
@@ -135,7 +139,7 @@ public class MonitoringUrlTask implements Runnable {
 							
 							if(darAdded) {
 								LOGGER.debug("Starting new dataAccessMonitoringTask from MonitoringUrlTask");
-								DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
+								DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, settingsManager, downloadManagerId, darMonitoringUrl, refreshPeriod);
 								darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());
 							}
 						} catch (MalformedURLException e) {
@@ -153,7 +157,7 @@ public class MonitoringUrlTask implements Runnable {
 				c.setTime(new Date());
 				c.add(Calendar.SECOND, refreshPeriod);
 		
-				MonitoringUrlTask monitoringUrlTask = new MonitoringUrlTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, monitoringServiceUrl);
+				MonitoringUrlTask monitoringUrlTask = new MonitoringUrlTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, settingsManager, downloadManagerId, monitoringServiceUrl);
 				darMonitorScheduler.schedule(monitoringUrlTask, c.getTime());
 			}
 			LOGGER.debug("Finished MonitoringUrlTask");

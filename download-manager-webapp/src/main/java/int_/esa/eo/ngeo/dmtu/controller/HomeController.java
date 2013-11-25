@@ -1,5 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
+import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class HomeController {
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home() {
-		if (!Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_DM_IS_SETUP)) || !Boolean.parseBoolean(settingsManager.getSetting(SettingsManager.KEY_DM_IS_REGISTERED))) {
+		if (!Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP)) || !Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED))) {
 			return "redirect:/config/firststartup";
 		}
 		

@@ -4,6 +4,7 @@ import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.exception.SchemaNotFoundException;
+import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntRequ;
@@ -74,7 +75,7 @@ public class NgeoWebServerService implements NgeoWebServerServiceInterface {
 	 * non-UM-SSO method to integrate with ngEO Web Server. This should only be used when UM-SSO is not available.
 	 */
 	private void attemptLoginUsingNonUmssoCredentials(UmSsoHttpClient umSsoHttpClient) {
-		String nonUmssoLoginUrl = settingsManager.getSetting(SettingsManager.KEY_NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL);
+		String nonUmssoLoginUrl = settingsManager.getSetting(NonUserModifiableSetting.NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL);
 		if(StringUtils.isNotBlank(nonUmssoLoginUrl)) {
 			try {
 			    LOGGER.debug(String.format("Performing login to Web Server using non-UM-SSO credentials: %s", nonUmssoLoginUrl));

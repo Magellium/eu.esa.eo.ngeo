@@ -22,6 +22,7 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadProcess;
 import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
+import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting;
 
 import java.io.File;
 import java.net.URI;
@@ -71,7 +72,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	}
 
 	public void initDowloadPool() {
-		String noOfParallelProductDownloadThreads = settingsManager.getSetting("NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS");
+		String noOfParallelProductDownloadThreads = settingsManager.getSetting(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS);
 		int concurrentProductDownloadThreads = Integer.parseInt(noOfParallelProductDownloadThreads);
 		LOGGER.info(String.format("Creating thread pool for %s concurrent product download threads", concurrentProductDownloadThreads));
         downloadQueue = new ArrayBlockingQueue<>(200);
@@ -139,23 +140,23 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			File downloadPath;
 			String downloadDirectory = product.getDownloadDirectory();
 			if(downloadDirectory != null) {
-				downloadPath = Paths.get(settingsManager.getSetting(SettingsManager.KEY_BASE_DOWNLOAD_FOLDER_ABSOLUTE), downloadDirectory).toFile();
+				downloadPath = Paths.get(settingsManager.getSetting(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE), downloadDirectory).toFile();
 			}else{
-				downloadPath = Paths.get(settingsManager.getSetting(SettingsManager.KEY_BASE_DOWNLOAD_FOLDER_ABSOLUTE)).toFile();
+				downloadPath = Paths.get(settingsManager.getSetting(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE)).toFile();
 			}
 			
-			String umSSOUsername = settingsManager.getSetting(SettingsManager.KEY_SSO_USERNAME);
-			String umSSOPassword = settingsManager.getSetting(SettingsManager.KEY_SSO_PASSWORD);
-			String proxyHost = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_HOST);
-			String proxyPortString = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PORT);
+			String umSSOUsername = settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME);
+			String umSSOPassword = settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD);
+			String proxyHost = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_HOST);
+			String proxyPortString = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PORT);
 			int proxyPort;
 			if (StringUtils.isEmpty(proxyPortString)) {
 				proxyPort = -1;
 			}else{
 				proxyPort = Integer.parseInt(proxyPortString);
 			}
-			String proxyUsername = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_USERNAME);
-			String proxyPassword = settingsManager.getSetting(SettingsManager.KEY_WEB_PROXY_PASSWORD);
+			String proxyUsername = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_USERNAME);
+			String proxyPassword = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PASSWORD);
 			
 			return downloadPlugin.createDownloadProcess(uri, downloadPath, umSSOUsername, umSSOPassword, productDownloadListener, proxyHost, proxyPort, proxyUsername, proxyPassword);
 		} catch (NoPluginAvailableException | URISyntaxException | DMPluginException ex) {
@@ -269,7 +270,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	}
 	
 	private void executeCallbackMechanism(Product product) {
-		String productDownloadCompleteCommand = settingsManager.getSetting(SettingsManager.KEY_PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
+		String productDownloadCompleteCommand = settingsManager.getSetting(UserModifiableSetting.PRODUCT_DOWNLOAD_COMPLETE_COMMAND);
 		CallbackCommandExecutor callbackExecutor = new CallbackCommandExecutor();
 		callbackExecutor.invokeCallbackCommandOnProductFiles(productDownloadCompleteCommand, product.getCompletedDownloadPath());
 	}
