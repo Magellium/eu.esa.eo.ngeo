@@ -17,11 +17,6 @@
 			<artifactId>download-manager-core</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-sso</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
