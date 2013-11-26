@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.dmtu.log;
+package int_.esa.eo.ngeo.downloadmanager.log;
 
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;

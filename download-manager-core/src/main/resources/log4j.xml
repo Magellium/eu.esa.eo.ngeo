@@ -12,10 +12,8 @@
 	
 	<appender name="DownloadManagerLog" class="org.apache.log4j.RollingFileAppender">
         <param name="file" value="${DM_HOME}/logs/download-manager.log" />
-		<param name="DatePattern" value="'.'yyyy-MM-dd" />
-		<triggeringPolicy class="org.apache.log4j.rolling.SizeBasedTriggeringPolicy">
-			<param name="maxFileSize" value="50000000" />
-		</triggeringPolicy>
+		<param name="MaxBackupIndex" value="5" />
+	    <param name="MaxFileSize" value="20MB" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value=" %d{HH:mm:ss} %-5p: %c{1} - %m%n" />
         </layout>
@@ -23,10 +21,9 @@
 
 	<appender name="productDownloadTerminationLog" class="org.apache.log4j.RollingFileAppender">
         <param name="file" value="${DM_HOME}/logs/productDownloadTermination.log" />
-		<triggeringPolicy class="org.apache.log4j.rolling.SizeBasedTriggeringPolicy">
-			<param name="maxFileSize" value="50000000" />
-		</triggeringPolicy>
-        <layout class="int_.esa.eo.ngeo.dmtu.log.ProductTerminationLogLayout">
+		<param name="MaxBackupIndex" value="5" />
+	    <param name="MaxFileSize" value="20MB" />
+        <layout class="int_.esa.eo.ngeo.downloadmanager.log.ProductTerminationLogLayout">
 			<param name="ConversionPattern" value="%m%n" />
         </layout>
     </appender>

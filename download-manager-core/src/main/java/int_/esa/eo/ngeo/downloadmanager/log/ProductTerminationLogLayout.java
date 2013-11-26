@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.dmtu.log;
+package int_.esa.eo.ngeo.downloadmanager.log;
 
 import org.apache.log4j.PatternLayout;
 
