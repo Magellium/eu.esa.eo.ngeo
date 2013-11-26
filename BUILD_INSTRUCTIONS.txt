@@ -25,7 +25,8 @@ Profiles
 
 Environments
 
-  ngeo-task6
+  ngeo-task6-tpz
+  ngeo-task6-esa
 
 If no profiles or environments are specified, the ngeo profile is used.
 

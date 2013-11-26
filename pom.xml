@@ -115,16 +115,25 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>ngeo-task6</id>
+			<id>ngeo-task6-tpz</id>
 			<activation>
 				<property>
 					<name>environment</name>
-					<value>ngeo-task6</value>
+					<value>ngeo-task6-tpz</value>
 				</property>
 			</activation>
 			<properties>
 				<NGEO_WEB_SERVER_REGISTRATION_URLS>https://ngEO-S2-Gate.int.oivv.org/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
 			</properties>
+		</profile>
+		<profile>
+			<id>ngeo-task6-esa</id>
+			<activation>
+				<property>
+					<name>environment</name>
+					<value>ngeo-task6-esa</value>
+				</property>
+			</activation>
 		</profile>
 		<profile>
 			<id>dream</id>
