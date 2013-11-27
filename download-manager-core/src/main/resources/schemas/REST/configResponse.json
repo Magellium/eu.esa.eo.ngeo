@@ -1,0 +1,60 @@
+{
+	"title": "REST Interface Configuration Response",
+	"type":"object",
+	"javaType": "int_.esa.eo.ngeo.downloadmanager.rest.ConfigResponse",
+	"description":"A list of Download Manager configuration properties and their values.",
+	"required":true,
+	"properties":{
+		"userModifiableSettingEntries":{
+			"type":"array",
+			"items": {
+				"type": "object",
+				"javaType":"int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSettingEntry",
+				"description":"",
+				"required":true,
+				"properties":{
+					"key":{
+						"type":"object",
+						"javaType" : "int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting",
+						"enum" : ["SSO_USERNAME", "SSO_PASSWORD", "DM_FRIENDLY_NAME", "BASE_DOWNLOAD_FOLDER_ABSOLUTE", "NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS", "PRODUCT_DOWNLOAD_COMPLETE_COMMAND", "WEB_INTERFACE_PASSWORD", "WEB_INTERFACE_PORT_NO", "WEB_INTERFACE_REMOTE_ACCESS_ENABLED", "WEB_INTERFACE_USERNAME", "WEB_PROXY_HOST", "WEB_PROXY_PORT", "WEB_PROXY_USERNAME", "WEB_PROXY_PASSWORD"],
+						"description":"",
+						"required":true
+					},
+					"value":{
+						"type":"string",
+						"description":"",
+						"required":true
+					}
+				},
+				"additionalProperties": false
+			},
+			"additionalProperties": false
+		},
+		"nonUserModifiableSettingEntries":{
+			"type":"array",
+			"items": {
+				"type": "object",
+				"javaType":"int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSettingEntry",
+				"description":"",
+				"required":true,
+				"properties":{
+					"key":{
+						"type":"object",
+						"javaType" : "int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting",
+						"enum": ["DM_IS_REGISTERED", "DM_IS_SETUP", "DM_ID", "NGEO_WEB_SERVER_REGISTRATION_URLS", "NGEO_WEB_SERVER_DAR_MONITORING_URLS", 	"NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL", "NGEO_MONITORING_SERVICE_SET_TIME", "IICD_D_WS_REFRESH_PERIOD", "DIR_PLUGINS"],
+						"description":"",
+						"required":true
+					},
+					"value":{
+						"type":"string",
+						"description":"",
+						"required":true
+					}
+				},
+				"additionalProperties": false
+			},
+			"additionalProperties": false
+		}
+	},
+	"additionalProperties": false
+}

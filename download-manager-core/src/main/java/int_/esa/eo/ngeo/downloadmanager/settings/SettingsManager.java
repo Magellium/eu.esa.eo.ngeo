@@ -1,6 +1,7 @@
 package int_.esa.eo.ngeo.downloadmanager.settings;
 
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.rest.ConfigResponse;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
@@ -140,4 +144,39 @@ public class SettingsManager {
 		return pathNameOfPersistentStore;
 	}
 
+	/*
+	 * TODO: Move into a seperate builder class? visibility of properties might need to be changed
+	 *       to protected or getter methods created
+	 */
+	public ConfigResponse buildConfigResponse() {
+		ConfigResponse configResponse = new ConfigResponse();
+
+		List<UserModifiableSettingEntry> userModifiableSettingEntryList = new ArrayList<>();
+		for (Map.Entry<Object, Object> userModifiablePropertiesEntry : userModifiableProperties.entrySet()) {
+			UserModifiableSetting key = UserModifiableSetting.valueOf((String)userModifiablePropertiesEntry.getKey());
+			String value = (String) userModifiablePropertiesEntry.getValue();
+			
+			UserModifiableSettingEntry userModifiableSettingEntry = new UserModifiableSettingEntry();
+			userModifiableSettingEntry.setKey(key);
+			userModifiableSettingEntry.setValue(value);
+			
+			userModifiableSettingEntryList.add(userModifiableSettingEntry);
+		}
+		List<NonUserModifiableSettingEntry> nonUserModifiableSettingEntryList = new ArrayList<>();
+		for (Map.Entry<Object, Object> nonUserModifiablePropertiesEntry : nonUserModifiableProperties.entrySet()) {
+			NonUserModifiableSetting key = NonUserModifiableSetting.valueOf((String)nonUserModifiablePropertiesEntry.getKey());
+			String value = (String) nonUserModifiablePropertiesEntry.getValue();
+			
+			NonUserModifiableSettingEntry nonUserModifiableSettingEntry = new NonUserModifiableSettingEntry();
+			nonUserModifiableSettingEntry.setKey(key);
+			nonUserModifiableSettingEntry.setValue(value);
+			
+			nonUserModifiableSettingEntryList.add(nonUserModifiableSettingEntry);
+		}
+
+		configResponse.setUserModifiableSettingEntries(userModifiableSettingEntryList);
+		configResponse.setNonUserModifiableSettingEntries(nonUserModifiableSettingEntryList);
+
+		return configResponse;
+	}
 }

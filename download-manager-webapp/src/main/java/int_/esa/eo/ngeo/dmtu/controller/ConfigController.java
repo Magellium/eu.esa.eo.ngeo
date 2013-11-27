@@ -2,11 +2,16 @@ package int_.esa.eo.ngeo.dmtu.controller;
 
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
 import int_.esa.eo.ngeo.dmtu.monitor.dar.DARMonitor;
+import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.configuration.AdvancedConfigSettings;
 import int_.esa.eo.ngeo.downloadmanager.configuration.ConfigSettings;
+import int_.esa.eo.ngeo.downloadmanager.exception.InvalidSettingValueException;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
+import int_.esa.eo.ngeo.downloadmanager.rest.ConfigResponse;
 import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting;
+import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSettingsValidator;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,8 +26,11 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping(value="/config")
@@ -158,6 +166,27 @@ public class ConfigController {
 		Path baseDownloadFolderPath = Paths.get(baseDownloadFolder);
 		if(Files.exists(baseDownloadFolderPath)) {
 			Files.createDirectories(baseDownloadFolderPath);
+		}
+	}
+	
+	@RequestMapping(method=RequestMethod.GET)
+	@ResponseBody
+	public ConfigResponse getConfigValues() {
+		return settingsManager.buildConfigResponse();
+	}
+
+	@RequestMapping(method=RequestMethod.GET, params="action=changeSetting")
+	@ResponseBody
+	public CommandResponse setConfigValue(@RequestParam UserModifiableSetting settingKey, @RequestParam String settingValue) {
+		UserModifiableSettingsValidator userModifiableSettingsValidator = new UserModifiableSettingsValidator();
+		CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
+
+		try {
+			userModifiableSettingsValidator.validateSettingValue(settingKey, settingValue);
+			settingsManager.setSetting(settingKey, settingValue);
+			return commandResponseBuilder.buildCommandResponse(true, "");
+		} catch (InvalidSettingValueException e) {
+			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());
 		}
 	}
 }

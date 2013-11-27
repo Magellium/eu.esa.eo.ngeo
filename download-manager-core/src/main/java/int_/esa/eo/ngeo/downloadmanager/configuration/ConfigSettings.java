@@ -3,11 +3,7 @@ package int_.esa.eo.ngeo.downloadmanager.configuration;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-// TODO: Cross-field validation, e.g. consider there to be an error if password is provided but username isn't.
-// TODO: Should we render a password confirmation field, and check that both passwords match?
 public class ConfigSettings {
-	
-	//TODO: Revisit validation rules to ensure that they match with customer expectations
 	@Size(min=1, max=40, message="SSO username must be 1 - 40 characters long")
 	@Pattern(regexp="^[a-zA-Z0-9]+$", message="SSO username must be alphanumeric with no spaces")
 	private String ssoUsername;
@@ -15,16 +11,16 @@ public class ConfigSettings {
 	@Size(min=4, max=40, message="SSO password must be 4 - 40 characters long")
 	private String ssoPassword;
 	
-	@Size(min=3, max=100, message="Name of DMTU instance must be 3 - 100 characters long")
-	@Pattern(regexp="^[^ ].*$", message="Name of DMTU instance must not start with a space")
+	@Size(min=3, max=100, message="Name of Download Manager instance must be 3 - 100 characters long")
+	@Pattern(regexp="^[^ ].*$", message="Name of Download Manager instance must not start with a space")
 	private String dmFriendlyName;
 	
 	@Size(min=1, message="Download directory name must be at least one character long")
 	private String baseDownloadFolder;
 	
-	@Size(min=1, max=5, message="DMTU web interface port no. must be 1 - 5 numeric digits")
-	@Pattern(regexp="^[0-9]+$", message="DMTU web interface port no. must be 1 - 5 numeric digits")
-	private String webInterfacePortNo; // XXX: Would this be more elegantly implemented as an int or an Integer?
+	@Size(min=1, max=5, message="Download Manager web interface port no. must be 1 - 5 numeric digits")
+	@Pattern(regexp="^[0-9]+$", message="Download Manager web interface port no. must be 1 - 5 numeric digits")
+	private String webInterfacePortNo;
 	
 	private String webProxyHost;
 
@@ -38,8 +34,6 @@ public class ConfigSettings {
 	
 	@Size(min=0, max=40, message="Web proxy password must be no longer than 40 characters")
 	private String webProxyPassword;
-	
-	
 	
 	public String getSsoUsername() {
 		return ssoUsername;
