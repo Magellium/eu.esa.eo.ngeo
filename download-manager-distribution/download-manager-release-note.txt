@@ -26,7 +26,7 @@ Release History
              - Added monitored field in hibernate mapping. Fixes issue where DARs which have been provided by the WEBS are not monitored after the DMTU has been restarted.
              - Updated metalink example for product facility
              - Added release note for mock product facility
-             - Corrected outputFileNameMapping to not include the version number in the jar name. This affects all environments except Win 64 bit.
+             - Corrected outputFileNameMapping in build assemblies to not include the version number in the jar name. This affects all environments except Win 64 bit.
              - Added the ability to read configuration and modify user modifiable settings in the REST interface and CLI.
 0.5.5
     Release date 19th November 2013
