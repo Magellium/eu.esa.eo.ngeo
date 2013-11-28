@@ -131,7 +131,7 @@ public class NgeoWebServerRequestBuilder {
 			break;
 		case IN_ERROR:
 			productDownloadStatus = ProductDownloadStatus.ERROR;
-			productDownloadMessage = "Product download error";
+			productDownloadMessage = String.format("Product download error: %s", productProgress.getMessage());
 			break;
 		case COMPLETED:
 			productDownloadStatus = ProductDownloadStatus.COMPLETED;
