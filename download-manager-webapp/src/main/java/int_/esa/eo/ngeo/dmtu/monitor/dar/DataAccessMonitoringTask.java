@@ -52,6 +52,8 @@ public class DataAccessMonitoringTask implements Runnable {
 		this.darController = darController;
 		this.monitoringController = monitoringController;
 		this.darMonitorScheduler = darMonitorScheduler;
+		this.settingsManager = settingsManager;
+		
 		this.downloadManagerId = downloadManagerId;
 		this.darMonitoringUrl = darMonitoringUrl;
 		this.refreshPeriod = refreshPeriod;
