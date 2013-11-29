@@ -121,6 +121,10 @@
         </plugins>
 		<resources>
 			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
 				<directory>${basedir}</directory>
 				<targetPath>${project.build.directory}</targetPath>
 				<filtering>true</filtering>
