@@ -26,10 +26,6 @@ All paths provided are relative to the context path of the deployed WAR e.g. dow
 *   Product containing multiple files - Metalink (/metalink)
     - Provides a metalink file which the Download Manager can use to download multiple files for this product.
     
-*   Download file with chunked encoding (/download/chunked)
-    - Provides a file which can be downloaded with cunked encoding. An HTTP response header with "Content-Length" is not provided,
-      consequently the "Total Size" and "Completion" values displayed in the GUI are "Unknown".
-
 The "Idle product available" feature indicated above allows the ability to control when a product is available and is a one-off command.
 In order to reset this feature i.e. the product is idle, the web server application must be restarted.
 
