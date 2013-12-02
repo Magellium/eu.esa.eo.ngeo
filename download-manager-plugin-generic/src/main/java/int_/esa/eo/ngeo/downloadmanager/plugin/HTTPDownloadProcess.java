@@ -394,7 +394,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	}
 
 	private void tidyUpAfterCompletedDownload(int numberOfFilesInProduct) {
-		if(numberOfFilesInProduct > 1) { //product download is a metalink
+		//check if a product download is a metalink, regardless of how many products are contained in the metalink
+		if(productMetadata.getMetalinkDownloadDirectory() != null) {
 			try {
 				Files.move(productMetadata.getTempMetalinkDownloadDirectory(), productMetadata.getMetalinkDownloadDirectory(), StandardCopyOption.REPLACE_EXISTING);
 				

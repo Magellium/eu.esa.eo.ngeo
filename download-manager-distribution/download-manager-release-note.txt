@@ -23,6 +23,7 @@ Release History
 ========================================================
 0.5.6
     Release date TBD
+    DMTU-142 - Folder path for Idle metalink products still includes a dot when the product has been completed
              - Added the ability to read configuration and modify user modifiable settings in the REST interface and CLI.
              - Added monitored field in hibernate mapping. Fixes issue where DARs which have been provided by the WEBS are not monitored after the DMTU has been restarted.
              - Updated metalink example for product facility
