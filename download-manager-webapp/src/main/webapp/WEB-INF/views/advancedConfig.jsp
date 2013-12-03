@@ -8,8 +8,8 @@
 	<p style="text-align:center;"><form:errors path="*" cssStyle="color:red;"/></p>
 	<div id="tabs">
 		<ul>
-			<li><a href="config/advanced#tabs-1">General</a></li>
-			<li><a href="config/advanced#tabs-2">Web Proxy</a></li>
+			<li><a href="${pathForAnchors}#tabs-1">General</a></li>
+			<li><a href="${pathForAnchors}#tabs-2">Web Proxy</a></li>
 <!-- 			<li><a href="advancedconfig#tabs-3">Web Interface</a></li> -->
 <!-- 			<li><a href="advancedconfig#tabs-4">Email</a></li> -->
 		</ul>

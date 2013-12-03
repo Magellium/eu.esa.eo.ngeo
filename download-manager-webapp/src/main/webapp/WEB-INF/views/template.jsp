@@ -13,6 +13,14 @@
 		<c:set var="req" value="${pageContext.request}" />
 		<c:set var="baseURL" value="${fn:replace(req.requestURL, req.requestURI, req.contextPath)}" />
 		<base href="<c:url value="${baseURL}/" />" />
+
+		<c:set var="pathForAnchors" value="<%= request.getAttribute("javax.servlet.forward.request_uri")%>" scope="request" />
+		<c:set var="removeFromPathForAnchors" value="${req.contextPath}/" />
+		<c:set var="pathForAnchors" value="${fn:replace(pathForAnchors, removeFromPathForAnchors, '')}" scope="request" />
+		<c:if test="${not empty req.queryString}">
+			<c:set var="pathForAnchors" value="${pathForAnchors}?${req.queryString}" scope="request"/>
+		</c:if>
+
 		<link rel="stylesheet" type="text/css" href="resources/css/jquery.dataTables.css"/>
 		<link rel="stylesheet" type="text/css" href="resources/css/custom-theme/jquery-ui-1.10.3.custom.min.css"/>
 		<link rel="stylesheet" type="text/css" href="resources/css/jquery.notific8.min.css" />

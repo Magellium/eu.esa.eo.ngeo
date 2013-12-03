@@ -10,8 +10,8 @@
 	</div>
 	<div id="tabs">
 		<ul>
-			<li><a href="config/firststartup#tabs-1">General</a></li>
-			<li><a href="config/firststartup#tabs-2">Web Proxy</a></li>
+			<li><a href="${pathForAnchors}#tabs-1">General</a></li>
+			<li><a href="${pathForAnchors}#tabs-2">Web Proxy</a></li>
 		</ul>
 		<div id="tabs-1">
 			<table>
