@@ -144,8 +144,8 @@
 <!-- 								<descriptor>src/assemble/download-manager-win_i586-assembly.xml</descriptor> -->
 								<descriptor>src/assemble/download-manager-win_x64-assembly.xml</descriptor>
 <!-- 								<descriptor>src/assemble/download-manager-linux_i586-assembly.xml</descriptor> -->
-<!-- 								<descriptor>src/assemble/download-manager-linux_x64-assembly.xml</descriptor> -->
-<!-- 								<descriptor>src/assemble/download-manager-macosx_x64-assembly.xml</descriptor> -->
+								<descriptor>src/assemble/download-manager-linux_x64-assembly.xml</descriptor>
+								<descriptor>src/assemble/download-manager-macosx_x64-assembly.xml</descriptor>
 							</descriptors>
 							<finalName>download-manager-${project.version}</finalName>
 							<tarLongFileMode>gnu</tarLongFileMode>
