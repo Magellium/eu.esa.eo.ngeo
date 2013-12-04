@@ -31,8 +31,8 @@ Release History
              - Added release note for mock product facility
              - Corrected outputFileNameMapping in build assemblies to not include the version number in the jar name. This affects all environments except Win 64 bit.
              - Improved product download message when the product status is error - now supplies the error message provided by the plugin.
-             - Updated license to correct invalid characters
-             - Updated "Not started" label to "Queued".
+             - Updated license to correct invalid characters.
+             - Updated "Not started" status to "Queued".
 0.5.5
     Release date 19th November 2013
              - Improvements to the handling of UM-SSO and non- UM-SSO environments.
