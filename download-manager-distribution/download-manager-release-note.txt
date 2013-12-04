@@ -22,16 +22,17 @@ Features
 Release History
 ========================================================
 0.5.6
-    Release date TBD
+    Release date 4th December 2013
     DMTU-141 - When proxy is left empty, error is returned and page becomes unresponsive
     DMTU-142 - Folder path for Idle metalink products still includes a dot when the product has been completed
              - Added the ability to read configuration and modify user modifiable settings in the REST interface and CLI.
              - Added monitored field in hibernate mapping. Fixes issue where DARs which have been provided by the WEBS are not monitored after the DMTU has been restarted.
-             - Updated metalink example for product facility
+             - Updated metalink example for mock product facility
              - Added release note for mock product facility
              - Corrected outputFileNameMapping in build assemblies to not include the version number in the jar name. This affects all environments except Win 64 bit.
              - Improved product download message when the product status is error - now supplies the error message provided by the plugin.
              - Updated license to correct invalid characters
+             - Updated "Not started" label to "Queued".
 0.5.5
     Release date 19th November 2013
              - Improvements to the handling of UM-SSO and non- UM-SSO environments.
@@ -141,9 +142,9 @@ Release History
 Requirements not currently implemented (requirement ref: DMTU-URD)
 ========================================================
 
-DMTU-REQ-16 - Web interface protection
-DMTU-REQ-29 - Priority for manual downloads
-DMTU-REQ-30 - Browser helper application
+DMTU-REQ-16  -  Web interface protection
+DMTU-REQ-29  -  Priority for manual downloads
+DMTU-REQ-30  -  Browser helper application
 
 Limitations
 ========================================================
@@ -191,4 +192,3 @@ DMTU-70  - Limitation: notification of product download from WEBS not handled co
 DMTU-80  - DAGICD: No requirement for handling HTTP 301/302 status codes
 DMTU-8   - Double clicking the FirstStartupConfig page's "Save and Register" button causes a blow-up
 DMTU-62  - Name of downloaded file may be poor in absence of Content-Disposition HTTP response header
-DMTU-142 - Folder path for Idle metalink products still includes a dot when the product has been completed
