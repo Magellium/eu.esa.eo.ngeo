@@ -416,9 +416,9 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		//check if the number of completed files equals the number of files identified as to be downloaded
 		int numberOfFilesInProduct = productMetadata.getFileMetadataList().size();
 		if(productDownloadProgressMonitor.getNumberOfCompletedFiles() == numberOfFilesInProduct) {
-			if(numberOfFilesInProduct > 1) {
+			if(productMetadata.getMetalinkDownloadDirectory() != null) {
 				return new File[]{productMetadata.getMetalinkDownloadDirectory().toFile()};
-			}else if(numberOfFilesInProduct == 1) {
+			}else{
 				return new File[]{productMetadata.getFileMetadataList().get(0).getCompletelyDownloadedPath().toFile()};
 			}
 		}
