@@ -135,7 +135,7 @@
 				</property>
 			</activation>
 			<properties>
-				<NGEO_WEB_SERVER_REGISTRATION_URLS>https://ngEO-S2-Gate.int.oivv.org/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
+				<NGEO_WEB_SERVER_REGISTRATION_URLS>https://ngrefpros1.ngeo.esa.int/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
 			</properties>
 		</profile>
 		<profile>
