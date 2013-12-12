@@ -1,12 +1,15 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin.thread;
 
+import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
 import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.plugin.ProductDownloadProgressMonitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
+import int_.esa.eo.ngeo.downloadmanager.plugin.utils.MoveDirVisitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.Transferrer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -18,9 +21,12 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
@@ -34,7 +40,9 @@ import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
  * Runnable using HTTP protocol to download a part of file
  */
 public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbortableFileDownload.class);
+	private static final String GZIP_CONTENT_TYPE = "gzip";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(HttpFileDownloadRunnable.class);
 
 	private FileDownloadMetadata fileDownloadMetadata;
 	private ProductDownloadProgressMonitor productDownloadProgressMonitor;
@@ -86,16 +94,30 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 					
 					if(getFileDownloadStatus() == EDownloadStatus.RUNNING) {
 						transferrer = new Transferrer(transferrerReadLength);
-						ReadableByteChannel source = Channels.newChannel(response.getBodyAsStream());
+						InputStream bodyAsStream = getBodyAsStream(response);
+
+						ReadableByteChannel source = Channels.newChannel(bodyAsStream);
 						hasTransferCompleted = transferrer.doTransfer(source, destination, fileDownloadMetadata.getUuid(), productDownloadProgressMonitor);
 					}
 					
 					if(hasTransferCompleted) {
-						Path completedPath = fileDownloadMetadata.getCompletelyDownloadedPath();
-						Files.move(partiallyDownloadedPath, completedPath, StandardCopyOption.REPLACE_EXISTING);
+						destination.close();
+
+						Path moveFromPath = fileDownloadMetadata.getPartiallyDownloadedPath();
+						Path moveToPath = fileDownloadMetadata.getCompletelyDownloadedPath();
+						
+						LOGGER.debug(String.format("Moving completed file. %n From: %s%n To: %s", moveFromPath.toAbsolutePath().toString(), moveToPath.toAbsolutePath().toString()));
+						LOGGER.debug(String.format("Does the file name consist of a folder (metalink file name with folder scenario)? %s", Files.isDirectory(moveFromPath)));
+						if(Files.isDirectory(moveFromPath)) {
+							//Move the "top level" directory specified in the file name
+							Files.walkFileTree(moveFromPath, new MoveDirVisitor(moveToPath));
+						}else{
+							//File name does not consist of a folder, therefore move the file
+							Files.move(moveFromPath, moveToPath, StandardCopyOption.REPLACE_EXISTING);
+						}
 						setFileDownloadStatus(EDownloadStatus.COMPLETED);
 						productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), null);
-						productDownloadProgressMonitor.notifyOfCompletedPath(fileDownloadMetadata.getUuid(), completedPath);
+						productDownloadProgressMonitor.notifyOfCompletedPath(fileDownloadMetadata.getUuid(), moveToPath);
 					}
 
 					break;
@@ -144,5 +166,18 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 
 	public synchronized void setFileDownloadStatus(EDownloadStatus fileDownloadStatus) {
 		this.fileDownloadStatus = fileDownloadStatus;
+	}
+
+	/*
+	 * Get the body of the response as a stream.
+	 * If the content encoding of the response is gzip, provide a GZIPInputStream which will handle the compressed stream
+	 */
+	private InputStream getBodyAsStream(UmssoHttpResponse response) throws IOException {
+		String contentEncoding = new ResponseHeaderParser().searchForResponseHeaderValue(response, HttpHeaders.CONTENT_ENCODING);
+		if(StringUtils.isNotEmpty(contentEncoding) && contentEncoding.equals(GZIP_CONTENT_TYPE)) {
+			return new GZIPInputStream(response.getBodyAsStream());
+		}else{
+			return response.getBodyAsStream();
+		}
 	}
 }
