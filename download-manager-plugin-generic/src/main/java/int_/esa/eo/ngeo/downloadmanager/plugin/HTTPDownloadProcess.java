@@ -434,6 +434,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	 * 		-	if RUNNING or PAUSED	: store onto disk the current download state (if possible) in order to restart it
 	 */
 	public void disconnect() throws DMPluginException {
+		LOGGER.debug(String.format("Disconnecting download process for %s, status %s", productURI, getStatus()));
 		if(idleCheckExecutor != null) {
 			//no elegant shutdown needs to be performed on the idle checker
 			idleCheckExecutor.shutdownNow();
