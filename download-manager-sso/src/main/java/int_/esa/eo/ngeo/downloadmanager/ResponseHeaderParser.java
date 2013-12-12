@@ -1,7 +1,12 @@
 package int_.esa.eo.ngeo.downloadmanager;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.impl.cookie.DateParseException;
@@ -40,13 +45,18 @@ public final class ResponseHeaderParser {
 	public String searchForFilename(UmssoHttpResponse response) {
 		String responseHeaderContentDisposition = searchForResponseHeaderValue(response, HTTP_RESPONSE_HEADER_CONTENT_DISPOSITION);
 
-		if (responseHeaderContentDisposition != null && responseHeaderContentDisposition.indexOf("filename=") > 0) {
-			// Extract file name from header field
-			int index = responseHeaderContentDisposition.indexOf("filename=");
-			if (index > 0) {
-				return responseHeaderContentDisposition.substring(index + DISPOSITION_SUBSTRING_START_OFFSET,responseHeaderContentDisposition.length() - 1);
+		if(!StringUtils.isEmpty(responseHeaderContentDisposition)) {
+			Pattern filenameFromHeaderPattern = Pattern.compile(".*filename=\\\"?([^\\\"]*)\\\"?", Pattern.CASE_INSENSITIVE);
+			Matcher filenameFromHeaderMatcher = filenameFromHeaderPattern.matcher(responseHeaderContentDisposition);
+					
+			if (filenameFromHeaderMatcher.find()) {
+				// Extract file name from header field
+				String filenameFromHeader = filenameFromHeaderMatcher.group(1);
+				Path fileNamePath = Paths.get(filenameFromHeader);
+				return fileNamePath.getFileName().toString();
 			}
 		}
+
 		return null;
 	}
 	

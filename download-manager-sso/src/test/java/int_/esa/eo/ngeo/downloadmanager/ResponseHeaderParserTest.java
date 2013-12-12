@@ -1,6 +1,7 @@
 package int_.esa.eo.ngeo.downloadmanager;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -47,5 +48,81 @@ public class ResponseHeaderParserTest {
 		}catch (IllegalArgumentException ex){
 			assertEquals("dateValue is null", ex.getMessage());
 		}
+	}
+	
+	@Test
+	public void searchForFileNameTestNoContentDispositionHeader() {
+		Header[] headers = new Header[0];
+		
+		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
+		
+		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		assertNull(responseFileName);
+	}
+
+	@Test
+	public void searchForFileNameTestSimple() {
+		Header[] headers = new Header[1];
+		headers[0] = new BasicHeader("Content-Disposition", "filename=\"example.html\"");
+		
+		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
+		
+		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		assertEquals("example.html", responseFileName);
+	}
+
+	@Test
+	public void searchForFileNameTestNoQuotes() {
+		Header[] headers = new Header[1];
+		headers[0] = new BasicHeader("Content-Disposition", "Attachment; filename=example.html");
+		
+		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
+		
+		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		assertEquals("example.html", responseFileName);
+	}
+
+	@Test
+	public void searchForFileNameTestWithQuotes() {
+		Header[] headers = new Header[1];
+		headers[0] = new BasicHeader("Content-Disposition", "Attachment; filename=\"my example.html\"");
+		
+		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
+		
+		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		assertEquals("my example.html", responseFileName);
+	}
+
+	@Test
+	public void searchForFileNameTestCaseInsensitive() {
+		Header[] headers = new Header[1];
+		headers[0] = new BasicHeader("Content-Disposition", "Attachment; FILENAME=\"example.html\"");
+		
+		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
+		
+		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		assertEquals("example.html", responseFileName);
+	}
+
+	@Test
+	public void searchForFileNameTestFilePathFileSystem() {
+		Header[] headers = new Header[1];
+		headers[0] = new BasicHeader("Content-Disposition", "Attachment; FILENAME=\"C:\\users\\example.html\"");
+		
+		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
+		
+		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		assertEquals("example.html", responseFileName);
+	}
+
+	@Test
+	public void searchForFileNameTestFilePathRelative() {
+		Header[] headers = new Header[1];
+		headers[0] = new BasicHeader("Content-Disposition", "Attachment; FILENAME=\"users/example.html\"");
+		
+		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
+		
+		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		assertEquals("example.html", responseFileName);
 	}
 }
