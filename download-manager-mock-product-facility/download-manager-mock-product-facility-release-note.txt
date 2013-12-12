@@ -32,6 +32,9 @@ In order to reset this feature i.e. the product is idle, the web server applicat
 Release History
 ======================================================================
 
+0.5.7
+    Release date 12th December 2013
+    - Updated metalink to provide a more comprehensive and realistic example. Covers the scenario where the file name may contain folders.
 0.5.6
     Release date 4th December 2013
     - First public release

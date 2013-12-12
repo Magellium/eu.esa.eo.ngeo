@@ -8,9 +8,29 @@
         <url type="http">http://download.tuxfamily.org/notepadplus/6.4.1/npp.6.4.1.bin.zip</url>
       </resources>
     </file>
-    <file name="SFInstaller_SFFZ_filezilla_8992693_.exe">
+    <file name="product/TopNews.rss">
       <resources>
-        <url type="http">http://ak.pipoffers.apnpartners.com/static/partners/dynamic/SFFZ/SFInstaller_SFFZ_filezilla_8992693_.exe</url>
+        <url type="http">http://www.esa.int/rssfeed/TopNews</url>
+      </resources>
+    </file>
+    <file name="product/preview/esa_logo_darkblue.gif">
+      <resources>
+        <url type="http">http://www.esa.int/esalogo/images/logotype/img_colorlogo_darkblue.gif</url>
+      </resources>
+    </file>
+    <file name="product/preview/img_colorlogo_negative.gif">
+      <resources>
+        <url type="http">http://www.esa.int/esalogo/images/logotype/img_colorlogo_negative.gif</url>
+      </resources>
+    </file>
+    <file name="product/support/1 ISS LR.pdf">
+      <resources>
+        <url type="http">http://wsn.spaceflight.esa.int/docs/Factsheets/1%20ISS%20LR.pdf</url>
+      </resources>
+    </file>
+    <file name="product/support/26 ARV LR.pdf">
+      <resources>
+        <url type="http">http://wsn.spaceflight.esa.int/docs/Factsheets/26%20ARV%20LR.pdf</url>
       </resources>
     </file>
   </files>
