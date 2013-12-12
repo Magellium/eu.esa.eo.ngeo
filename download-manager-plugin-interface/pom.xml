@@ -4,13 +4,13 @@
 	<parent>
 		<groupId>int_.esa.eo.ngeo</groupId>
 		<artifactId>download-manager-parent</artifactId>
-		<version>0.5.6-SNAPSHOT</version>
+		<version>0.5.7</version>
 	</parent>
 	
 	<artifactId>download-manager-plugin-interface</artifactId>
 	<packaging>jar</packaging>
 	<name>Download Manager Plugin Interface</name>
-	<version>${plugin-interface-version}</version>
+	<version>0.5.7</version>
 	
 	<build>
 		<plugins>
