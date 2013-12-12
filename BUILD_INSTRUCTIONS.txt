@@ -10,15 +10,21 @@ Building:
   * run the command: mvn clean package <return>
   * Once the build has succeeded, the distributions will be located in the download-manager-distribution/target folder
 
+The following one-off command is required to install dependency JARs which are not included in a maven repository (e.g. UM-SSO JCL JAR):
+
+mvn initialize
+
+If a dependency JAR is changed (e.g. version updated), the above command needs to be executed in order for the build process to access that dependency.
+
 Environment specific builds:
 
-In order to configure the build, include the profiles and/or environment with the following syntax:
+In order to configure the build for a specific environment, include the profiles and/or environment with the following syntax:
 
-mvn clean package -P <profile> -Denvironment=<environment>
+mvn clean install -P <profiles>
 
-The following configuration is available:
+The following profiles are available:
 
-Profiles
+Projects
 
   ngeo
   DREAM
@@ -28,6 +34,6 @@ Environments
   ngeo-task6-tpz
   ngeo-task6-esa
 
-If no profiles or environments are specified, the ngeo profile is used.
+If none of the above profiles are specified, the ngeo profile is used.
 
-Multiple profiles can be included as a comma-seperated list.
+Multiple profiles can be included as a comma-seperated list e.g. -P ngeo,ngeo-task6-tpz
