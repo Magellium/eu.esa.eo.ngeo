@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    <id>download-manager-mock-applications</id>
+    <!-- Generates a zip package containing the needed files -->
+    <formats>
+        <format>zip</format>
+    </formats>
+	<baseDirectory>download-manager-mock-applications</baseDirectory>
+	<moduleSets>
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>${project.groupId}:download-manager-mock-product-facility</include>
+			</includes>
+			<sources>
+				<fileSets>
+					<fileSet>
+		    	        <directory>${project.build.directory}</directory>
+		    	        <outputDirectory>product-facility</outputDirectory>
+		    	        <includes>
+		    	            <include>download-manager-mock-product-facility-release-note.txt</include>
+		    	        </includes>
+		    	        <filtered>true</filtered>
+	    		    </fileSet>
+				</fileSets>
+				<includeModuleDirectory>false</includeModuleDirectory>
+			</sources>
+			<binaries>
+				<outputDirectory>product-facility</outputDirectory>
+				<outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>
+				<unpack>false</unpack>
+			</binaries>
+		</moduleSet>
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>${project.groupId}:download-manager-mock-web-server</include>
+			</includes>
+			<sources>
+				<fileSets>
+					<fileSet>
+		    	        <directory>${project.build.directory}</directory>
+		    	        <outputDirectory>web-server</outputDirectory>
+		    	        <includes>
+		    	            <include>download-manager-mock-web-server-release-note.txt</include>
+		    	        </includes>
+		    	        <filtered>true</filtered>
+	    		    </fileSet>
+				</fileSets>
+				<includeModuleDirectory>false</includeModuleDirectory>
+			</sources>
+			<binaries>
+				<outputDirectory>web-server</outputDirectory>
+				<outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>
+				<unpack>false</unpack>
+			</binaries>
+		</moduleSet>
+	</moduleSets>
+</assembly>
