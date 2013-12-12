@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>int_.esa.eo.ngeo</groupId>
 		<artifactId>download-manager-parent</artifactId>
-		<version>0.5.7</version>
+		<version>0.5.7-SNAPSHOT</version>
 	</parent>
 	<artifactId>download-manager-distribution</artifactId>
 	<packaging>pom</packaging>
