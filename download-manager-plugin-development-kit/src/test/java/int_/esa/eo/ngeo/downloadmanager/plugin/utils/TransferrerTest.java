@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.downloadmanager.plugin;
+package int_.esa.eo.ngeo.downloadmanager.plugin.utils;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import int_.esa.eo.ngeo.downloadmanager.plugin.FilesDownloadListener;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.Transferrer;
 
 import java.io.IOException;
