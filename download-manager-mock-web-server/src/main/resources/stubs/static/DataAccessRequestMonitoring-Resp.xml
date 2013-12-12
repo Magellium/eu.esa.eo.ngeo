@@ -20,7 +20,7 @@
 		<ngeo:ProductAccess>
 			<ngeo:ProductAccessURL>http://old.zope.org/Products/Zope3/3.3.1/Zope-3.3.1.tgz</ngeo:ProductAccessURL>
 			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
-			<ngeo:ProductDownloadDirectory>ProductDirectory1</ngeo:ProductDownloadDirectory>
+			<ngeo:ProductDownloadDirectory>ProductDirectory1/ProductDirectory2</ngeo:ProductDownloadDirectory>
 		</ngeo:ProductAccess>
 	</ngeo:ProductAccessList>
 </ngeo:DataAccessMonitoring-Resp>

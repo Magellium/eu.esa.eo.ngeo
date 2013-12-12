@@ -62,6 +62,11 @@ In order to reset these features i.e. to not provide the DAR / products, the web
 Release History
 ======================================================================
 
+0.5.7
+    Release date 12th December 2013
+    - Updated static DAR to provide an example of a product download with multiple folders specified in the ProductDownloadDirectory.
+    - Updated the response returned from the "Supply Products" feature so that the products downloaded from the mock product facility
+      are in their own dedicated folder. This provides an example of downloading a complex metalink into a user specified folder.
 0.5.4
     Release date 15th November 2013
     - Added static DAR for use with adding a manual DAR.

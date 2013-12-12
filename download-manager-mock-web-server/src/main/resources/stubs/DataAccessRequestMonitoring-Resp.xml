@@ -7,10 +7,12 @@
 		<ngeo:ProductAccess>
 			<ngeo:ProductAccessURL>http://localhost:8080/download-manager-mock-product-facility/metalink</ngeo:ProductAccessURL>
 			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+			<ngeo:ProductDownloadDirectory>mock-product-facility-downloads</ngeo:ProductDownloadDirectory>
 		</ngeo:ProductAccess>
 		<ngeo:ProductAccess>
 			<ngeo:ProductAccessURL>http://localhost:8080/download-manager-mock-product-facility/idle</ngeo:ProductAccessURL>
 			<ngeo:ProductAccessStatus>READY</ngeo:ProductAccessStatus>
+			<ngeo:ProductDownloadDirectory>mock-product-facility-downloads</ngeo:ProductDownloadDirectory>
 		</ngeo:ProductAccess>
 		<ngeo:ProductAccess>
 			<ngeo:ProductAccessURL>http://ipv4.download.thinkbroadband.com/100MB.zip</ngeo:ProductAccessURL>
