@@ -22,8 +22,12 @@ Features
 Release History
 ========================================================
 0.5.7
-    Release date 11th December 2013
+    Release date 12th December 2013
+    DMTU-153 - Non-conformance to requirement of parsing metalinks which include directories
+             - Fixed handling of gzip compressed files - the response body was being handled as non-compressed.
              - Modified build process to generate trust store on a per-environment (profile) basis.
+             - Minor updates to build process and instructions.
+             
 0.5.6
     Release date 4th December 2013
     DMTU-141 - When proxy is left empty, error is returned and page becomes unresponsive
