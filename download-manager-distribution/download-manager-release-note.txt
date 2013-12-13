@@ -21,6 +21,9 @@ Features
 
 Release History
 ========================================================
+0.5.8
+    Release date 13th December 2013
+             - Added synchronization lock when updating configuration to disk, as several threads were attempting to write to the file at the same time.
 0.5.7
     Release date 12th December 2013
     DMTU-153 - Non-conformance to requirement of parsing metalinks which include directories
@@ -28,7 +31,6 @@ Release History
              - Modified build process to generate trust store on a per-environment (profile) basis.
              - Minor updates to build process and instructions.
              - Updated build process to include zip file containing mock applications.
-             
 0.5.6
     Release date 4th December 2013
     DMTU-141 - When proxy is left empty, error is returned and page becomes unresponsive

@@ -118,7 +118,7 @@ public class SettingsManager {
 		return Base64.encodeBase64String(value.getBytes()); // TODO: Implement stronger encryption?
 	}
 
-	private void updatePersistentStore(SettingsType settingsType) {
+	private synchronized void updatePersistentStore(SettingsType settingsType) {
 		try {
 			String pathNameOfPersistentStore = getPathNameOfPersistentStore(settingsType);
 			File persistentStore = new File(pathNameOfPersistentStore);
