@@ -5,6 +5,8 @@ import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.UUID;
 
 public class ProductBuilder {
@@ -16,6 +18,7 @@ public class ProductBuilder {
 		Product product = new Product();
 		product.setProductAccessUrl(productAccessUrl);
 		product.setUuid(UUID.randomUUID().toString());
+		product.setCreationTimestamp(new Timestamp(new Date().getTime()));
 		product.setNotified(false);
 		product.setDownloadDirectory(downloadDirectory);
 		product.setPriority(ProductPriority.NORMAL);

@@ -1,6 +1,7 @@
-package int_.esa.eo.ngeo.dmtu.monitor;
+package int_.esa.eo.ngeo.dmtu.download.monitor;
 
 import int_.esa.eo.ngeo.dmtu.callback.CallbackCommandExecutor;
+import int_.esa.eo.ngeo.dmtu.download.schedule.DownloadScheduler;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadProcessCreationException;
 import int_.esa.eo.ngeo.dmtu.exception.ProductNotFoundException;
@@ -32,11 +33,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -54,8 +50,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	
 	private DataAccessRequestManager dataAccessRequestManager;
 	
-	private ExecutorService productDownloadExecutor;
-	private BlockingQueue<Runnable> downloadQueue;
+	private DownloadScheduler downloadScheduler;
 	
 	private ActiveProducts activeProducts;
 
@@ -75,8 +70,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		String noOfParallelProductDownloadThreads = settingsManager.getSetting(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS);
 		int concurrentProductDownloadThreads = Integer.parseInt(noOfParallelProductDownloadThreads);
 		LOGGER.info(String.format("Creating thread pool for %s concurrent product download threads", concurrentProductDownloadThreads));
-        downloadQueue = new ArrayBlockingQueue<>(200);
-		productDownloadExecutor = new ThreadPoolExecutor(concurrentProductDownloadThreads, concurrentProductDownloadThreads, 0L, TimeUnit.MILLISECONDS, downloadQueue);
+		downloadScheduler = new DownloadScheduler(concurrentProductDownloadThreads);
 	}
 	
 	@Override
@@ -90,8 +84,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 			case NOT_STARTED:
 			case IDLE:
 			case RUNNING:
-				ProductDownloadThread productDownloadThread = new ProductDownloadThread(downloadProcess);
-				productDownloadExecutor.execute(productDownloadThread);
+				downloadScheduler.scheduleProductDownload(downloadProcess, product);
 				break;
 			default:
 				break;
@@ -213,8 +206,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		}
 
 		if(previouslyKnownStatus == EDownloadStatus.IDLE && newStatus == EDownloadStatus.NOT_STARTED) {
-			ProductDownloadThread productDownloadThread = new ProductDownloadThread(downloadProcess);
-			productDownloadExecutor.execute(productDownloadThread);
+			downloadScheduler.scheduleProductDownload(downloadProcess, product);
 		}
 		
 		//perform actions based on terminal statuses
@@ -294,9 +286,9 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 	
 	public boolean resumeProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
 		IDownloadProcess downloadProcess = activeProducts.getDownloadProcess(productUuid);
-		ProductDownloadThread productDownloadThread = new ProductDownloadThread(downloadProcess);
+		Product product = activeProducts.getProduct(productUuid);
 		try {
-			productDownloadExecutor.execute(productDownloadThread);
+			downloadScheduler.scheduleProductDownload(downloadProcess, product);
 
 			downloadProcess.resumeDownload();
 		} catch (DMPluginException e) {
@@ -319,16 +311,14 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 		Product product = activeProducts.getProduct(productUuid);
 
 		product.setPriority(productPriority);
-		
 		dataAccessRequestManager.persistProduct(product);
-
+		downloadScheduler.changeProductPriority(product);
+		
 		return true;
 	}
 	
 	public void shutdown() {
 		LOGGER.info("Shutting down Download Monitor.");
-
-		productDownloadExecutor.shutdown();		
 
 		for (IDownloadProcess downloadProcess : activeProducts.getDownloadProcesses()) {
 			try {
@@ -337,6 +327,8 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 				LOGGER.error("Unable to disconnect download process, threads may still be open.");
 			}
 		}
+
+		downloadScheduler.shutdown();		
 	}
 	
 	public boolean cancelDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel, boolean includeManualDownloads) throws DownloadOperationException {

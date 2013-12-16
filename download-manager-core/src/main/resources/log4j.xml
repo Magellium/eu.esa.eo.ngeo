@@ -50,7 +50,7 @@
 		<level value="info" />
 	</logger>
 
-	<logger name="int_.esa.eo.ngeo.dmtu.monitor">
+	<logger name="int_.esa.eo.ngeo.dmtu.download.monitor">
 		<level value="info" />
 	</logger>
 	
@@ -78,6 +78,10 @@
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.downloadmanager.plugin.utils">
+		<level value="info" />
+	</logger>
+	
+	<logger name="int_.esa.eo.ngeo.dmtu.download.schedule">
 		<level value="info" />
 	</logger>
 	

@@ -1,8 +1,8 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
+import int_.esa.eo.ngeo.dmtu.download.monitor.DownloadMonitor;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.model.WebServerMonitoringStatus;
-import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;

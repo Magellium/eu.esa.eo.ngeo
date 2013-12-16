@@ -33,7 +33,7 @@ public class CallbackCommandExecutor {
 	
 	public void invokeCallbackCommandOnProductFiles(String unresolvedCommand, File[] downloadedFiles) {
 		if (unresolvedCommand == null || unresolvedCommand.isEmpty()) {
-			LOGGER.info("No post-download call-back command has been defined");
+			LOGGER.debug("No post-download call-back command has been defined");
 			return; // Nothing to do
 		}
 		if (unresolvedCommand.contains(FILESET_MACRO_REF)) {

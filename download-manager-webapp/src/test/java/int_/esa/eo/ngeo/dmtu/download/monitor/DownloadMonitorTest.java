@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.dmtu.monitor;
+package int_.esa.eo.ngeo.dmtu.download.monitor;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

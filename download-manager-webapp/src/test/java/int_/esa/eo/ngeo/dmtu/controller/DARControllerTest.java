@@ -2,10 +2,11 @@ package int_.esa.eo.ngeo.dmtu.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
+import int_.esa.eo.ngeo.dmtu.download.monitor.DownloadMonitor;
 import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
-import int_.esa.eo.ngeo.dmtu.monitor.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
 import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
@@ -67,11 +68,22 @@ public class DARControllerTest {
 	@Test
 	public void testGetProducts() {
 		List<DataAccessRequest> dataAccessRequestList = setupDataAccessRequestList();
-		when(dataAccessRequestManager.getProductList(dataAccessRequestList.get(0).getUuid())).thenReturn(dataAccessRequestList.get(0).getProductList());
+		when(dataAccessRequestManager.getProductList(dataAccessRequestList.get(0).getUuid())).thenReturn(new ArrayList<Product>(dataAccessRequestList.get(0).getProductList()));
 		
-		List<Product> products = darController.getProducts(dataAccessRequestList.get(0).getUuid());
-		assertEquals(2, products.size());
-		assertEquals(PRODUCT_URL_NOTEPAD_PLUSPLUS, products.get(0).getProductAccessUrl());
-		assertEquals(PRODUCT_URL_UBUNTU, products.get(1).getProductAccessUrl());
+		List<Product> productsFromDar = darController.getProducts(dataAccessRequestList.get(0).getUuid());
+		assertEquals(2, productsFromDar.size());
+		List<String> productUrlsWhichShouldBeInProductListFromDar = new ArrayList<>(); 
+		productUrlsWhichShouldBeInProductListFromDar.add(PRODUCT_URL_NOTEPAD_PLUSPLUS);
+		productUrlsWhichShouldBeInProductListFromDar.add(PRODUCT_URL_UBUNTU);
+		
+		for (Product product : productsFromDar) {
+			if(!productUrlsWhichShouldBeInProductListFromDar.remove(product.getProductAccessUrl())) {
+				fail(String.format("%s is in the product list from the DAR, but should not be.", product.getProductAccessUrl()));
+			}
+		}
+		
+		if(productUrlsWhichShouldBeInProductListFromDar.size() > 0) {
+			fail(String.format("%s should be in the product list from the DAR.", productUrlsWhichShouldBeInProductListFromDar));			
+		}
 	}
 }

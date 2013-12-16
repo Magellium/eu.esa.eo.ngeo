@@ -104,6 +104,12 @@
 									"enum" : ["Very High","High","Normal","Low","Very Low"],
 									"description": "The download priority of this product."
 								},								
+								"creationTimestamp":{
+									"type":"object",
+									"javaType":"java.sql.Timestamp",
+									"description": "A timestamp which indicates when the Download Manager first created the product based on a supplied URL. ",
+									"required":false
+								},
 								"startOfFirstDownloadRequest":{
 									"type":"object",
 									"javaType":"java.sql.Timestamp",
@@ -121,6 +127,12 @@
 									"javaType":"java.sql.Timestamp",
 									"description": "A timestamp which indicates when the download of the product was terminated. The terminal states of a product are COMPLETED, CANCELLED and IN_ERROR.",
 									"required":false
+								},
+								"pausedByDownloadManager":{
+									"type":"boolean",
+									"default": false,
+									"description":"Whether the product has been paused by the Download Manager, as a result of a change of product priority. Default is false",
+									"required":true
 								},
 								"visible":{
 									"type":"boolean",
