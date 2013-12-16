@@ -1,6 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.model;
 
 import static org.junit.Assert.fail;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 
 import java.io.File;
@@ -33,7 +34,7 @@ public class HibernateMappingTest {
 				
 		List<String> fieldsWithoutCorrespondingMapping = new ArrayList<>();
 		
-		List<Field> declaredFields = getFieldsWithJsonPropertyAnnotationOnly(Product.class.getDeclaredFields());
+		List<Field> declaredFields = getFieldsWithJsonPropertyAnnotationOnly(DataAccessRequest.class.getDeclaredFields());
 		for (Field field : declaredFields) {
 			String fieldName = field.getName();
 			if(mappingNames.contains(fieldName)) {
