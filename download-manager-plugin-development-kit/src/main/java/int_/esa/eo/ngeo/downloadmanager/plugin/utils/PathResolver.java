@@ -68,8 +68,7 @@ public class PathResolver {
 			try {
 				decodedQueryString = URLDecoder.decode(query,"UTF-8");
 			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// Unable to decode, map will be empty
 			}
 	
 			String[] params = decodedQueryString.split("&");  

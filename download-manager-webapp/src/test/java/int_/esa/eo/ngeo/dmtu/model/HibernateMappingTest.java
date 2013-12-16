@@ -1,7 +1,6 @@
 package int_.esa.eo.ngeo.dmtu.model;
 
 import static org.junit.Assert.fail;
-import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 
 import java.io.File;
@@ -34,7 +33,7 @@ public class HibernateMappingTest {
 				
 		List<String> fieldsWithoutCorrespondingMapping = new ArrayList<>();
 		
-		Field[] declaredFields = DataAccessRequest.class.getDeclaredFields();
+		List<Field> declaredFields = getFieldsWithJsonPropertyAnnotationOnly(Product.class.getDeclaredFields());
 		for (Field field : declaredFields) {
 			String fieldName = field.getName();
 			if(mappingNames.contains(fieldName)) {
@@ -56,7 +55,7 @@ public class HibernateMappingTest {
 				
 		List<String> fieldsWithoutCorrespondingMapping = new ArrayList<>();
 		
-		Field[] declaredFields = Product.class.getDeclaredFields();
+		List<Field> declaredFields = getFieldsWithJsonPropertyAnnotationOnly(Product.class.getDeclaredFields());
 		for (Field field : declaredFields) {
 			String fieldName = field.getName();
 			if(mappingNames.contains(fieldName)) {
@@ -73,6 +72,19 @@ public class HibernateMappingTest {
 		if(errorMessage.length() > 0) {
 			fail(errorMessage.toString());
 		}
+	}
+	
+	/*
+	 * There might be other fields introduced by some tools, just ignore them
+	 */
+	private List<Field> getFieldsWithJsonPropertyAnnotationOnly(Field[] classFields) {
+		List<Field> filteredFields = new ArrayList<>();
+		for (Field field : classFields) {
+			if (field.isAnnotationPresent(org.codehaus.jackson.annotate.JsonProperty.class)) {
+				filteredFields.add(field);
+			}
+		}
+		return filteredFields;
 	}
 
 	private List<String> getMappingNames(String xmlDocumentPath) throws ParserConfigurationException, SAXException, IOException {

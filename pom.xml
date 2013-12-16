@@ -170,7 +170,7 @@
 		<profile>
 			<id>sonar</id>
 			<properties>
-				<sonar.skippedModules>download-manager-mock-product-facility,download-manager-mock-web-server,download-manager-plugin-mock-sentinel2</sonar.skippedModules>
+				<sonar.skippedModules>download-manager-distribution,download-manager-mock-product-facility,download-manager-mock-web-server,download-manager-plugin-mock-sentinel2</sonar.skippedModules>
 			</properties>
 		</profile>
 	</profiles>

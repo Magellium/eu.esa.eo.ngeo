@@ -49,6 +49,7 @@ public class DownloadManagerResponseParser {
 		    
 		    commandResponse = JSONTransformer.getInstance().deserialize(new ByteArrayInputStream(trimmedErrorStreamContent.getBytes(StandardCharsets.UTF_8)), CommandResponse.class);
 			returnMessage = String.format("Error: HTTP %s response code received from the Download Manager: %s", httpResponseCode, commandResponse.getErrorMessage());
+			break;
 		}
 		
 		return returnMessage;

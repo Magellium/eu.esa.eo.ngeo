@@ -136,10 +136,10 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 				setFileDownloadStatus(EDownloadStatus.IN_ERROR);
 				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), ex.getLocalizedMessage());
 				
-			} catch (Throwable throwable) {
-				LOGGER.error("\n\n\n=============DEAD DOWNLOAD THREAD========================", throwable);
+			} catch (Exception ex) {
+				LOGGER.error("\n\n\n=============DEAD DOWNLOAD THREAD========================", ex);
 				setFileDownloadStatus(EDownloadStatus.IN_ERROR);
-				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), throwable.getLocalizedMessage());
+				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), ex.getLocalizedMessage());
 			} finally {
 				if (request != null) {
 					request.abort();
