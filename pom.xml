@@ -19,11 +19,11 @@
 		<org.aspectj-version>1.6.9</org.aspectj-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<plugin-interface-version>1.5</plugin-interface-version>
+		<umsso-jcl-version>2.2.3</umsso-jcl-version>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 	</properties>
 
 	<modules>
-		<module>download-manager-plugin-interface</module>
 		<module>download-manager-plugin-development-kit</module>
 		<module>download-manager-mock-product-facility</module>
 		<module>download-manager-mock-web-server</module>
@@ -100,6 +100,27 @@
 					<tagNameFormat>DMTU_@{project.version}</tagNameFormat>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>install-umsso-jar-locally</id>
+						<phase>install</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>lib/umsso_client-0.0.1.jar</file>
+							<groupId>com.siemens.pse.umsso</groupId>
+							<artifactId>umsso_client</artifactId>
+							<version>${umsso-jcl-version}</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
@@ -158,7 +179,12 @@
 			<dependency>
 				<groupId>com.siemens.pse.umsso</groupId>
 				<artifactId>umsso_client</artifactId>
-				<version>2.2.3</version>
+				<version>${umsso-jcl-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>int_.esa.eo.ngeo</groupId>
+				<artifactId>download-manager-plugin-interface</artifactId>
+				<version>${plugin-interface-version}</version>
 			</dependency>
 
 			<dependency>
