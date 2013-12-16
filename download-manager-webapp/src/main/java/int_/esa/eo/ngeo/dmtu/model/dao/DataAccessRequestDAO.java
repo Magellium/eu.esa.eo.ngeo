@@ -8,10 +8,10 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Repository
 @Transactional
 public class DataAccessRequestDAO {
 
@@ -36,7 +36,7 @@ public class DataAccessRequestDAO {
 
 	}
 	
-	public void updateDataAccessRequest(DataAccessRequest dataAccessRequest) {
+	public synchronized void updateDataAccessRequest(DataAccessRequest dataAccessRequest) {
 		sessionFactory.getCurrentSession().saveOrUpdate(dataAccessRequest);
 	}
 
