@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="int_.esa.eo.ngeo.downloadmanager.model.Product" table="product" >
+        <id name="uuid" type="string">
+            <column name="product_id" />
+        </id>
+		<property name="productAccessUrl" column="productAccessUrl" type="string" length="8190" />
+		<property name="downloadDirectory" column="downloadDirectory" type="string" length="250" />
+		<property name="totalFileSize" column="totalFileSize" type="long" />
+		<property name="productName" column="productName" type="string" />
+		<property name="numberOfFiles" column="numberOfFiles" type="long" />
+		<property name="priority" column="productPriority">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">int_.esa.eo.ngeo.downloadmanager.model.ProductPriority</param>
+			</type>
+		</property>
+		
+		<component name="ProductProgress" class="int_.esa.eo.ngeo.downloadmanager.model.ProductProgress">
+			<property name="progressPercentage" type="long">
+				<column name="progress_percentage" />
+			</property>
+			<property name="downloadedSize" type="long">
+				<column name="progress_downloaded_size" />
+			</property>
+			<property name="status" column="progress_status">
+				<type name="org.hibernate.type.EnumType">
+					<param name="enumClass">int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus</param>
+				</type>
+			</property>
+			<property name="message" type="string">
+				<column name="progress_message" />
+			</property>
+		</component>
+		<property name="notified" column="notified" type="boolean" />
+		<property name="pausedByDownloadManager" column="pausedByDownloadManager" type="boolean" />
+		<property name="visible" column="visible" type="boolean" />
+
+		<property name="creationTimestamp" column="creationTimestamp" type="timestamp" />
+		<property name="startOfFirstDownloadRequest" column="startOfFirstDownloadRequest" type="timestamp" />
+		<property name="startOfActualDownload" column="startOfActualDownload" type="timestamp" />
+		<property name="stopOfDownload" column="stopOfDownload" type="timestamp" />
+		<property name="completedDownloadPath" column="completedDownloadPath" type="string" length="250" />
+    </class>
+</hibernate-mapping>

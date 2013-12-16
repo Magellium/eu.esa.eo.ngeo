@@ -28,9 +28,9 @@
 				<beans:prop key="format_sql">false</beans:prop>
 				<beans:prop key="use_sql_comments">false</beans:prop>
 				<beans:prop key="hibernate.hbm2ddl.auto">update</beans:prop>
-				<beans:prop key="hibernate.c3p0.min_size">5</beans:prop>
-				<beans:prop key="hibernate.c3p0.max_size">20</beans:prop>
-				<beans:prop key="hibernate.c3p0.timeout">1800</beans:prop>
+				<beans:prop key="hibernate.c3p0.min_size">1</beans:prop>
+				<beans:prop key="hibernate.c3p0.max_size">1</beans:prop>
+				<beans:prop key="hibernate.c3p0.timeout">60</beans:prop>
 				<beans:prop key="hibernate.c3p0.max_statements">50</beans:prop>
 				<beans:prop key="hibernate.connection.url">${hibernate.connection.url}</beans:prop>
 				<beans:prop key="hibernate.connection.username">${hibernate.connection.username}</beans:prop>
@@ -41,8 +41,8 @@
 		</beans:property>
 		<beans:property name="mappingResources">
 		    <beans:list>
-		        <beans:value>int_/esa/eo/ngeo/downloadmanager/model/DataAccessRequest.hbm.xml</beans:value>
-		        <beans:value>int_/esa/eo/ngeo/downloadmanager/model/Product.hbm.xml</beans:value>
+		        <beans:value>mapping/hibernate/DataAccessRequest.hbm.xml</beans:value>
+		        <beans:value>mapping/hibernate/Product.hbm.xml</beans:value>
 		    </beans:list>
 		</beans:property>
 	</beans:bean>

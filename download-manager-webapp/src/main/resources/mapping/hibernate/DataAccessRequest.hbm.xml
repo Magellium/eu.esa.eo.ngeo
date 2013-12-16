@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest" 
+		table="data_access_request">
+        <id name="uuid" type="string">
+            <column name="data_access_request_id" />
+        </id>
+		<property name="darURL" column="darURL" type="string" length="8190" />
+		<property name="monitoringStatus">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus</param>
+			</type>
+		</property>
+		<list name="productList" cascade="all" lazy="false" fetch="select" table="data_access_request_product">
+			<key column="data_access_request_id" not-null="true"/>
+			<index column="idx" />
+			<many-to-many column="product_id" unique="true" class="int_.esa.eo.ngeo.downloadmanager.model.Product" order-by="priority, creationTimestamp"/>
+		</list>
+		
+		<property name="lastResponseDate" column="lastResponseDate" type="timestamp" />		
+		<property name="monitored" column="monitored" type="boolean" />
+		<property name="visible" column="visible" type="boolean" />
+    </class>
+</hibernate-mapping>
