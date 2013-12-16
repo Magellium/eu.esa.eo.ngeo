@@ -77,7 +77,7 @@ public class NgeoWebServerResponseParser {
 
 					throw new WebServerServiceException(String.format("%s. Reason was: %s", httpResponseMessage, exceptionReport.getErrorDetail()));
 				}catch(ParseException e) {
-					throw new WebServerServiceException(String.format("Unable to parse the response to a request for %s: HTTP response code %s; \"%s\".",
+					throw new WebServerServiceException(String.format("Unexpected response to a request for %s: HTTP response code %s; \"%s\".",
 							serviceUrl.toString(), httpStatusCode, httpResponseMessage));
 				}
 			}
