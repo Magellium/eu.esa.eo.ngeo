@@ -18,6 +18,7 @@ Features
 * Concurrent download of products.
 * Integration with UM-SSO for product downloads (configurable, disabled by default).
 * Integration with UM-SSO for communication with ngEO Web Server.
+* Prioritisation of downloads.
 
 Release History
 ========================================================
