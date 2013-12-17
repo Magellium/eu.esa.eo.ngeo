@@ -10,11 +10,8 @@ Building:
   * run the command: mvn clean package <return>
   * Once the build has succeeded, the distributions will be located in the download-manager-distribution/target folder
 
-The following one-off command is required to install dependency JARs which are not included in a maven repository (e.g. UM-SSO JCL JAR):
-
-mvn initialize
-
-If a dependency JAR is changed (e.g. version updated), the above command needs to be executed in order for the build process to access that dependency.
+In order for the Download Manager to be built, the stand-alone project download-manager-plugin-interface is required to be installed in the 
+same maven repository in order for the Download Manager to be built.
 
 Environment specific builds:
 
