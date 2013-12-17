@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 public final class ResponseHeaderParser {
-	private static final int DISPOSITION_SUBSTRING_START_OFFSET = 10;
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResponseHeaderParser.class);
 
 	//Some HTTP Header constants are not included in HttpHeaders. The following constants fill in the gaps which are necessary
@@ -45,7 +44,7 @@ public final class ResponseHeaderParser {
 	public String searchForFilename(UmssoHttpResponse response) {
 		String responseHeaderContentDisposition = searchForResponseHeaderValue(response, HTTP_RESPONSE_HEADER_CONTENT_DISPOSITION);
 
-		if(!StringUtils.isEmpty(responseHeaderContentDisposition)) {
+		if(StringUtils.isNotEmpty(responseHeaderContentDisposition)) {
 			Pattern filenameFromHeaderPattern = Pattern.compile(".*filename=\\\"?([^\\\"]*)\\\"?", Pattern.CASE_INSENSITIVE);
 			Matcher filenameFromHeaderMatcher = filenameFromHeaderPattern.matcher(responseHeaderContentDisposition);
 					
@@ -61,10 +60,12 @@ public final class ResponseHeaderParser {
 	}
 	
 	public String searchForResponseHeaderValue(UmssoHttpResponse response, String headerName) {
-		Header[] headers = response.getHeaders();
-		for (Header header : headers) {
-			if(header.getName().equals(headerName)) {
-				return header.getValue();
+		if(StringUtils.isNotEmpty(headerName)) {
+			Header[] headers = response.getHeaders();
+			for (Header header : headers) {
+				if(headerName.equals(header.getName())) {
+					return header.getValue();
+				}
 			}
 		}
 		return null;
