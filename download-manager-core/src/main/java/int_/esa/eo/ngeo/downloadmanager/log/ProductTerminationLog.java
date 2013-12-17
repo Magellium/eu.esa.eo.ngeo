@@ -30,12 +30,12 @@ public class ProductTerminationLog {
 			numberOfBytesDownloaded = productProgress.getDownloadedSize();
 		}
 		productNotificationString.append(String.format(",\"%s\"", numberOfBytesDownloaded));
-		productNotificationString.append(String.format(",\"%s\"", convertDateToString(product.getStartOfFirstDownloadRequest()))); //TODO: Start date/time of first download request (i.e. when the initial http get request is made)
-		productNotificationString.append(String.format(",\"%s\"", convertDateToString(product.getStartOfActualDownload()))); //TODO: Start Date/Time of actual download (if the download is delayed, this time is different from the previous one)
-		productNotificationString.append(String.format(",\"%s\"", convertDateToString(product.getStopOfDownload()))); //TODO: Stop Date/Time of download
+		productNotificationString.append(String.format(",\"%s\"", convertDateToString(product.getStartOfFirstDownloadRequest())));
+		productNotificationString.append(String.format(",\"%s\"", convertDateToString(product.getStartOfActualDownload())));
+		productNotificationString.append(String.format(",\"%s\"", convertDateToString(product.getStopOfDownload())));
 
 		if(productDownloadStatus == EDownloadStatus.COMPLETED) {
-			productNotificationString.append(String.format(",\"%s\"", product.getCompletedDownloadPath())); //TODO: The Path of the saved product (if completed)
+			productNotificationString.append(String.format(",\"%s\"", product.getCompletedDownloadPath()));
 		}else{
 			productNotificationString.append(",");
 		}

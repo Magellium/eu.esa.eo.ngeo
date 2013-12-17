@@ -54,7 +54,7 @@ public class VisibleDataAccessRequests {
 		}
 
 		Product newProduct = new ProductBuilder().buildProduct(productDownloadUrl);
-		addProductToProduct_DARMapping(newProduct, manualDataAccessRequest);
+		addProductToProductDARMapping(newProduct, manualDataAccessRequest);
 
 		addNewProduct(manualDataAccessRequest, newProduct);
 		return newProduct;
@@ -75,7 +75,7 @@ public class VisibleDataAccessRequests {
 
 	public void addNewProduct(DataAccessRequest dataAccessRequest, Product newProduct) {
 		dataAccessRequest.getProductList().add(newProduct);
-		addProductToProduct_DARMapping(newProduct, dataAccessRequest);
+		addProductToProductDARMapping(newProduct, dataAccessRequest);
 	}
 
 	public DataAccessRequest findDataAccessRequestByProductUuid(String productUuid) {
@@ -83,11 +83,11 @@ public class VisibleDataAccessRequests {
 		return findDataAccessRequestByUuid(darUuid);
 	}
 
-	public void addProductToProduct_DARMapping(Product product, DataAccessRequest dataAccessRequest) {
+	public void addProductToProductDARMapping(Product product, DataAccessRequest dataAccessRequest) {
 		productDarMap.put(product.getUuid(), dataAccessRequest.getUuid());
 	}
 
-	public void removeProductFromProduct_DARMapping(Product product) {
+	public void removeProductFromProductDARMapping(Product product) {
 		productDarMap.remove(product.getUuid());
 	}
 

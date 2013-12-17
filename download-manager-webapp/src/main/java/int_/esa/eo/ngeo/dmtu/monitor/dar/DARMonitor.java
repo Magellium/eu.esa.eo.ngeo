@@ -76,10 +76,14 @@ public class DARMonitor {
 	 */
 	public void registerDownloadManager() throws WebServerServiceException {
 		boolean isAlreadyRegistered = Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED));
-		if (isAlreadyRegistered) throw new NonRecoverableException("This download manager is already registered!");
+		if (isAlreadyRegistered) {
+			throw new NonRecoverableException("This download manager is already registered!");
+		}
 		
 		boolean setup = Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP));
-		if (!setup) throw new NonRecoverableException("Download manager cannot be registered before the \"First Startup configuration\" has been carried out");
+		if (!setup) {
+			throw new NonRecoverableException("Download manager cannot be registered before the \"First Startup configuration\" has been carried out");
+		}
 		
 		LOGGER.info("Registering download manager.");
 

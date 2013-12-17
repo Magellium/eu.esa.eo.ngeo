@@ -20,7 +20,7 @@ public final class ResponseHeaderParser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResponseHeaderParser.class);
 
 	//Some HTTP Header constants are not included in HttpHeaders. The following constants fill in the gaps which are necessary
-	public final static String HTTP_RESPONSE_HEADER_CONTENT_DISPOSITION = "Content-Disposition";
+	public static final String HTTP_RESPONSE_HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 
 	public Date searchForResponseDate(UmssoHttpResponse response) throws DateParseException {
 		String responseHeaderDate = searchForResponseHeaderValue(response, HttpHeaders.DATE);
@@ -34,7 +34,7 @@ public final class ResponseHeaderParser {
 			try {
 				return Long.parseLong(responseHeaderContentLength);
 			}catch(NumberFormatException ex) {
-				LOGGER.warn(String.format("Unable to parse content length %s.", responseHeaderContentLength));
+				LOGGER.error(String.format("Unable to parse content length %s.", responseHeaderContentLength));
 				return -1;
 			}
 		}

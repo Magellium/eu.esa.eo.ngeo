@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ConfigCommands implements CommandMarker {
-	private final static String configChangeSuccessMessage = "Change of configuration successful. Use the \"config\" command to view the current config settings.";
+	private static final String configChangeSuccessMessage = "Change of configuration successful. Use the \"config\" command to view the current config settings.";
 
 	@CliAvailabilityIndicator({"config"})
 	public boolean isConfigAvailable() {

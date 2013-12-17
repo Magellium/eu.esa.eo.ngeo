@@ -57,15 +57,13 @@ public class SettingsManager {
 			File nonUserModifiableSettingsPersistentStore = new File(persistentStoreAbsolutePath); 
 			if (nonUserModifiableSettingsPersistentStore.exists()) {
 				in = new FileInputStream(nonUserModifiableSettingsPersistentStore);
-			}
-			else {
+			}else{
 				LOGGER.info(String.format("Persistent property file \"%s\" does not exist; will use defaults instead", persistentStoreAbsolutePath));
 				in = SettingsManager.class.getResourceAsStream(defaultValuesPathRelativeToClasspath);
 			}
 			// TODO: Investigate whether to wrap InputStream within a BufferedInputStream
 			properties.load(in);
-		} 
-		catch (IOException e) {
+		} catch (IOException e) {
 				throw new NonRecoverableException(e);
 		} finally {
 			IOUtils.closeQuietly(in);
@@ -115,18 +113,19 @@ public class SettingsManager {
 
 	private String encrypt(String value) {
 //		Base64 base64 = new Base64();
-		return Base64.encodeBase64String(value.getBytes()); // TODO: Implement stronger encryption?
+		// TODO: Implement stronger encryption?
+		return Base64.encodeBase64String(value.getBytes());
 	}
 
 	private synchronized void updatePersistentStore(SettingsType settingsType) {
 		try {
 			String pathNameOfPersistentStore = getPathNameOfPersistentStore(settingsType);
 			File persistentStore = new File(pathNameOfPersistentStore);
-			OutputStream out = new FileOutputStream(persistentStore); // TODO: Investigate whether to wrap OutputStream within a BufferedOutputStream
+			// TODO: Investigate whether to wrap OutputStream within a BufferedOutputStream
+			OutputStream out = new FileOutputStream(persistentStore);
 			if (settingsType == SettingsType.NON_USER_MODIFIABLE) {
 				nonUserModifiableProperties.store(out, "");
-			}
-			else {
+			}else{
 				userModifiableProperties.store(out, "");
 			}
 		} catch (IOException e) {

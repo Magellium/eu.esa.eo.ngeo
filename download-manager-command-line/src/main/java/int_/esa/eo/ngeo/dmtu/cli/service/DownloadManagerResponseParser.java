@@ -27,11 +27,9 @@ public class DownloadManagerResponseParser {
 			commandResponse = JSONTransformer.getInstance().deserialize(conn.getInputStream(), CommandResponse.class);
 		    if (commandResponse.isSuccess()) {
 		    	returnMessage = successMessage;
-		    }
-		    else if (commandResponse.getErrorMessage() != null) {
+		    } else if (commandResponse.getErrorMessage() != null) {
 		    	returnMessage = String.format("Error: %s", commandResponse.getErrorMessage());
-		    }
-		    else {
+		    } else {
 		    	returnMessage = "Error (No message provided)";
 		    }
 			break;

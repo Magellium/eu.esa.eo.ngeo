@@ -63,8 +63,7 @@ public class UmSsoHttpClient {
 		if (!StringUtils.isEmpty(proxyHost)) {
 			if (!StringUtils.isEmpty(proxyUser)) {
 				clCore.init(new UmssoCLEnvironment(proxyHost, proxyPort, proxyUser, proxyPassword));
-			}
-			else {
+			} else {
 				clCore.init(new UmssoCLEnvironment(proxyHost, proxyPort));
 			}
 		}

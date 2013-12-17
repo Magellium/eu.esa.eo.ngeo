@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AddProductDownload implements CommandMarker {
-	private final static String successMessage = "Added. Please use the \"status\" command to monitor the progress.";
+	private static final String successMessage = "Added. Please use the \"status\" command to monitor the progress.";
 	
 	@CliAvailabilityIndicator({"add-product"})
 	public boolean isAddAvailable() {

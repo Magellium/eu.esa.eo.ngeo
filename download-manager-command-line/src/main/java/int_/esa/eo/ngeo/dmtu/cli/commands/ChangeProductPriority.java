@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ChangeProductPriority implements CommandMarker {
-	private final static String successMessage = "Product priority changed.";
+	private static final String successMessage = "Product priority changed.";
 
 	@CliAvailabilityIndicator({"change-priority"})
 	public boolean isCancelAvailable() {

@@ -13,8 +13,8 @@ public class AdvancedConfigSettings extends ConfigSettings{
 	@Max(value=5, message="Number of parallel product download threads must be less than or equal to 5")
 	private int noOfParallelProductDownloadThreads;
 	
-	
-	private String productDownloadCompleteCommand; // TODO: Does this encompass both the "command" and the "parameters"?
+	// TODO: Does this encompass both the "command" and the "parameters"?
+	private String productDownloadCompleteCommand; 
 	
 	@Size(min=0, max=40, message="Web interface username must be no longer than 40 characters")
 	@Pattern(regexp="^$|[a-zA-Z0-9]+$", message="Web interface username must be alphanumeric with no spaces")

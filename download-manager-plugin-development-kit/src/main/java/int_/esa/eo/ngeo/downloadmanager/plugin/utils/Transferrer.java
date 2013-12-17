@@ -54,7 +54,8 @@ public class Transferrer {
 				// flip the buffer which set the limit to current position, and position to 0.
 				bytebuf.flip();
 				int bytesWritten = destination.write(bytebuf);
-				bytebuf.clear(); // For the next read
+				// Clear buffer for the next read
+				bytebuf.clear();
 
 				filesProgressListener.notifyOfBytesTransferred(fileMetadataUuid, bytesWritten);
 			}

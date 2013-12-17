@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AddDAR implements CommandMarker {
-	private final static String successMessage = "Added. Please use the \"status\" command to monitor the progress of the request.";
+	private static final String successMessage = "Added. Please use the \"status\" command to monitor the progress of the request.";
 	
 	@CliAvailabilityIndicator({"add-dar"})
 	public boolean isAddAvailable() {

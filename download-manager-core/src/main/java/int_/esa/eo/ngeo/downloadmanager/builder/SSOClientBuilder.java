@@ -25,8 +25,7 @@ public class SSOClientBuilder {
 		if (!StringUtils.isEmpty(proxyHost)) {
 			if (!StringUtils.isEmpty(proxyUsername)) {
 				return new UmSsoHttpClient(umSsoUsername, umSsoPassword, proxyHost, proxyPort, proxyUsername, proxyPassword);
-			}
-			else {
+			}else{
 				return new UmSsoHttpClient(umSsoUsername, umSsoPassword, proxyHost, proxyPort);
 			}
 		}else{

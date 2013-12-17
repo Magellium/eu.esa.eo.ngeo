@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StopCommands implements CommandMarker {
 	private static final String TABS = "\t\t\t\t\t\t\t";
-	private final static String successMessage = "Stop command initiated. Please use the \"status\" command to monitor the progress of the products.";
+	private static final String successMessage = "Stop command initiated. Please use the \"status\" command to monitor the progress of the products.";
 	
 	@CliAvailabilityIndicator({"stop"})
 	public boolean isStopAvailable() {

@@ -40,8 +40,7 @@ public class CallbackCommandExecutor {
 			// TODO: Execute the command once, passing in each and every pathname. (How should the pathnames be separated?)
 			throw new UnsupportedOperationException(String.format("TODO: Execute the command \"%s\" once, replacing %s with each and every pathname. (How should the pathnames be separated?)",
 					unresolvedCommand, FILESET_MACRO_REF));
-		}
-		else if(unresolvedCommand.contains(FILE_MACRO_REF)) {
+		} else if(unresolvedCommand.contains(FILE_MACRO_REF)) {
 			for (File file : downloadedFiles) {
 				LOGGER.debug(String.format("Unresolved call-back command = %s", unresolvedCommand));
 
@@ -61,8 +60,7 @@ public class CallbackCommandExecutor {
 				try {
 					resultHandler = commandLineExecutor.execute(commandLine, 60000, EXEC_IN_BACKGROUND, SUCCESSFUL_OS_COMMAND_EXIT_CODE);
 					resultHandler.waitFor();
-				}
-				catch (InterruptedException | IOException e) {
+				} catch (InterruptedException | IOException e) {
 					LOGGER.error(String.format("Error invoking command \"%s\": %s", commandLine.toString(), e.getMessage()));
 				}
 				

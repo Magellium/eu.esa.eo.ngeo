@@ -72,8 +72,7 @@ public class PathResolver {
 			}
 	
 			String[] params = decodedQueryString.split("&");  
-		    for (String param : params)  
-		    {  
+		    for (String param : params) {  
 		        String[] paramPair = param.split("=");
 				String name = paramPair[0];
 				String value = "";

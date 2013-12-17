@@ -6,15 +6,10 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadProcess;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class DownloadScheduler {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DownloadScheduler.class);
 	private ProductDownloadThreadPoolExecutor mThreadPoolExecutor;
 	private List<ProductDownloadThread> activeProductDownloadThreads;
 	

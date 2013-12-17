@@ -34,8 +34,7 @@ public class PluginConfigurationLoader {
 			}
 		} catch (IOException e) {
 			throw new DMPluginException(e);
-		}
-		finally {
+		} finally {
 			if (in != null) {
 				try {
 					in.close();

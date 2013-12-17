@@ -51,7 +51,7 @@ public class DataAccessRequestManager implements ProductSubject {
 			visibleDataAccessRequests.addDAR(dataAccessRequest);
 			
 			for (Product product : dataAccessRequest.getProductList()) {
-				visibleDataAccessRequests.addProductToProduct_DARMapping(product, dataAccessRequest);
+				visibleDataAccessRequests.addProductToProductDARMapping(product, dataAccessRequest);
 				if(product.isVisible() && !product.isNotified()) {
 					switch (product.getProductProgress().getStatus()) {
 						case NOT_STARTED:
@@ -197,7 +197,7 @@ public class DataAccessRequestManager implements ProductSubject {
 			productsWhichCanBeUpdatedToNewStatus = searchForProductsWhichCanBeUpdatedToNewStatus(retrievedDataAccessRequest.getProductList(), EDownloadStatus.CANCELLED);
 			notifyObserversOfChangeOfDARProductsStatus(productsWhichCanBeUpdatedToNewStatus, EDownloadStatus.CANCELLED);
 			break;
-		case COMPLETED:
+		default:
 			break;
 		}
 	}
@@ -223,7 +223,7 @@ public class DataAccessRequestManager implements ProductSubject {
 				List<Product> productList = dataAccessRequest.getProductList();
 				for (Product product: productList) {
 					product.setVisible(false);
-					visibleDataAccessRequests.removeProductFromProduct_DARMapping(product);
+					visibleDataAccessRequests.removeProductFromProductDARMapping(product);
 				}
 			}else{
 				List<Product> productList = dataAccessRequest.getProductList();
