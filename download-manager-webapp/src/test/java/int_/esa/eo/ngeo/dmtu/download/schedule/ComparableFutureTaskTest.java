@@ -12,8 +12,9 @@ public class ComparableFutureTaskTest {
 	private ProductBuilder productBuilder = new ProductBuilder();
 
 	@Test
-	public void samePriorityTest() {
+	public void samePriorityTest() throws InterruptedException {
 		ComparableFutureTask<String> task1 = buildComparableFutureTask("product 1", ProductPriority.NORMAL);
+		Thread.sleep(500);
 		ComparableFutureTask<String> task2 = buildComparableFutureTask("product 2", ProductPriority.NORMAL);
 		assertEquals(-1, task1.compareTo(task2));
 	}
