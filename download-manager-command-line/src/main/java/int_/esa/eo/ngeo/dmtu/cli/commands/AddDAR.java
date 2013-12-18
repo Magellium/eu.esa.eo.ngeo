@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AddDAR implements CommandMarker {
-	private static final String successMessage = "Added. Please use the \"status\" command to monitor the progress of the request.";
+	private static final String SUCCESS_MESSAGE = "Added. Please use the \"status\" command to monitor the progress of the request.";
 	
 	@CliAvailabilityIndicator({"add-dar"})
 	public boolean isAddAvailable() {
@@ -50,7 +50,7 @@ public class AddDAR implements CommandMarker {
 			parameters = String.format("darUrl=%s", URLEncoder.encode(darUrl, "UTF-8"));
 			
 			HttpURLConnection conn = downloadManagerService.sendPostCommand(commandUrl, parameters);
-			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, successMessage);
+			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, SUCCESS_MESSAGE);
 		} catch (IOException | ParseException e) {
 			returnMessage = e.getMessage();
 		}

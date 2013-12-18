@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AddProductDownload implements CommandMarker {
-	private static final String successMessage = "Added. Please use the \"status\" command to monitor the progress.";
+	private static final String SUCCESS_MESSAGE = "Added. Please use the \"status\" command to monitor the progress.";
 	
 	@CliAvailabilityIndicator({"add-product"})
 	public boolean isAddAvailable() {
@@ -49,7 +49,7 @@ public class AddProductDownload implements CommandMarker {
 			parameters = String.format("productDownloadUrl=%s", URLEncoder.encode(productDownloadUrl, "UTF-8"));
 			
 			HttpURLConnection conn = downloadManagerService.sendPostCommand(commandUrl, parameters);
-			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, successMessage);
+			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, SUCCESS_MESSAGE);
 		} catch (IOException | ParseException e) {
 			returnMessage = e.getMessage();
 		}

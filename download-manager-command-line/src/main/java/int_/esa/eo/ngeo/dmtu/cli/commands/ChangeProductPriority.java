@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ChangeProductPriority implements CommandMarker {
-	private static final String successMessage = "Product priority changed.";
+	private static final String SUCCESS_MESSAGE = "Product priority changed.";
 
 	@CliAvailabilityIndicator({"change-priority"})
 	public boolean isCancelAvailable() {
@@ -48,7 +48,7 @@ public class ChangeProductPriority implements CommandMarker {
 			URL commandUrl = new URL(urlAsString);
 
 			HttpURLConnection conn = downloadManagerService.sendGetCommand(commandUrl);
-			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, successMessage);
+			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, SUCCESS_MESSAGE);
 		} catch (IOException | ParseException e) {
 			returnMessage = e.getMessage();
 		}

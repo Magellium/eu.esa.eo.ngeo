@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ConfigCommands implements CommandMarker {
-	private static final String configChangeSuccessMessage = "Change of configuration successful. Use the \"config\" command to view the current config settings.";
+	private static final String SUCCESS_MESSAGE = "Change of configuration successful. Use the \"config\" command to view the current config settings.";
 
 	@CliAvailabilityIndicator({"config"})
 	public boolean isConfigAvailable() {
@@ -51,7 +51,7 @@ public class ConfigCommands implements CommandMarker {
 			if(settingKey != null && settingValue != null) {
 				String urlAsString = String.format("%s/config?action=changeSetting&settingKey=%s&settingValue=%s", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL), settingKey, URLEncoder.encode(settingValue, StandardCharsets.UTF_8.displayName()));
 				HttpURLConnection conn = downloadManagerService.sendGetCommand(new URL(urlAsString));
-				return downloadManagerResponseParser.parseCommandResponse(conn, configChangeSuccessMessage);
+				return downloadManagerResponseParser.parseCommandResponse(conn, SUCCESS_MESSAGE);
 			}
 			if(settingKey == null && settingValue == null) {
 				String urlAsString = String.format("%s/config", ConfigurationProvider.getProperty(ConfigurationProvider.DM_WEBAPP_URL));

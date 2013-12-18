@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StopCommands implements CommandMarker {
 	private static final String TABS = "\t\t\t\t\t\t\t";
-	private static final String successMessage = "Stop command initiated. Please use the \"status\" command to monitor the progress of the products.";
+	private static final String SUCCESS_MESSAGE = "Stop command initiated. Please use the \"status\" command to monitor the progress of the products.";
 	
 	@CliAvailabilityIndicator({"stop"})
 	public boolean isStopAvailable() {
@@ -52,7 +52,7 @@ public class StopCommands implements CommandMarker {
 			URL commandUrl = new URL(urlAsString);
 
 			HttpURLConnection conn = downloadManagerService.sendGetCommand(commandUrl);
-			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, successMessage);
+			returnMessage = downloadManagerResponseParser.parseCommandResponse(conn, SUCCESS_MESSAGE);
 		} catch (IOException | ParseException e) {
 			returnMessage = e.getMessage();
 		}
