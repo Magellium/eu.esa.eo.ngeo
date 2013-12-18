@@ -34,7 +34,6 @@ public class DARControllerTest {
 
 	@Test
 	public void testAddManualDownload() throws ProductAlreadyExistsInDarException {
-		//FIXME: Fix test
 		String downloadUrl = "http://download.tuxfamily.org/notepadplus/6.3.1/npp.6.3.1.bin.zip";
 		when(dataAccessRequestManager.addManualProductDownload(downloadUrl)).thenReturn(true);
 		
