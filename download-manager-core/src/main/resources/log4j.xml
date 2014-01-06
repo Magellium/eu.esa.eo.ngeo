@@ -80,6 +80,10 @@
 	<logger name="int_.esa.eo.ngeo.downloadmanager.plugin.utils">
 		<level value="info" />
 	</logger>
+
+	<logger name="int_.esa.eo.ngeo.downloadmanager.http">
+		<level value="info" />
+	</logger>
 	
 	<logger name="int_.esa.eo.ngeo.dmtu.download.schedule">
 		<level value="info" />

@@ -25,7 +25,7 @@ public class StatusResponseTransformerTest {
     @Test
     public void testParseStatusResponseJSON() throws JsonParseException, JsonMappingException, IOException {
     	InputStream resourceAsStream = this.getClass().getResourceAsStream("statusResponse.sample.json");
-    	StatusResponse statusResponse = JSONTransformer.getInstance().deserialize(resourceAsStream, StatusResponse.class);
+    	StatusResponse statusResponse = new JSONTransformer().deserialize(resourceAsStream, StatusResponse.class);
 
     	List<DataAccessRequest> dataAccessRequests = statusResponse.getDataAccessRequests();
     	assertNotNull(dataAccessRequests);

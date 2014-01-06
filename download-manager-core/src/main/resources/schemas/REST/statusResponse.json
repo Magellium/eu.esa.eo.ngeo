@@ -107,7 +107,7 @@
 								"creationTimestamp":{
 									"type":"object",
 									"javaType":"java.sql.Timestamp",
-									"description": "A timestamp which indicates when the Download Manager first created the product based on a supplied URL. ",
+									"description": "A timestamp which indicates when the Download Manager first created the product based on a supplied URL.",
 									"required":false
 								},
 								"startOfFirstDownloadRequest":{

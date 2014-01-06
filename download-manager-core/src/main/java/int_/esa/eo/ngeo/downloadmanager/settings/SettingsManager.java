@@ -1,6 +1,8 @@
 package int_.esa.eo.ngeo.downloadmanager.settings;
 
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.observer.SettingsObserver;
+import int_.esa.eo.ngeo.downloadmanager.observer.SettingsSubject;
 import int_.esa.eo.ngeo.downloadmanager.rest.ConfigResponse;
 
 import java.io.File;
@@ -11,12 +13,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +29,11 @@ import org.slf4j.LoggerFactory;
  * NB: We don't support scenarios where a user-modifiable and non-user-modifiable settings have the same key.
  * NB: We may not currently support distinguishing between cases where a setting has been defined to have a blank value and cases where the setting has not been defined. 
  */
-public class SettingsManager {
+public class SettingsManager implements SettingsSubject {
+	private static final String THERE_IS_NO_SETTING_FOR = "There is no setting for %s";
+
+	private static final String DM_HOME = "DM_HOME";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsManager.class);
 	
 	private final String NAME_OF_CONF_DIR = "conf";
@@ -34,6 +43,12 @@ public class SettingsManager {
 	private Properties nonUserModifiableProperties = new Properties();
 	private Properties userModifiableProperties = new Properties();
 	
+	private List<SettingsObserver> observers;
+
+	public SettingsManager() {
+		this.observers = new ArrayList<>();
+	}
+	
 	private enum SettingsType {
 		NON_USER_MODIFIABLE,
 		USER_MODIFIABLE
@@ -41,12 +56,12 @@ public class SettingsManager {
 	
 	public void init() {
 		// Load non-user-modifiable settings
-		String persistentStoreAbsolutePath = System.getenv("DM_HOME") + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
+		String persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
 		String defaultValuesPathRelativeToClasspath = "/META-INF/non-user-modifiable-settings.properties";
 		loadPropertiesFromPersistentStoreOrDefaults(nonUserModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
 
 		// Load the user-modifiable settings
-		persistentStoreAbsolutePath = System.getenv("DM_HOME") + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
+		persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
 		defaultValuesPathRelativeToClasspath = "/META-INF/user-modifiable-settings.properties";
 		loadPropertiesFromPersistentStoreOrDefaults(userModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
 	}
@@ -73,8 +88,9 @@ public class SettingsManager {
 	public String getSetting(UserModifiableSetting userModifiableSetting) {
 		String settingName = userModifiableSetting.toString();
 		String setting = userModifiableProperties.getProperty(settingName);
-		if (setting == null || setting.isEmpty()) {
-			LOGGER.debug(String.format("There is no setting for %s", settingName));
+		if (StringUtils.isEmpty(setting)) {
+			LOGGER.debug(String.format(THERE_IS_NO_SETTING_FOR, settingName));
+			return setting;
 		}
 		switch (userModifiableSetting) {
 		case SSO_PASSWORD:
@@ -87,8 +103,8 @@ public class SettingsManager {
 	public String getSetting(NonUserModifiableSetting nonUserModifiableSetting) {
 		String settingName = nonUserModifiableSetting.toString();
 		String setting = nonUserModifiableProperties.getProperty(settingName);
-		if (setting == null || setting.isEmpty()) {
-			LOGGER.debug(String.format("There is no setting for %s", settingName));
+		if (StringUtils.isEmpty(setting)) {
+			LOGGER.debug(String.format(THERE_IS_NO_SETTING_FOR, settingName));
 		}
 		return setting;
 	}
@@ -98,23 +114,54 @@ public class SettingsManager {
 		return new String(base64.decode(setting.getBytes()));
 	}
 
-	public void setSetting(UserModifiableSetting userModifiableSetting, String value) {
-		if (userModifiableSetting.equals(UserModifiableSetting.SSO_PASSWORD)) {
-			value = encrypt(value);
-		}
-		userModifiableProperties.setProperty(userModifiableSetting.toString(), value);
-		updatePersistentStore(SettingsType.USER_MODIFIABLE);
+	public synchronized void setUserModifiableSetting(UserModifiableSetting userModifiableSetting, String value) {
+		Map<UserModifiableSetting, String> userModifiableSettings = new HashMap<>();
+		userModifiableSettings.put(userModifiableSetting, value);
+		setUserModifiableSettings(userModifiableSettings);
 	}
 
-	public void setSetting(NonUserModifiableSetting nonUserModifiableSetting, String value) {
-		nonUserModifiableProperties.setProperty(nonUserModifiableSetting.toString(), value);
+	public synchronized void setUserModifiableSettings(Map<UserModifiableSetting, String> userModifiableSettings) {
+		for (Entry<UserModifiableSetting, String> userModifiableSettingEntry : userModifiableSettings.entrySet()) {
+			UserModifiableSetting userModifiableSetting = userModifiableSettingEntry.getKey();
+			String value = userModifiableSettingEntry.getValue();
+			
+			if (userModifiableSetting.equals(UserModifiableSetting.SSO_PASSWORD)) {
+				value = encrypt(value);
+			}
+			userModifiableProperties.setProperty(userModifiableSetting.toString(), value);
+		}
+		updatePersistentStore(SettingsType.USER_MODIFIABLE);
+
+		List<UserModifiableSetting> settingsToNotifyOfUpdate = new ArrayList<>();
+		settingsToNotifyOfUpdate.addAll(userModifiableSettings.keySet());
+		
+		notifyObserversOfUpdateToUserModifiableSettings(settingsToNotifyOfUpdate);
+	}
+
+	public synchronized void setNonUserModifiableSetting(NonUserModifiableSetting nonUserModifiableSetting, String value) {
+		Map<NonUserModifiableSetting, String> nonUserModifiableSettings = new HashMap<>();
+		nonUserModifiableSettings.put(nonUserModifiableSetting, value);
+		setNonUserModifiableSettings(nonUserModifiableSettings);
+	}
+
+	public synchronized void setNonUserModifiableSettings(Map<NonUserModifiableSetting, String> nonUserModifiableSettings) {
+		for (Entry<NonUserModifiableSetting, String> nonUserModifiableSettingEntry : nonUserModifiableSettings.entrySet()) {
+			NonUserModifiableSetting nonUserModifiableSetting = nonUserModifiableSettingEntry.getKey();
+			String value = nonUserModifiableSettingEntry.getValue();
+
+			nonUserModifiableProperties.setProperty(nonUserModifiableSetting.toString(), value);
+		}
+		//save properties to file
 		updatePersistentStore(SettingsType.NON_USER_MODIFIABLE);
+
+		List<NonUserModifiableSetting> settingsToNotifyOfUpdate = new ArrayList<>();
+		settingsToNotifyOfUpdate.addAll(nonUserModifiableSettings.keySet());
+		
+		notifyObserversOfUpdateToNonUserModifiableSettings(settingsToNotifyOfUpdate);
 	}
 
 	private String encrypt(String value) {
-//		Base64 base64 = new Base64();
-		// TODO: Implement stronger encryption?
-		return Base64.encodeBase64String(value.getBytes());
+	    return Base64.encodeBase64String(value.getBytes());
 	}
 
 	private synchronized void updatePersistentStore(SettingsType settingsType) {
@@ -134,7 +181,7 @@ public class SettingsManager {
 	}
 
 	private String getPathNameOfPersistentStore(SettingsType settingsType) {
-		File parentFolderOfPersistentStores = new File(System.getenv("DM_HOME") + File.separator + NAME_OF_CONF_DIR);
+		File parentFolderOfPersistentStores = new File(System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR);
 		parentFolderOfPersistentStores.mkdirs();
 		
 		String pathNameOfPersistentStore = Paths.get(parentFolderOfPersistentStores.getAbsolutePath(),
@@ -177,5 +224,24 @@ public class SettingsManager {
 		configResponse.setNonUserModifiableSettingEntries(nonUserModifiableSettingEntryList);
 
 		return configResponse;
+	}
+
+	@Override
+	public void registerObserver(SettingsObserver o) {
+		this.observers.add(o);
+	}
+
+	@Override
+	public void notifyObserversOfUpdateToUserModifiableSettings(List<UserModifiableSetting> userModifiableSettings) {
+		for (SettingsObserver o : observers) {
+			o.updateToUserModifiableSettings(userModifiableSettings);
+		}
+	}
+
+	@Override
+	public void notifyObserversOfUpdateToNonUserModifiableSettings(List<NonUserModifiableSetting> nonUserModifiableSettings) {
+		for (SettingsObserver o : observers) {
+			o.updateToNonUserModifiableSettings(nonUserModifiableSettings);
+		}
 	}
 }

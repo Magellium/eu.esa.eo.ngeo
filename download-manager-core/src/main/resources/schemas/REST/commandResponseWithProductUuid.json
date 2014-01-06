@@ -1,0 +1,18 @@
+{
+	"title": "REST Interface Command Response with product UUID",
+	"type":"object",
+	"javaType": "int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid",
+	"description":"The response provided as a result of an 'add product' command sent to the Download Manager, including the product UUID.",
+	"required":true,
+	"extends" : {
+		"$ref" : "commandResponse.json"
+	},
+	"properties": {
+		"productUuid": {
+			"type":"string",
+			"description":"The UUID of the added product if the add command was successful.",
+			"required":false
+		}
+	},
+	"additionalProperties": false
+}
