@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class SettingsManagerTest {
 	private SettingsManager settingsManager;
@@ -16,6 +17,8 @@ public class SettingsManagerTest {
 	@Before
 	public void setup() {
 		settingsManager = spy(new SettingsManager());
+		Mockito.doNothing().when(settingsManager).updatePersistentStore(SettingsType.USER_MODIFIABLE);
+		Mockito.doNothing().when(settingsManager).updatePersistentStore(SettingsType.NON_USER_MODIFIABLE);
 	}
 	
     @Test

@@ -49,11 +49,6 @@ public class SettingsManager implements SettingsSubject {
 		this.observers = new ArrayList<>();
 	}
 	
-	private enum SettingsType {
-		NON_USER_MODIFIABLE,
-		USER_MODIFIABLE
-	}
-	
 	public void init() {
 		// Load non-user-modifiable settings
 		String persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
@@ -164,7 +159,7 @@ public class SettingsManager implements SettingsSubject {
 	    return Base64.encodeBase64String(value.getBytes());
 	}
 
-	private synchronized void updatePersistentStore(SettingsType settingsType) {
+	protected synchronized void updatePersistentStore(SettingsType settingsType) {
 		try {
 			String pathNameOfPersistentStore = getPathNameOfPersistentStore(settingsType);
 			File persistentStore = new File(pathNameOfPersistentStore);
