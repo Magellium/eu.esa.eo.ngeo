@@ -1,8 +1,8 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpConnectionSettings;
 import int_.esa.eo.ngeo.downloadmanager.plugin.config.PluginConfigurationLoader;
-import int_.esa.eo.ngeo.downloadmanager.plugin.model.ProxyDetails;
 import int_.esa.eo.ngeo.downloadmanager.transform.SchemaRepository;
 import int_.esa.eo.ngeo.schema.ngeobadrequestresponse.BadRequestResponse;
 import int_.esa.eo.ngeo.schema.ngeomissingproductresponse.MissingProductResponse;
@@ -42,8 +42,8 @@ public class HTTPDownloadPlugin implements IDownloadPlugin {
 			int proxyPort, String proxyUser, String proxyPassword)
 			throws DMPluginException {
 		
-		ProxyDetails proxyDetails = new ProxyDetails(proxyLocation, proxyPort, proxyUser, proxyPassword);
-		return new HTTPDownloadProcess(productURI, downloadDir, downloadListener, proxyDetails, umssoUsername, umssoPassword, pluginConfig, schemaRepository);
+		UmSsoHttpConnectionSettings umSsoHttpConnectionSettings = new UmSsoHttpConnectionSettings(umssoUsername, umssoPassword, proxyLocation, proxyPort, proxyUser, proxyPassword);
+		return new HTTPDownloadProcess(productURI, downloadDir, downloadListener, umSsoHttpConnectionSettings, pluginConfig, schemaRepository);
 	}
 
 	private void createSchemaRepository() {

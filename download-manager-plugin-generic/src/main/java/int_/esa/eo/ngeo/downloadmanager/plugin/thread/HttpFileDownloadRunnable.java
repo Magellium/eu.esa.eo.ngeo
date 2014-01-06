@@ -1,7 +1,8 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin.thread;
 
-import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
-import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
+import int_.esa.eo.ngeo.downloadmanager.http.ResponseHeaderParser;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpClient;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.plugin.ProductDownloadProgressMonitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
@@ -33,13 +34,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.siemens.pse.umsso.client.UmssoCLException;
-import com.siemens.pse.umsso.client.UmssoHttpGet;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 /**
  * Runnable using HTTP protocol to download a part of file
  */
 public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload {
+	private static final String DEAD_DOWNLOAD_THREAD = "\n\n\n=============DEAD DOWNLOAD THREAD========================";
+
 	private static final String GZIP_CONTENT_TYPE = "gzip";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpFileDownloadRunnable.class);
@@ -64,7 +66,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 		if(getFileDownloadStatus() == EDownloadStatus.NOT_STARTED) {
 			setFileDownloadStatus(EDownloadStatus.RUNNING);
 			SeekableByteChannel destination = null;
-			UmssoHttpGet request = null;
+			UmSsoHttpRequestAndResponse fileDownloadRequestAndResponse = null;
 	
 			try {
 				Path partiallyDownloadedPath = fileDownloadMetadata.getPartiallyDownloadedPath();
@@ -80,11 +82,11 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 				if (currentFileSize > 0) {
 					List<Header> headers = new ArrayList<>();
 					headers.add(new BasicHeader("Range", String.format("bytes=%s-%s", currentFileSize, fileDownloadMetadata.getDownloadSize())));
-					request = umSsoHttpClient.executeGetRequest(fileUrl, headers);
+					fileDownloadRequestAndResponse = umSsoHttpClient.executeGetRequest(fileUrl, headers);
 				}else{
-					request = umSsoHttpClient.executeGetRequest(fileUrl);
+					fileDownloadRequestAndResponse = umSsoHttpClient.executeGetRequest(fileUrl);
 				}
-				UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
+				UmssoHttpResponse response = fileDownloadRequestAndResponse.getResponse();
 				
 				int responseCode = response.getStatusLine().getStatusCode();
 				switch (responseCode) {
@@ -128,22 +130,21 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 				}
 			} catch (FileSystemException ex) {
 				LOGGER.error(String.format("%s for file %s", ex.getClass().getName(), ex.getFile()));
-				LOGGER.error("\n\n\n=============DEAD DOWNLOAD THREAD========================", ex);
+				LOGGER.error(DEAD_DOWNLOAD_THREAD, ex);
 				setFileDownloadStatus(EDownloadStatus.IN_ERROR);
 				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), String.format("File system error for file %s", ex.getFile()));
 			} catch (UmssoCLException | IOException ex) {
-				LOGGER.error("\n\n\n=============DEAD DOWNLOAD THREAD========================", ex);
+				LOGGER.error(DEAD_DOWNLOAD_THREAD, ex);
 				setFileDownloadStatus(EDownloadStatus.IN_ERROR);
 				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), ex.getLocalizedMessage());
 				
 			} catch (Exception ex) {
-				LOGGER.error("\n\n\n=============DEAD DOWNLOAD THREAD========================", ex);
+				LOGGER.error(DEAD_DOWNLOAD_THREAD, ex);
 				setFileDownloadStatus(EDownloadStatus.IN_ERROR);
 				productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), ex.getLocalizedMessage());
 			} finally {
-				if (request != null) {
-					request.abort();
-					request.releaseConnection();
+				if (fileDownloadRequestAndResponse != null) {
+					fileDownloadRequestAndResponse.cleanupHttpResources();
 				}
 				if (destination != null && destination.isOpen()) { 
 					IOUtils.closeQuietly(destination);
@@ -173,7 +174,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 	 * If the content encoding of the response is gzip, provide a GZIPInputStream which will handle the compressed stream
 	 */
 	private InputStream getBodyAsStream(UmssoHttpResponse response) throws IOException {
-		String contentEncoding = new ResponseHeaderParser().searchForResponseHeaderValue(response, HttpHeaders.CONTENT_ENCODING);
+		String contentEncoding = new ResponseHeaderParser().searchForResponseHeaderValue(response.getHeaders(), HttpHeaders.CONTENT_ENCODING);
 		if(StringUtils.isNotEmpty(contentEncoding) && contentEncoding.equals(GZIP_CONTENT_TYPE)) {
 			return new GZIPInputStream(response.getBodyAsStream());
 		}else{

@@ -1,13 +1,14 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
-import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
-import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.exception.SchemaNotFoundException;
+import int_.esa.eo.ngeo.downloadmanager.http.ResponseHeaderParser;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpClient;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpConnectionSettings;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.FileDownloadMetadata;
 import int_.esa.eo.ngeo.downloadmanager.plugin.model.ProductDownloadMetadata;
-import int_.esa.eo.ngeo.downloadmanager.plugin.model.ProxyDetails;
 import int_.esa.eo.ngeo.downloadmanager.plugin.thread.HttpFileDownloadRunnable;
 import int_.esa.eo.ngeo.downloadmanager.plugin.thread.IdleCheckThread;
 import int_.esa.eo.ngeo.downloadmanager.plugin.utils.PathResolver;
@@ -35,8 +36,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.metalinker.FileType;
 import org.metalinker.Metalink;
 import org.metalinker.Url;
@@ -44,10 +47,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.siemens.pse.umsso.client.UmssoCLException;
-import com.siemens.pse.umsso.client.UmssoHttpGet;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 public class HTTPDownloadProcess implements IDownloadProcess {
+	private static final String UNABLE_TO_CANCEL_DOWNLOAD_STATUS = "Unable to cancel download, status is %s";
+	private static final String UNABLE_TO_PARSE_RESPONSE_DETAILS = "HTTP response code %s (%s), unable to parse response details.";
 	private static final String KEY_DOWNLOAD_THREAD_TIMEOUT_LENGTH_IN_HOURS = "DOWNLOAD_THREAD_TIMEOUT_LENGTH_IN_HOURS";
 	private static final String KEY_TRANSFERRER_READ_LENGTH_IN_BYTES = "TRANSFERRER_READ_LENGTH_IN_BYTES";
 	private static final Logger LOGGER = LoggerFactory.getLogger(HTTPDownloadProcess.class);
@@ -72,7 +76,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	private Properties pluginConfig;
 	private PathResolver pathResolver;
 	
-	public HTTPDownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener, ProxyDetails proxyDetails, String umssoUsername, String umssoPassword, Properties pluginConfig, SchemaRepository schemaRepository) {
+	public HTTPDownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener, UmSsoHttpConnectionSettings umSsoHttpConnectionSettings, Properties pluginConfig, SchemaRepository schemaRepository) {
 		this.productURI = productURI;
 		this.baseProductDownloadDir = downloadDir;
 		this.productDownloadProgressMonitor = new ProductDownloadProgressMonitor(productDownloadListener);
@@ -80,7 +84,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		this.pathResolver = new PathResolver();
 		this.pluginConfig = pluginConfig;
 
-		umSsoHttpClient = new UmSsoHttpClient(umssoUsername, umssoPassword, proxyDetails.getProxyLocation(), proxyDetails.getProxyPort(), proxyDetails.getProxyUser(), proxyDetails.getProxyPassword());
+		this.umSsoHttpClient = new UmSsoHttpClient(umSsoHttpConnectionSettings);
 	}
 	
 	public EDownloadStatus startDownload() throws DMPluginException {
@@ -95,21 +99,23 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 	}
 	
 	public void retrieveDownloadDetails() {
-		UmssoHttpGet productDownloadRequest = null;
-		UmssoHttpResponse productDownloadResponse = null;
+		UmSsoHttpRequestAndResponse productDownloadRequestAndResponse = null;
 		
 		ResponseHeaderParser responseHeaderParser = new ResponseHeaderParser();
 		XMLWithSchemaTransformer xmlWithSchemaTransformer = new XMLWithSchemaTransformer(schemaRepository);
 		try {
 			LOGGER.debug("About to construct UmSsoHttpClient");
-			productDownloadRequest = umSsoHttpClient.executeHeadRequest(productURI.toURL());
-			productDownloadResponse = umSsoHttpClient.getUmssoHttpResponse(productDownloadRequest);
-			int responseCode = productDownloadResponse.getStatusLine().getStatusCode();
-			String reasonPhrase = productDownloadResponse.getStatusLine().getReasonPhrase();
+			productDownloadRequestAndResponse = umSsoHttpClient.executeHeadRequest(productURI.toURL());
+			UmssoHttpResponse productDownloadResponse = productDownloadRequestAndResponse.getResponse();
+			StatusLine statusLine = productDownloadResponse.getStatusLine();
+			Header[] productDownloadResponseHeaders = productDownloadResponse.getHeaders();
+
+			int responseCode = statusLine.getStatusCode();
+			String reasonPhrase = statusLine.getReasonPhrase();
 			switch (responseCode) {
 			case HttpStatus.SC_OK:
 				productMetadata = new ProductDownloadMetadata();
-				String contentType = responseHeaderParser.searchForResponseHeaderValue(productDownloadResponse, HttpHeaders.CONTENT_TYPE);
+				String contentType = responseHeaderParser.searchForResponseHeaderValue(productDownloadResponseHeaders, HttpHeaders.CONTENT_TYPE);
 				String productName = "", resolvedProductName = "";
 
 				if(contentType.contains(MIME_TYPE_METALINK)) {
@@ -139,8 +145,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.NOT_STARTED);
 				}else{
 					//download is a single file
-					String filenameFromResponseHeader = responseHeaderParser.searchForFilename(productDownloadResponse);
-					long fileSize = responseHeaderParser.searchForContentLength(productDownloadResponse);
+					String filenameFromResponseHeader = responseHeaderParser.searchForFilename(productDownloadResponseHeaders);
+					long fileSize = responseHeaderParser.searchForContentLength(productDownloadResponseHeaders);
 					resolvedProductName = pathResolver.determineFileName(filenameFromResponseHeader, productURI, baseProductDownloadDir);
 
 					LOGGER.debug("Content-Type = " + contentType);
@@ -183,7 +189,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
 				}catch(ParseException | SchemaNotFoundException ex) {
-					String errorMessage = String.format("HTTP response code %s (%s), unable to parse response details.", responseCode, reasonPhrase);
+					String errorMessage = String.format(UNABLE_TO_PARSE_RESPONSE_DETAILS, responseCode, reasonPhrase);
 					LOGGER.error(errorMessage, ex);
 				}
 				break;
@@ -196,7 +202,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 					LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, missingProductResponse.getResponseMessage());
 				}catch(ParseException | SchemaNotFoundException ex) {
-					String errorMessage = String.format("HTTP response code %s (%s), unable to parse response details.", responseCode, reasonPhrase);
+					String errorMessage = String.format(UNABLE_TO_PARSE_RESPONSE_DETAILS, responseCode, reasonPhrase);
 					LOGGER.error(errorMessage, ex);
 					productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, errorMessage);
 				}
@@ -209,9 +215,8 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 			LOGGER.error("Exception occurred whilst retrieving download details.", ex);
 			productDownloadProgressMonitor.setError(ex);
 		} finally {
-			if (productDownloadRequest != null) {
-				productDownloadRequest.abort();
-				productDownloadRequest.releaseConnection();
+			if (productDownloadRequestAndResponse != null) {
+				productDownloadRequestAndResponse.cleanupHttpResources();
 			}
 		}
 	}
@@ -222,22 +227,21 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 
 		URL fileDownloadLinkURL = new URL(fileDownloadLink);
 
-		UmssoHttpGet request = null; 
+		UmSsoHttpRequestAndResponse metalinkRequestAndResponse = null; 
 		try {
-			request = umSsoHttpClient.executeHeadRequest(fileDownloadLinkURL);
-			UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
+			metalinkRequestAndResponse = umSsoHttpClient.executeHeadRequest(fileDownloadLinkURL);
+			UmssoHttpResponse response = metalinkRequestAndResponse.getResponse();
 			
 			int metalinkFileResponseCode = response.getStatusLine().getStatusCode();
 			if(metalinkFileResponseCode == HttpStatus.SC_OK) {
-				fileSize = responseHeaderParser.searchForContentLength(response);
+				fileSize = responseHeaderParser.searchForContentLength(response.getHeaders());
 				LOGGER.debug(String.format("metalink file content length = %s", fileSize));
 			}else{
 				throw new DMPluginException(String.format("Unable to retrieve metalink file details from file URL %s", fileDownloadLink));
 			}
 		} finally {
-			if (request != null) {
-				request.abort();
-				request.releaseConnection();
+			if (metalinkRequestAndResponse != null) {
+				metalinkRequestAndResponse.cleanupHttpResources();
 			}
 		}
 		
@@ -346,7 +350,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 		EDownloadStatus previousDownloadStatus = getStatus();
 		ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
 		if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteCancelAction().contains(previousDownloadStatus)) {
-			throw new DMPluginException(String.format("Unable to cancel download, status is %s", getStatus()));
+			throw new DMPluginException(String.format(UNABLE_TO_CANCEL_DOWNLOAD_STATUS, getStatus()));
 		}
 		
 		stopIdleCheckIfActive();
@@ -361,7 +365,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
 			tidyUpAfterCancelledDownload();
 			break;
 		default:
-			throw new DMPluginException(String.format("Unable to cancel download, status is %s", previousDownloadStatus));
+			throw new DMPluginException(String.format(UNABLE_TO_CANCEL_DOWNLOAD_STATUS, previousDownloadStatus));
 		}
 		
 		return getStatus();
