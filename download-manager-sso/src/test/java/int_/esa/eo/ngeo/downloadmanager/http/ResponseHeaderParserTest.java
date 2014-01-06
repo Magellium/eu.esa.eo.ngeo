@@ -1,10 +1,8 @@
-package int_.esa.eo.ngeo.downloadmanager;
+package int_.esa.eo.ngeo.downloadmanager.http;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -12,28 +10,17 @@ import java.util.Date;
 import org.apache.http.Header;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.message.BasicHeader;
-import org.junit.Before;
 import org.junit.Test;
-
-import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 public class ResponseHeaderParserTest {
 	ResponseHeaderParser responseHeaderParser = new ResponseHeaderParser();
-	UmssoHttpResponse umssoHttpReponse;
-	
-	@Before
-	public void setup() {
-		umssoHttpReponse = mock(UmssoHttpResponse.class);
-	}
 	
 	@Test
 	public void searchForResponseDateTest() throws DateParseException, ParseException {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Date", "Thu, 07 Nov 2013 10:31:14 GMT");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		Date responseDate = responseHeaderParser.searchForResponseDate(umssoHttpReponse);
+		Date responseDate = responseHeaderParser.searchForResponseDate(headers);
 		assertEquals(1383820274000L, responseDate.getTime());
 	}
 
@@ -41,9 +28,8 @@ public class ResponseHeaderParserTest {
 	public void searchForResponseDateTestNoDateHeader() throws DateParseException {
 		Header[] headers = new Header[0];
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
 		try {
-			responseHeaderParser.searchForResponseDate(umssoHttpReponse);
+			responseHeaderParser.searchForResponseDate(headers);
 			fail("call to searchForResponseDate with no headers should throw an exception.");
 		}catch (IllegalArgumentException ex){
 			assertEquals("dateValue is null", ex.getMessage());
@@ -54,9 +40,7 @@ public class ResponseHeaderParserTest {
 	public void searchForContentLengthTestNoHeader() {
 		Header[] headers = new Header[0];
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		long conentLength = responseHeaderParser.searchForContentLength(umssoHttpReponse);
+		long conentLength = responseHeaderParser.searchForContentLength(headers);
 		assertEquals(-1L, conentLength);
 	}
 
@@ -65,9 +49,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Length", "698346923");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		long conentLength = responseHeaderParser.searchForContentLength(umssoHttpReponse);
+		long conentLength = responseHeaderParser.searchForContentLength(headers);
 		assertEquals(698346923, conentLength);
 	}
 
@@ -76,9 +58,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Length", "Invalid");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		long conentLength = responseHeaderParser.searchForContentLength(umssoHttpReponse);
+		long conentLength = responseHeaderParser.searchForContentLength(headers);
 		assertEquals(-1L, conentLength);
 	}
 	
@@ -86,9 +66,7 @@ public class ResponseHeaderParserTest {
 	public void searchForFileNameTestNoContentDispositionHeader() {
 		Header[] headers = new Header[0];
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		String responseFileName = responseHeaderParser.searchForFilename(headers);
 		assertNull(responseFileName);
 	}
 
@@ -97,9 +75,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Disposition", "inline");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		String responseFileName = responseHeaderParser.searchForFilename(headers);
 		assertNull(responseFileName);
 	}
 
@@ -108,9 +84,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Disposition", "filename=\"example.html\"");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		String responseFileName = responseHeaderParser.searchForFilename(headers);
 		assertEquals("example.html", responseFileName);
 	}
 
@@ -119,9 +93,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Disposition", "Attachment; filename=example.html");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		String responseFileName = responseHeaderParser.searchForFilename(headers);
 		assertEquals("example.html", responseFileName);
 	}
 
@@ -130,9 +102,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Disposition", "Attachment; filename=\"my example.html\"");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		String responseFileName = responseHeaderParser.searchForFilename(headers);
 		assertEquals("my example.html", responseFileName);
 	}
 
@@ -141,9 +111,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Disposition", "Attachment; FILENAME=\"example.html\"");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		String responseFileName = responseHeaderParser.searchForFilename(headers);
 		assertEquals("example.html", responseFileName);
 	}
 
@@ -152,9 +120,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Disposition", "Attachment; FILENAME=\"C:\\users\\example.html\"");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		String responseFileName = responseHeaderParser.searchForFilename(headers);
 		assertEquals("example.html", responseFileName);
 	}
 
@@ -163,9 +129,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Disposition", "Attachment; FILENAME=\"users/example.html\"");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForFilename(umssoHttpReponse);
+		String responseFileName = responseHeaderParser.searchForFilename(headers);
 		assertEquals("example.html", responseFileName);
 	}
 
@@ -173,9 +137,7 @@ public class ResponseHeaderParserTest {
 	public void searchForResponseHeaderValueNullHeaderNameToSearchFor() {
 		Header[] headers = new Header[0];
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(umssoHttpReponse, null);
+		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(headers, null);
 		assertNull(responseFileName);
 	}
 
@@ -183,9 +145,7 @@ public class ResponseHeaderParserTest {
 	public void searchForResponseHeaderValueEmptyHeaderNameToSearchFor() {
 		Header[] headers = new Header[0];
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(umssoHttpReponse, "");
+		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(headers, "");
 		assertNull(responseFileName);
 	}
 
@@ -193,9 +153,7 @@ public class ResponseHeaderParserTest {
 	public void searchForResponseHeaderValueNoHeaders() {
 		Header[] headers = new Header[0];
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(umssoHttpReponse, "Content-Type");
+		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(headers, "Content-Type");
 		assertNull(responseFileName);
 	}
 	
@@ -204,9 +162,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Disposition", "Attachment; FILENAME=\"users/example.html\"");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(umssoHttpReponse, "Content-Type");
+		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(headers, "Content-Type");
 		assertNull(responseFileName);
 	}
 
@@ -215,9 +171,7 @@ public class ResponseHeaderParserTest {
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Type", "application/metalink+xml");
 		
-		when(umssoHttpReponse.getHeaders()).thenReturn(headers);
-		
-		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(umssoHttpReponse, "Content-Type");
+		String responseFileName = responseHeaderParser.searchForResponseHeaderValue(headers, "Content-Type");
 		assertEquals("application/metalink+xml", responseFileName);
 	}
 }
