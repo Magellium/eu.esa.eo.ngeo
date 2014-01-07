@@ -5,6 +5,92 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-	<context:component-scan base-package="int_.esa.eo.ngeo.dmtu.cli" />
+    <bean id="configurationProvider" class="int_.esa.eo.ngeo.downloadmanager.cli.config.ConfigurationProvider" />
+    <bean id="downloadManagerService" class="int_.esa.eo.ngeo.downloadmanager.cli.service.DownloadManagerService" />
+    <bean id="downloadManagerResponseParser" class="int_.esa.eo.ngeo.downloadmanager.cli.service.DownloadManagerResponseParser" />
+	
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.DownloadManagerCliBannerProvider">
+        <constructor-arg index="0">
+            <ref bean="configurationProvider" />
+        </constructor-arg>
+    </bean>
 
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.DownloadManagerCliPromptProvider">
+        <constructor-arg index="0">
+            <ref bean="configurationProvider" />
+        </constructor-arg>
+    </bean>
+
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.commands.AddManualDownload">
+        <constructor-arg index="0">
+            <ref bean="downloadManagerService" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="downloadManagerResponseParser" />
+        </constructor-arg>
+        <constructor-arg index="2">
+            <ref bean="configurationProvider" />
+        </constructor-arg>
+    </bean>
+
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.commands.ChangeProductPriority">
+        <constructor-arg index="0">
+            <ref bean="downloadManagerService" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="downloadManagerResponseParser" />
+        </constructor-arg>
+        <constructor-arg index="2">
+            <ref bean="configurationProvider" />
+        </constructor-arg>
+    </bean>
+
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.commands.ConfigCommands">
+        <constructor-arg index="0">
+            <ref bean="downloadManagerService" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="downloadManagerResponseParser" />
+        </constructor-arg>
+        <constructor-arg index="2">
+            <ref bean="configurationProvider" />
+        </constructor-arg>
+    </bean>
+
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.commands.GetStatus">
+        <constructor-arg index="0">
+            <ref bean="downloadManagerService" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="downloadManagerResponseParser" />
+        </constructor-arg>
+        <constructor-arg index="2">
+            <ref bean="configurationProvider" />
+        </constructor-arg>
+    </bean>
+
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.commands.ProductDownloadActions">
+        <constructor-arg index="0">
+            <ref bean="downloadManagerService" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="downloadManagerResponseParser" />
+        </constructor-arg>
+        <constructor-arg index="2">
+            <ref bean="configurationProvider" />
+        </constructor-arg>
+    </bean>
+
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.commands.StopCommands">
+        <constructor-arg index="0">
+            <ref bean="downloadManagerService" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="downloadManagerResponseParser" />
+        </constructor-arg>
+        <constructor-arg index="2">
+            <ref bean="configurationProvider" />
+        </constructor-arg>
+    </bean>
+    <context:component-scan base-package="int_.esa.eo.ngeo.dmtu.cli" />
 </beans>
