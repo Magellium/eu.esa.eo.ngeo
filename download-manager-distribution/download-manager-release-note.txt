@@ -22,6 +22,13 @@ Features
 
 Release History
 ========================================================
+0.5.9
+    Release date 7th January 2014
+             - Improved the handling of a change to multiple settings simultaneously.
+             - Improved the handling of a change to the connection properties.
+             - Added DAR UUID and Product UUID to response of manual add commands.
+             - Improved CLI to provide better indication of when an error has occurred with a command.
+             - Removed unnecessary CLI commands.
 0.5.8
     Release date 17th December 2013
              - Implemented handling of download priorities.
@@ -179,9 +186,6 @@ DMTU-REQ-26  -	This setting refers to the product download threads. A product do
                 time (in a metalink scenario).
 DMTU-REQ-23  -  Callback mechanism supports very basic commands at present
 DMTU-REQ-28  -	The DMTU have been started by something other than the CLI before any CLI commands can be serviced by the DMTU.
-             -  There priority for the download of a product is not honoured at this time.
-             -  Product downloads are handled as as queue (FIFO). 
-                If any product download is paused and then resumed, the download will lose its place in the queue.
              -  DMTU only allows for integration with one ngEO Web Server
 DMTU-152     -  Use cannot specify any hosts where the proxy should not be used
 
