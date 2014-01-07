@@ -2,15 +2,14 @@ package int_.esa.eo.ngeo.dmtu.monitor.dar;
 
 import int_.esa.eo.ngeo.dmtu.controller.DARController;
 import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
-import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
-import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
-import int_.esa.eo.ngeo.downloadmanager.builder.SSOClientBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
@@ -31,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
-import com.siemens.pse.umsso.client.UmssoHttpPost;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 @Component
@@ -55,7 +53,7 @@ public class DARMonitor {
 
 	@Autowired
 	private SettingsManager settingsManager;
-
+	
 	@Autowired
 	private ThreadPoolTaskScheduler darMonitorScheduler;
 	
@@ -88,7 +86,7 @@ public class DARMonitor {
 		LOGGER.info("Registering download manager.");
 
 		String downloadManagerId = UUID.randomUUID().toString().replaceAll("-", "");
-		settingsManager.setSetting(NonUserModifiableSetting.DM_ID, downloadManagerId);
+		settingsManager.setNonUserModifiableSetting(NonUserModifiableSetting.DM_ID, downloadManagerId);
 		String downloadManagerFriendlyName = settingsManager.getSetting(UserModifiableSetting.DM_FRIENDLY_NAME);
 		String ngEOWebServer = settingsManager.getSetting(NonUserModifiableSetting.NGEO_WEB_SERVER_REGISTRATION_URLS);
 		URL ngEOWebServerUrl;
@@ -98,25 +96,23 @@ public class DARMonitor {
 			throw new WebServerServiceException(String.format("Unable to parse ngEO Web Server URL %s",ngEOWebServer),e);
 		}
 
-		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(settingsManager);
-
 		DMRegistrationMgmntRequ registrationMgmntRequest = ngeoWebServerRequestBuilder.buildDMRegistrationMgmntRequest(downloadManagerId, downloadManagerFriendlyName);
-		UmssoHttpPost request = null;
+		UmSsoHttpRequestAndResponse webServerRequestAndResponse = null;
 		try {
-			request = ngeoWebServerService.registrationMgmt(ngEOWebServerUrl, umSsoHttpClient, registrationMgmntRequest);
-			UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
+			webServerRequestAndResponse = ngeoWebServerService.registrationMgmt(ngEOWebServerUrl, registrationMgmntRequest);
+			UmssoHttpResponse response = webServerRequestAndResponse.getResponse();
 
 			DMRegistrationMgmntResp registrationMgmtResponse = ngeoWebServerResponseParser.parseDMRegistrationMgmntResponse(ngEOWebServerUrl, response);
 		
 			String montoringServiceUrl = registrationMgmtResponse.getMonitoringServiceUrl();
-			settingsManager.setSetting(NonUserModifiableSetting.DM_IS_REGISTERED, "true");
-			settingsManager.setSetting(NonUserModifiableSetting.NGEO_WEB_SERVER_DAR_MONITORING_URLS, montoringServiceUrl);
+			settingsManager.setNonUserModifiableSetting(NonUserModifiableSetting.DM_IS_REGISTERED, "true");
+			settingsManager.setNonUserModifiableSetting(NonUserModifiableSetting.NGEO_WEB_SERVER_DAR_MONITORING_URLS, montoringServiceUrl);
 			LOGGER.info(String.format("Registration complete, monitoring service URL: %s", montoringServiceUrl));
 		} catch (ParseException | ServiceException e) {
 			throw new WebServerServiceException(String.format("Exception occurred whilst attempting to register the Download Manager: %s", e.getLocalizedMessage()));
 		} finally {
-			if (request != null) {
-				request.releaseConnection();
+			if (webServerRequestAndResponse != null) {
+				webServerRequestAndResponse.cleanupHttpResources();
 			}
 		}
 	}
@@ -164,7 +160,7 @@ public class DARMonitor {
 					URL darMonitoringUrl;
 					try {
 						darMonitoringUrl = new URL(dataAccessRequest.getDarURL());
-						DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, settingsManager, downloadManagerId, darMonitoringUrl , refreshPeriod);
+						DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl , refreshPeriod);
 						darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());
 					} catch (MalformedURLException e) {
 						LOGGER.error(String.format("Unable to parse ngEO Web Server DAR Monitoring URL %s", dataAccessRequest.getDarURL()),e);

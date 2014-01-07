@@ -11,10 +11,11 @@ import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
 import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,12 +34,14 @@ public class DARControllerTest {
 	private static final String MONITORING_URL = "http://dmtu.ngeo.eo.esa.int/monitoringUrl";
 
 	@Test
-	public void testAddManualDownload() throws ProductAlreadyExistsInDarException {
+	public void testAddManualProductDownload() throws ProductAlreadyExistsInDarException {
 		String downloadUrl = "http://download.tuxfamily.org/notepadplus/6.3.1/npp.6.3.1.bin.zip";
-		when(dataAccessRequestManager.addManualProductDownload(downloadUrl)).thenReturn(true);
+		String uuid = UUID.randomUUID().toString();
+		when(dataAccessRequestManager.addManualProductDownload(downloadUrl)).thenReturn(uuid);
 		
-		CommandResponse commandResponse = darController.addManualDownload(downloadUrl, null);
+		CommandResponseWithProductUuid commandResponse = darController.addManualProductDownload(downloadUrl);
 		assertTrue(commandResponse.isSuccess());
+		assertEquals(uuid, commandResponse.getProductUuid());
 	}
 
 	public List<DataAccessRequest> setupDataAccessRequestList() {

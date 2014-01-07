@@ -9,12 +9,7 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.IProductDownloadListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ProductDownloadListener implements IProductDownloadListener, DownloadSubject {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProductDownloadListener.class);
-
 	private List<DownloadObserver> observers;
 
 	public static final String MANUAL_DATA_REQUEST = "Manual Data Request";
@@ -41,14 +36,6 @@ public class ProductDownloadListener implements IProductDownloadListener, Downlo
 	@Override
 	public void registerObserver(DownloadObserver o) {
 		this.observers.add(o);
-	}
-
-	@Override
-	public void removeObserver(DownloadObserver o) {
-		int i = observers.indexOf(o);
-		if(i >= 0) {
-			observers.remove(i);
-		}
 	}
 
 	@Override

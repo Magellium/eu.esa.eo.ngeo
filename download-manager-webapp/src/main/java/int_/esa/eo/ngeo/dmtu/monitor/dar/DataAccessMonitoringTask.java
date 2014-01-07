@@ -2,17 +2,15 @@ package int_.esa.eo.ngeo.dmtu.monitor.dar;
 
 import int_.esa.eo.ngeo.dmtu.controller.DARController;
 import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
-import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
-import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
-import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
-import int_.esa.eo.ngeo.downloadmanager.builder.SSOClientBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
+import int_.esa.eo.ngeo.downloadmanager.http.ResponseHeaderParser;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
-import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
@@ -27,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 
-import com.siemens.pse.umsso.client.UmssoHttpPost;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 public class DataAccessMonitoringTask implements Runnable {
@@ -39,20 +36,18 @@ public class DataAccessMonitoringTask implements Runnable {
 	private DARController darController;
 	private MonitoringController monitoringController;
 	private TaskScheduler darMonitorScheduler;
-	private SettingsManager settingsManager;
  
 	private String downloadManagerId;
 	private URL darMonitoringUrl;
 	private int refreshPeriod;
 	
-	public DataAccessMonitoringTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService, DARController darController, MonitoringController monitoringController, TaskScheduler darMonitorScheduler, SettingsManager settingsManager, String downloadManagerId, URL darMonitoringUrl, int refreshPeriod) {
+	public DataAccessMonitoringTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService, DARController darController, MonitoringController monitoringController, TaskScheduler darMonitorScheduler, String downloadManagerId, URL darMonitoringUrl, int refreshPeriod) {
 		this.ngeoWebServerRequestBuilder = ngeoWebServerRequestBuilder;
 		this.ngeoWebServerResponseParser= ngeoWebServerResponseParser; 
 		this.ngeoWebServerService = ngeoWebServerService;
 		this.darController = darController;
 		this.monitoringController = monitoringController;
 		this.darMonitorScheduler = darMonitorScheduler;
-		this.settingsManager = settingsManager;
 		
 		this.downloadManagerId = downloadManagerId;
 		this.darMonitoringUrl = darMonitoringUrl;
@@ -62,8 +57,6 @@ public class DataAccessMonitoringTask implements Runnable {
 	public void run() {
 		LOGGER.debug("Starting DataAccessMonitoringTask");
 
-		UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(settingsManager);
-
 		DataAccessRequest dataAccessRequest = darController.getDataAccessRequestByMonitoringUrl(darMonitoringUrl);
 		if(dataAccessRequest == null) {
 			throw new NonRecoverableException(String.format("Unable to retrieve internal Data Access Request details: %s", darMonitoringUrl));
@@ -71,13 +64,13 @@ public class DataAccessMonitoringTask implements Runnable {
 		DataAccessMonitoringRequ dataAccessMonitoringRequest = ngeoWebServerRequestBuilder.buildDataAccessMonitoringRequ(downloadManagerId, dataAccessRequest, null);
 		MonitoringStatus monitoringStatus = null;
 
-		UmssoHttpPost request = null;
+		UmSsoHttpRequestAndResponse webServerRequestAndResponse = null;
 		try {
-			request = ngeoWebServerService.dataAccessMonitoring(darMonitoringUrl, umSsoHttpClient, dataAccessMonitoringRequest);
-			UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
+			webServerRequestAndResponse = ngeoWebServerService.dataAccessMonitoring(darMonitoringUrl, dataAccessMonitoringRequest);
+			UmssoHttpResponse response = webServerRequestAndResponse.getResponse();
 
 			DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(darMonitoringUrl, response);
-			Date responseDate = new ResponseHeaderParser().searchForResponseDate(response);
+			Date responseDate = new ResponseHeaderParser().searchForResponseDate(response.getHeaders());
 
 //			Error error = dataAccessMonitoringResponse.getError();
 //			if(error != null) {
@@ -93,8 +86,8 @@ public class DataAccessMonitoringTask implements Runnable {
 			LOGGER.debug("DataAccessMonitoring exception Stack trace:", e);
 			scheduleDataAccessMonitoringTask();
 		} finally {
-			if (request != null) {
-				request.releaseConnection();
+			if (webServerRequestAndResponse != null) {
+				webServerRequestAndResponse.cleanupHttpResources();
 			}
 		}
 		
@@ -109,7 +102,7 @@ public class DataAccessMonitoringTask implements Runnable {
 		c.setTime(new Date());
 		c.add(Calendar.SECOND, refreshPeriod);
 		
-		DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, settingsManager, downloadManagerId, darMonitoringUrl, refreshPeriod);
+		DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
 		darMonitorScheduler.schedule(dataAccessMonitoringTask, c.getTime());
 	}
 }

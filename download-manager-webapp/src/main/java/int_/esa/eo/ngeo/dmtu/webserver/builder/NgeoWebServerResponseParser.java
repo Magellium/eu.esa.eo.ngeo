@@ -1,10 +1,10 @@
 package int_.esa.eo.ngeo.dmtu.webserver.builder;
 
-import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
 import int_.esa.eo.ngeo.dmtu.utils.XmlFormatter;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.exception.SchemaNotFoundException;
+import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
 import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DMRegistrationMgmntResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;

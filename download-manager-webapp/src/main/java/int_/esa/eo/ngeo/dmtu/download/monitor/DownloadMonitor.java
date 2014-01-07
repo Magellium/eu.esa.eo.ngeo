@@ -13,6 +13,8 @@ import int_.esa.eo.ngeo.dmtu.plugin.ProductDownloadListener;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.http.ConnectionPropertiesSynchronizedUmSsoHttpClient;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpConnectionSettings;
 import int_.esa.eo.ngeo.downloadmanager.log.ProductTerminationLog;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
@@ -34,7 +36,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,9 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 
 	@Autowired
 	private SettingsManager settingsManager;
+	
+	@Autowired
+	private ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
 	
 	private DataAccessRequestManager dataAccessRequestManager;
 	
@@ -138,20 +142,9 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 				downloadPath = Paths.get(settingsManager.getSetting(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE)).toFile();
 			}
 			
-			String umSSOUsername = settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME);
-			String umSSOPassword = settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD);
-			String proxyHost = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_HOST);
-			String proxyPortString = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PORT);
-			int proxyPort;
-			if (StringUtils.isEmpty(proxyPortString)) {
-				proxyPort = -1;
-			}else{
-				proxyPort = Integer.parseInt(proxyPortString);
-			}
-			String proxyUsername = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_USERNAME);
-			String proxyPassword = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PASSWORD);
+			UmSsoHttpConnectionSettings httpConnectionSettings = connectionPropertiesSynchronizedUmSsoHttpClient.getUmSsoHttpClient().getUmSsoHttpConnectionSettings();
 			
-			return downloadPlugin.createDownloadProcess(uri, downloadPath, umSSOUsername, umSSOPassword, productDownloadListener, proxyHost, proxyPort, proxyUsername, proxyPassword);
+			return downloadPlugin.createDownloadProcess(uri, downloadPath, httpConnectionSettings.getUmssoUsername(), httpConnectionSettings.getUmssoPassword(), productDownloadListener, httpConnectionSettings.getProxyHost(), httpConnectionSettings.getProxyPort(), httpConnectionSettings.getProxyUser(), httpConnectionSettings.getProxyPassword());
 		} catch (NoPluginAvailableException | URISyntaxException | DMPluginException ex) {
 			LOGGER.error(String.format("Error whilst creating download process of product %s: %s", product.getProductAccessUrl(), ex.getLocalizedMessage()));
 			product.getProductProgress().setStatus(EDownloadStatus.IN_ERROR);

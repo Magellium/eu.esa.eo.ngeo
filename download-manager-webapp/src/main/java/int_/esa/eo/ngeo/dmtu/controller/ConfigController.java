@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -63,8 +65,10 @@ public class ConfigController {
 			return FIRST_STARTUP_CONFIG_VIEW_NAME;
 		}
 
-		setConfigSettingsToManager(firstStartupConfigSettings);
-		settingsManager.setSetting(NonUserModifiableSetting.DM_IS_SETUP, "true");
+		Map<UserModifiableSetting, String> configSettingsMap = createConfigSettingsMap(firstStartupConfigSettings);
+		settingsManager.setUserModifiableSettings(configSettingsMap);
+		
+		settingsManager.setNonUserModifiableSetting(NonUserModifiableSetting.DM_IS_SETUP, "true");
 		
 		try {
 			createBaseDownloadFolder(firstStartupConfigSettings.getBaseDownloadFolder());
@@ -112,14 +116,16 @@ public class ConfigController {
 			return ADVANCEDCONFIG_VIEW_NAME;
 		}
 
-		setConfigSettingsToManager(advancedConfigSettings);
+		Map<UserModifiableSetting, String> userModifiableSettings = new HashMap<>();
+		userModifiableSettings.putAll(createConfigSettingsMap(advancedConfigSettings));
 		
-		settingsManager.setSetting(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS, Integer.toString(advancedConfigSettings.getNoOfParallelProductDownloadThreads()));
-		settingsManager.setSetting(UserModifiableSetting.PRODUCT_DOWNLOAD_COMPLETE_COMMAND, advancedConfigSettings.getProductDownloadCompleteCommand());
-		settingsManager.setSetting(UserModifiableSetting.WEB_INTERFACE_USERNAME, advancedConfigSettings.getWebInterfaceUsername());
-		settingsManager.setSetting(UserModifiableSetting.WEB_INTERFACE_PASSWORD, advancedConfigSettings.getWebInterfacePassword());
-		settingsManager.setSetting(UserModifiableSetting.WEB_INTERFACE_REMOTE_ACCESS_ENABLED, Boolean.toString(advancedConfigSettings.isWebInterfaceRemoteAccessEnabled()));
+		userModifiableSettings.put(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS, Integer.toString(advancedConfigSettings.getNoOfParallelProductDownloadThreads()));
+		userModifiableSettings.put(UserModifiableSetting.PRODUCT_DOWNLOAD_COMPLETE_COMMAND, advancedConfigSettings.getProductDownloadCompleteCommand());
+		userModifiableSettings.put(UserModifiableSetting.WEB_INTERFACE_USERNAME, advancedConfigSettings.getWebInterfaceUsername());
+		userModifiableSettings.put(UserModifiableSetting.WEB_INTERFACE_PASSWORD, advancedConfigSettings.getWebInterfacePassword());
+		userModifiableSettings.put(UserModifiableSetting.WEB_INTERFACE_REMOTE_ACCESS_ENABLED, Boolean.toString(advancedConfigSettings.isWebInterfaceRemoteAccessEnabled()));
 		
+		settingsManager.setUserModifiableSettings(userModifiableSettings);
 		try {
 			createBaseDownloadFolder(advancedConfigSettings.getBaseDownloadFolder());
 		} catch (IOException e) {
@@ -148,16 +154,20 @@ public class ConfigController {
 		configSettings.setWebProxyUsername(settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_USERNAME));
 	}	
 
-	private void setConfigSettingsToManager(ConfigSettings configSettings) {
-		settingsManager.setSetting(UserModifiableSetting.SSO_USERNAME, configSettings.getSsoUsername());
-		settingsManager.setSetting(UserModifiableSetting.SSO_PASSWORD, configSettings.getSsoPassword());
-		settingsManager.setSetting(UserModifiableSetting.DM_FRIENDLY_NAME, configSettings.getDmFriendlyName());
-		settingsManager.setSetting(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE, configSettings.getBaseDownloadFolder());
-		settingsManager.setSetting(UserModifiableSetting.WEB_INTERFACE_PORT_NO, configSettings.getWebInterfacePortNo());
-		settingsManager.setSetting(UserModifiableSetting.WEB_PROXY_HOST, configSettings.getWebProxyHost());
-		settingsManager.setSetting(UserModifiableSetting.WEB_PROXY_PORT, configSettings.getWebProxyPort());
-		settingsManager.setSetting(UserModifiableSetting.WEB_PROXY_USERNAME, configSettings.getWebProxyUsername());
-		settingsManager.setSetting(UserModifiableSetting.WEB_PROXY_PASSWORD, configSettings.getWebProxyPassword());
+	private Map<UserModifiableSetting, String> createConfigSettingsMap(ConfigSettings configSettings) {
+		Map<UserModifiableSetting, String> configSettingsMap = new HashMap<>();
+
+		configSettingsMap.put(UserModifiableSetting.SSO_USERNAME, configSettings.getSsoUsername());
+		configSettingsMap.put(UserModifiableSetting.SSO_PASSWORD, configSettings.getSsoPassword());
+		configSettingsMap.put(UserModifiableSetting.DM_FRIENDLY_NAME, configSettings.getDmFriendlyName());
+		configSettingsMap.put(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE, configSettings.getBaseDownloadFolder());
+		configSettingsMap.put(UserModifiableSetting.WEB_INTERFACE_PORT_NO, configSettings.getWebInterfacePortNo());
+		configSettingsMap.put(UserModifiableSetting.WEB_PROXY_HOST, configSettings.getWebProxyHost());
+		configSettingsMap.put(UserModifiableSetting.WEB_PROXY_PORT, configSettings.getWebProxyPort());
+		configSettingsMap.put(UserModifiableSetting.WEB_PROXY_USERNAME, configSettings.getWebProxyUsername());
+		configSettingsMap.put(UserModifiableSetting.WEB_PROXY_PASSWORD, configSettings.getWebProxyPassword());
+		
+		return configSettingsMap;
 	}
 
 	// XXX: The controller should ultimately not be responsible for creating this directory if it doesn't exist
@@ -182,7 +192,7 @@ public class ConfigController {
 
 		try {
 			userModifiableSettingsValidator.validateSettingValue(settingKey, settingValue);
-			settingsManager.setSetting(settingKey, settingValue);
+			settingsManager.setUserModifiableSetting(settingKey, settingValue);
 			return commandResponseBuilder.buildCommandResponse(true, "");
 		} catch (InvalidSettingValueException e) {
 			return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());

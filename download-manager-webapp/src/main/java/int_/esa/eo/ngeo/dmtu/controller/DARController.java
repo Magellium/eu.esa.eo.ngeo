@@ -2,20 +2,21 @@ package int_.esa.eo.ngeo.dmtu.controller;
 
 import int_.esa.eo.ngeo.dmtu.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.dmtu.exception.ProductAlreadyExistsInDarException;
-import int_.esa.eo.ngeo.dmtu.exception.ServiceException;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
-import int_.esa.eo.ngeo.downloadmanager.ResponseHeaderParser;
-import int_.esa.eo.ngeo.downloadmanager.UmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
-import int_.esa.eo.ngeo.downloadmanager.builder.SSOClientBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
+import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
+import int_.esa.eo.ngeo.downloadmanager.http.ResponseHeaderParser;
+import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarUuid;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
 import int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse;
-import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
+import int_.esa.eo.ngeo.downloadmanager.service.StaticDarService;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
@@ -25,7 +26,6 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.impl.cookie.DateParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +37,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.siemens.pse.umsso.client.UmssoCLException;
-import com.siemens.pse.umsso.client.UmssoHttpGet;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 @Controller
@@ -50,11 +48,11 @@ public class DARController {
 	private NgeoWebServerResponseParser ngeoWebServerResponseParser;
 
 	@Autowired
-	private SettingsManager settingsManager;
+	private StaticDarService staticDarService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DARController.class);
 
-	public boolean addDataAccessRequest(URL darMonitoringUrl, boolean monitored) throws DataAccessRequestAlreadyExistsException {
+	public String addDataAccessRequest(URL darMonitoringUrl, boolean monitored) throws DataAccessRequestAlreadyExistsException {
 		return dataAccessRequestManager.addDataAccessRequest(darMonitoringUrl, monitored);
 	}
 	
@@ -62,49 +60,47 @@ public class DARController {
 		dataAccessRequestManager.updateDataAccessRequest(darMonitoringUrl, monitoringStatus, responseDate, productAccessList);
 	}
 
-	@RequestMapping(value="/download", method = RequestMethod.POST)
+	@RequestMapping(value="/download", method = RequestMethod.POST, params = "productDownloadUrl")
 	@ResponseBody
-	public CommandResponse addManualDownload(@RequestParam(value = "productDownloadUrl", defaultValue = "") String productDownloadUrl, @RequestParam(value = "darUrl", defaultValue = "") String darUrl) {
+	public CommandResponseWithProductUuid addManualProductDownload(@RequestParam String productDownloadUrl) {
 		CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
-		if(!StringUtils.isEmpty(productDownloadUrl)) {
-			try {
-				return commandResponseBuilder.buildCommandResponse(dataAccessRequestManager.addManualProductDownload(productDownloadUrl), "Unable to add manual product download");
-			} catch (ProductAlreadyExistsInDarException e) {
-				return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());
+		try {
+			return commandResponseBuilder.buildCommandResponseWithProductUuid(dataAccessRequestManager.addManualProductDownload(productDownloadUrl), "Unable to add manual product download");
+		} catch (ProductAlreadyExistsInDarException e) {
+			LOGGER.error(String.format("Product already exists in the DAR: %s", productDownloadUrl), e);
+			return commandResponseBuilder.buildCommandResponseWithProductUuid(null, e.getLocalizedMessage(), e.getClass().getName());
+		}
+	}
+
+	@RequestMapping(value="/download", method = RequestMethod.POST, params = "darUrl")
+	@ResponseBody
+	public CommandResponseWithDarUuid addManualDar(@RequestParam String darUrl) {
+		CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
+		UmSsoHttpRequestAndResponse staticDarRequestAndResponse = null;
+		try {
+			URL dataAccessRequestUrl = new URL(darUrl);
+
+			staticDarRequestAndResponse = staticDarService.getStaticDar(dataAccessRequestUrl);
+			UmssoHttpResponse response = staticDarRequestAndResponse.getResponse();
+
+			DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(dataAccessRequestUrl, response);
+			Date responseDate = new ResponseHeaderParser().searchForResponseDate(response.getHeaders());
+
+			MonitoringStatus monitoringStatus = dataAccessMonitoringResponse.getMonitoringStatus();
+			ProductAccessList productAccessList = dataAccessMonitoringResponse.getProductAccessList();
+			
+			String dataAccessRequestUuid = addDataAccessRequest(dataAccessRequestUrl, false);
+			updateDAR(dataAccessRequestUrl, monitoringStatus, responseDate, productAccessList);
+			return commandResponseBuilder.buildCommandResponseWithDarUuid(dataAccessRequestUuid, "Unable to add manual dar.");
+		} catch (ParseException | ServiceException | DateParseException | IOException | DataAccessRequestAlreadyExistsException e) {
+			LOGGER.error(String.format("%s whilst adding DAR %s: %s", e.getClass().getName(), darUrl, e.getLocalizedMessage()));
+			LOGGER.debug("Manual DAR exception stack trace:", e);
+		    return commandResponseBuilder.buildCommandResponseWithDarUuid(null, String.format("Error whilst adding DAR: %s", e.getLocalizedMessage()), NonRecoverableException.class.getName());
+		} finally {
+			if (staticDarRequestAndResponse != null) {
+				staticDarRequestAndResponse.cleanupHttpResources();
 			}
 		}
-		if(!StringUtils.isEmpty(darUrl)) {
-			//TODO: Separate this code into appropriate classes
-			UmSsoHttpClient umSsoHttpClient = new SSOClientBuilder().buildSSOClientFromSettings(settingsManager);
-
-			MonitoringStatus monitoringStatus = null;
-
-			UmssoHttpGet request = null;
-			try {
-				URL dataAccessRequestUrl = new URL(darUrl);
-				addDataAccessRequest(dataAccessRequestUrl, false);
-				request = umSsoHttpClient.executeGetRequest(dataAccessRequestUrl);
-				UmssoHttpResponse response = umSsoHttpClient.getUmssoHttpResponse(request);
-
-				DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(dataAccessRequestUrl, response);
-				Date responseDate = new ResponseHeaderParser().searchForResponseDate(response);
-
-				monitoringStatus = dataAccessMonitoringResponse.getMonitoringStatus();
-				ProductAccessList productAccessList = dataAccessMonitoringResponse.getProductAccessList();
-				
-				updateDAR(dataAccessRequestUrl, monitoringStatus, responseDate, productAccessList);
-				return commandResponseBuilder.buildCommandResponse(true, "");
-			} catch (ParseException | ServiceException | DateParseException | UmssoCLException | IOException | DataAccessRequestAlreadyExistsException e) {
-				LOGGER.error(String.format("%s whilst adding DAR %s: %s", e.getClass().getName(), darUrl, e.getLocalizedMessage()));
-				LOGGER.debug("Manual DAR exception stack trace:", e);
-		        throw new NonRecoverableException(String.format("Error whilst adding DAR: %s", e.getLocalizedMessage()));
-			} finally {
-				if (request != null) {
-					request.releaseConnection();
-				}
-			}
-		}
-        throw new NonRecoverableException("Expected Product Download or DAR URL not supplied.");
 	}
 
 	@RequestMapping(value="/clearActivityHistory", method = RequestMethod.GET)

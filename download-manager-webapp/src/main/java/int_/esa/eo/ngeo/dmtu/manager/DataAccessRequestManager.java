@@ -40,7 +40,7 @@ public class DataAccessRequestManager implements ProductSubject {
 
 	public DataAccessRequestManager() {
 		this.visibleDataAccessRequests = new VisibleDataAccessRequests();
-		this.observers = new ArrayList<ProductObserver>();
+		this.observers = new ArrayList<>();
 	}
 
 	public void loadDARs() {
@@ -76,14 +76,6 @@ public class DataAccessRequestManager implements ProductSubject {
 	}
 
 	@Override
-	public void removeObserver(ProductObserver o) {
-		int i = observers.indexOf(o);
-		if(i >= 0) {
-			observers.remove(i);
-		}
-	}
-
-	@Override
 	public void notifyObserversOfNewProduct(Product product) {
 		for (ProductObserver o : observers) {
 			o.newProduct(product);
@@ -109,7 +101,7 @@ public class DataAccessRequestManager implements ProductSubject {
 		}
 	}
 
-	public boolean addDataAccessRequest(URL monitoringUrl, boolean monitored) throws DataAccessRequestAlreadyExistsException {
+	public String addDataAccessRequest(URL monitoringUrl, boolean monitored) throws DataAccessRequestAlreadyExistsException {
 		DataAccessRequest retrievedDataAccessRequest = getDataAccessRequestByMonitoringUrl(monitoringUrl);
 		if(retrievedDataAccessRequest != null) {
 			throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request for url %s already exists.", monitoringUrl));
@@ -117,7 +109,7 @@ public class DataAccessRequestManager implements ProductSubject {
 			DataAccessRequest dataAccessRequest = new DataAccessRequestBuilder().buildDAR(monitoringUrl.toString(), monitored);
 			visibleDataAccessRequests.addDAR(dataAccessRequest);
 			dataAccessRequestDao.updateDataAccessRequest(dataAccessRequest);
-			return true;
+			return dataAccessRequest.getUuid();
 		}
 	}
 	
@@ -132,13 +124,13 @@ public class DataAccessRequestManager implements ProductSubject {
 	}
 
 
-	public boolean addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
+	public String addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
 		Product newProduct = visibleDataAccessRequests.addManualProductDownload(productDownloadUrl);
 		
 		DataAccessRequest manualDataAccessRequest = findDataAccessRequestByProduct(newProduct);
 		dataAccessRequestDao.updateDataAccessRequest(manualDataAccessRequest);
 		notifyObserversOfNewProduct(newProduct);
-		return true;
+		return newProduct.getUuid();
 	}
 	
 	public DataAccessRequest findDataAccessRequestByProduct(Product product) {

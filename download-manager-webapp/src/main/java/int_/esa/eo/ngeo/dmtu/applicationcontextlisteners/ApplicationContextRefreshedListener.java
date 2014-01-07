@@ -4,6 +4,7 @@ import int_.esa.eo.ngeo.dmtu.download.monitor.DownloadMonitor;
 import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
 import int_.esa.eo.ngeo.dmtu.monitor.dar.DARMonitor;
 import int_.esa.eo.ngeo.downloadmanager.configuration.DownloadManagerProperties;
+import int_.esa.eo.ngeo.downloadmanager.http.ConnectionPropertiesSynchronizedUmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
@@ -35,6 +36,9 @@ public class ApplicationContextRefreshedListener implements ApplicationListener<
 	
 	@Autowired
 	private DownloadManagerProperties downloadManagerProperties;
+	
+	@Autowired
+	private ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent arg0) {
@@ -42,6 +46,9 @@ public class ApplicationContextRefreshedListener implements ApplicationListener<
 		settingsManager.init();
 		
 		downloadManagerProperties.loadDownloadManagerProperties();
+		
+		connectionPropertiesSynchronizedUmSsoHttpClient.registerWithSettingsManager();
+		connectionPropertiesSynchronizedUmSsoHttpClient.initUmSsoConnectionSettingsFromSettingsManager();
 		
 		pluginManager.detectPlugins();
 		

@@ -21,4 +21,16 @@
 			<ref bean="downloadManagerProperties" />
 		</constructor-arg>
 	</bean>
+	
+	<bean id="connectionPropertiesSynchronizedUmSsoHttpClient" class="int_.esa.eo.ngeo.downloadmanager.http.ConnectionPropertiesSynchronizedUmSsoHttpClient">
+		<constructor-arg index="0">
+			<ref bean="settingsManager" />
+		</constructor-arg>
+	</bean>
+	
+	<bean id="staticDarService" class="int_.esa.eo.ngeo.downloadmanager.service.StaticDarService">
+		<constructor-arg index="0">
+			<ref bean="connectionPropertiesSynchronizedUmSsoHttpClient" />
+		</constructor-arg>
+	</bean>
 </beans>
