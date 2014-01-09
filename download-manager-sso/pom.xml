@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>int_.esa.eo.ngeo</groupId>
-		<artifactId>download-manager-parent</artifactId>
+		<artifactId>download-manager</artifactId>
 		<version>0.5.9-SNAPSHOT</version>
 	</parent>
 	<artifactId>download-manager-sso</artifactId>

@@ -6,10 +6,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>int_.esa.eo.ngeo</groupId>
-	<artifactId>download-manager-parent</artifactId>
+	<artifactId>download-manager</artifactId>
 	<packaging>pom</packaging>
 	<version>0.5.9-SNAPSHOT</version>
-	<name>Download Manager Parent Project</name>
+	<name>Download Manager</name>
 
 	<properties>
 		<java-version>1.7</java-version>
@@ -173,6 +173,36 @@
 				<sonar.skippedModules>download-manager-distribution,download-manager-mock-product-facility,download-manager-mock-web-server,download-manager-plugin-mock-sentinel2</sonar.skippedModules>
 			</properties>
 		</profile>
+        <profile>
+            <id>graph</id>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>mvnplugins.fusesource.org</id>
+                    <url>http://mvnplugins.fusesource.org/repo/release</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </pluginRepository>
+            </pluginRepositories>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.fusesource.mvnplugins</groupId>
+                        <artifactId>maven-graph-plugin</artifactId>
+                        <version>1.10</version>
+                        <configuration>
+<!--                            <hideExternal>true</hideExternal> -->
+                            <hideGroupId>true</hideGroupId>
+                            <hideExternal>true</hideExternal>
+                            <hideType>true</hideType>
+                            <hideTransitive>true</hideTransitive>
+                            <hideVersion>true</hideVersion>
+                            <label></label>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 	</profiles>
 	<dependencyManagement>
 		<dependencies>
