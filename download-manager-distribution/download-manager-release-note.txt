@@ -6,19 +6,19 @@ Features
 * Open source application, using widely-adopted third-party components and frameworks.
 * Supports Windows, Linux and Mac OS operating systems.
 * Implemented completely in Java.
-* Uses standard cross-platform build tools (Maven and Ant) to create the installation package.
+* Uses standard cross-platform build tools (Maven) to create the installation package.
 * Can be installed anywhere on a user's machine and does not require root / administrator access.
-* Fully autonomous download of products notified by a server which supports the ngEO interface (IICD-D-WS v1.7).
-* Integrates with Product Facilities through ngEO DAGICD interface v1.5.
+* Fully autonomous download of products notified by a server which supports the ngEO interface IICD-D-WS v1.7.
+* Integration with Product Facilities through ngEO interface DAGICD v1.5.
 * Plugin system which allows users to add support for download protocols.
 * Includes generic HTTP and mock Sentinel-2 plugins.
 * Web interface provided to allow monitoring and managing of download activities, as well as editing of configuration data.
-* A user can manually download a product, either by the Web interface or by the command line application.
-* Clear activity history on completed, cancelled or failed downloads.
-* Concurrent download of products.
-* Integration with UM-SSO for product downloads (configurable, disabled by default).
-* Integration with UM-SSO for communication with ngEO Web Server.
-* Prioritisation of downloads.
+* A user can manually download a product or a collection of products (Data Access Request), 
+  either by the Web interface or by the command line application.
+* Clear activity history on completed, cancelled or failed downloads (Web UI only).
+* Concurrent download of up to 5 products.
+* Integration with UM-SSO for product downloads and communication with ngEO Web Server.
+* Prioritisation of downloads via CLI and REST interfaces.
 
 Release History
 ========================================================
@@ -180,14 +180,14 @@ DMTU-REQ-9   -	Parallel downloading (multiple sources for one file in a metalink
                 provided for a particular file, only the first is used.
              -  Handling of Metalinks within Metalinks is not supported.
 DMTU-REQ-9   -	Only one file is downloaded at a time for a product.
-DMTU-REQ-17  -	Changes to the number of parallel download threads will only be honoured on application restart.
+DMTU-REQ-17  -	Changes to the number of concurrent download threads will only be honoured on application restart.
 DMTU-REQ-17  -	Port number for the web interface can be configured but is not honoured.
 DMTU-REQ-26  -	This setting refers to the product download threads. A product download will only download one file at 
                 time (in a metalink scenario).
 DMTU-REQ-23  -  Callback mechanism supports very basic commands at present
 DMTU-REQ-28  -	The DMTU have been started by something other than the CLI before any CLI commands can be serviced by the DMTU.
              -  DMTU only allows for integration with one ngEO Web Server
-DMTU-152     -  Use cannot specify any hosts where the proxy should not be used
+DMTU-152     -  User cannot specify any hosts where the proxy should not be used
 
 Assumptions
 ========================================================
@@ -211,6 +211,6 @@ Known Issues
 DMTU-4   - Pause and resume buttons sometimes do not respond in the Web UI.
 DMTU-70  - Limitation: notification of product download from WEBS not handled correctly
 DMTU-80  - DAGICD: No requirement for handling HTTP 301/302 status codes
-DMTU-8   - Double clicking the FirstStartupConfig page's "Save and Register" button causes a blow-up
+DMTU-8   - Double clicking the FirstStartupConfig page's "Save and Register" button causes an error
 DMTU-62  - Name of downloaded file may be poor in absence of Content-Disposition HTTP response header
-DMTU-149 - Web UI - Update of DAR / product status nor working as expected in Internet Explorer
+DMTU-149 - Web UI - Update of DAR / product status not working as expected in Internet Explorer
