@@ -33,4 +33,25 @@
 			<ref bean="connectionPropertiesSynchronizedUmSsoHttpClient" />
 		</constructor-arg>
 	</bean>
+	
+	<bean id="dataAccessRequestManager" class="int_.esa.eo.ngeo.downloadmanager.dar.DataAccessRequestManager">
+        <constructor-arg index="0">
+            <ref bean="dataAccessRequestDAO" />
+        </constructor-arg>
+	</bean>
+	
+    <bean id="downloadMonitor" class="int_.esa.eo.ngeo.downloadmanager.download.DownloadMonitor">
+        <constructor-arg index="0">
+            <ref bean="pluginManager" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="settingsManager" />
+        </constructor-arg>
+        <constructor-arg index="2">
+            <ref bean="connectionPropertiesSynchronizedUmSsoHttpClient" />
+        </constructor-arg>
+        <constructor-arg index="3">
+            <ref bean="dataAccessRequestManager" />
+        </constructor-arg>
+    </bean>
 </beans>

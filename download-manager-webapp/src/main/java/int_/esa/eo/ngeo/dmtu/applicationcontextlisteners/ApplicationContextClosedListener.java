@@ -1,8 +1,8 @@
 package int_.esa.eo.ngeo.dmtu.applicationcontextlisteners;
 
-import int_.esa.eo.ngeo.dmtu.download.monitor.DownloadMonitor;
-import int_.esa.eo.ngeo.dmtu.manager.DataAccessRequestManager;
 import int_.esa.eo.ngeo.dmtu.monitor.dar.DARMonitor;
+import int_.esa.eo.ngeo.downloadmanager.dar.DataAccessRequestManager;
+import int_.esa.eo.ngeo.downloadmanager.download.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
 
 import org.slf4j.Logger;
@@ -14,27 +14,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ApplicationContextClosedListener implements ApplicationListener<ContextClosedEvent> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationContextClosedListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationContextClosedListener.class);
 
-	@Autowired
-	private DataAccessRequestManager dataAccessRequestManager;
-	
-	@Autowired
-	private DARMonitor darMonitor;
-	
-	@Autowired
-	private PluginManager pluginManager;
+    @Autowired
+    private DataAccessRequestManager dataAccessRequestManager;
 
-	@Autowired
-	private DownloadMonitor downloadMonitor;
-	
-	@Override
-	public void onApplicationEvent(ContextClosedEvent arg0) {
-		LOGGER.info("Shutting down Download Manager.");
-		darMonitor.shutdown();
+    @Autowired
+    private DARMonitor darMonitor;
 
-		downloadMonitor.shutdown();
-		
-		pluginManager.cleanUp();
-	}
+    @Autowired
+    private PluginManager pluginManager;
+
+    @Autowired
+    private DownloadMonitor downloadMonitor;
+
+    @Override
+    public void onApplicationEvent(ContextClosedEvent arg0) {
+        LOGGER.info("Shutting down Download Manager.");
+        darMonitor.shutdown();
+
+        downloadMonitor.shutdown();
+
+        pluginManager.cleanUp();
+    }
 }

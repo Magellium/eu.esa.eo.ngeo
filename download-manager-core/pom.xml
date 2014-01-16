@@ -40,6 +40,16 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 		</dependency>
 
+        <!-- spring-orm provides the entityManager (@Persistence) and the TransactionManager (@Transactional) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+
 		<!-- Validator library - this is independent of hibernate database libraries -->
 		<dependency>
 			<groupId>org.hibernate</groupId>

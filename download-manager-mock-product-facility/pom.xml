@@ -11,7 +11,6 @@
 	<properties>
 		<java-version>1.7</java-version>
 		<org.springframework-version>3.1.4.RELEASE</org.springframework-version>
-		<org.aspectj-version>1.6.9</org.aspectj-version>
 		<org.slf4j-version>1.5.10</org.slf4j-version>
 	</properties>
 
@@ -29,12 +28,6 @@
 			<artifactId>spring-webmvc</artifactId>
 		</dependency>
 				
-		<!-- AspectJ -->
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
-		</dependency>	
-		
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

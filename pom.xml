@@ -16,7 +16,6 @@
 		<jre.version>1.7.0.21</jre.version>
 		<org.slf4j-version>1.7.5</org.slf4j-version>
 		<org.springframework-version>3.1.4.RELEASE</org.springframework-version>
-		<org.aspectj-version>1.6.9</org.aspectj-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<plugin-interface-version>1.5</plugin-interface-version>
 		<umsso-jcl-version>2.2.3</umsso-jcl-version>
@@ -276,12 +275,6 @@
 				<version>2.1.v20100127</version>
 			</dependency>
 
-			<dependency>
-				<groupId>cglib</groupId>
-				<artifactId>cglib</artifactId>
-				<version>2.2.2</version>
-			</dependency>
-
 			<!-- Spring -->
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -357,14 +350,6 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>jstl</artifactId>
 				<version>1.2</version>
-			</dependency>
-
-
-			<!-- AspectJ -->
-			<dependency>
-				<groupId>org.aspectj</groupId>
-				<artifactId>aspectjrt</artifactId>
-				<version>${org.aspectj-version}</version>
 			</dependency>
 
 			<!-- Database dependencies -->
