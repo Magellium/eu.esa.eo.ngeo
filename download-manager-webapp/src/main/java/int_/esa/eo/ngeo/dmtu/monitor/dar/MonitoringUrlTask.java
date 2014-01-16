@@ -103,10 +103,10 @@ public class MonitoringUrlTask implements Runnable {
                 }
             }
 
-            //			Error error = monitoringUrlResponse.getError();
-            //			if(error != null) {
-            //				throw new WebServerServiceException(String.format("Error code %s (%s) when MonitoringURL operation. Error detail: %s",error.getErrorCode(), error.getErrorDescription().toString(), error.getErrorDetail()));
-            //			}
+            //      Error error = monitoringUrlResponse.getError();
+            //      if(error != null) {
+            //          throw new WebServerServiceException(String.format("Error code %s (%s) when MonitoringURL operation. Error detail: %s",error.getErrorCode(), error.getErrorDescription().toString(), error.getErrorDetail()));
+            //      }
 
             if(monitoringUrlResponse != null) {
                 userOrder = monitoringUrlResponse.getUserOrder();
@@ -115,7 +115,8 @@ public class MonitoringUrlTask implements Runnable {
                     try {
                         monitoringController.sendUserOrder(userOrder);
                     } catch (DownloadOperationException e) {
-                        LOGGER.error(String.format("Exception whilst sending user order %s", userOrder.toString()), e);					}
+                        LOGGER.error(String.format("Exception whilst sending user order %s", userOrder.toString()), e);
+                    }
                 }else{
                     refreshPeriod = monitoringUrlResponse.getRefreshPeriod().intValue();
                     settingsManager.setNonUserModifiableSetting(NonUserModifiableSetting.IICD_D_WS_REFRESH_PERIOD, Integer.toString(refreshPeriod, 10));

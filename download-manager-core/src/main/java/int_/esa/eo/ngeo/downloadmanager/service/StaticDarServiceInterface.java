@@ -6,5 +6,5 @@ import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
 import java.net.URL;
 
 public interface StaticDarServiceInterface {
-	UmSsoHttpRequestAndResponse getStaticDar(URL staticDarUrl) throws ServiceException;
+    UmSsoHttpRequestAndResponse getStaticDar(URL staticDarUrl) throws ServiceException;
 }

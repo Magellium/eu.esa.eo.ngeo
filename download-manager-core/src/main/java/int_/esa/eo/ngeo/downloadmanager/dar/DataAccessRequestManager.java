@@ -81,7 +81,7 @@ public class DataAccessRequestManager implements ProductSubject {
     }
 
     @Override
-    public void notifyObserversOfProductStatusUpdate(Product product,	EDownloadStatus downloadStatus) {
+    public void notifyObserversOfProductStatusUpdate(Product product, EDownloadStatus downloadStatus) {
         for (ProductObserver o : observers) {
             o.updateProductDownloadStatus(product, downloadStatus);
         }

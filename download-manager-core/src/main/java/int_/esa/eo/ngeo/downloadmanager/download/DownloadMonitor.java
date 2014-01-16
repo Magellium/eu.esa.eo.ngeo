@@ -113,7 +113,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
         } catch (DownloadOperationException | ProductNotFoundException e) {
             LOGGER.error(String.format("Unable to change status of product %s to %s", product.getProductAccessUrl(), downloadStatus));
         }
-    }	
+    }
 
     private IDownloadProcess createDownloadProcess(Product product) throws DownloadProcessCreationException {
         IDownloadPlugin downloadPlugin;
@@ -217,8 +217,8 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
     }
 
     /**
-     * 	Disconnect and remove the process for a completed or cancelled product.
-     *  The disconnect ensures that we tidy up any left over threads / resources, any failure of the disconnect does not matter
+     * Disconnect and remove the process for a completed or cancelled product.
+     * The disconnect ensures that we tidy up any left over threads / resources, any failure of the disconnect does not matter
      *  
      * @param downloadProcess
      * @param product
@@ -314,7 +314,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
             }
         }
 
-        downloadScheduler.shutdown();		
+        downloadScheduler.shutdown();
     }
 
     public boolean cancelDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel, boolean includeManualDownloads) throws DownloadOperationException {

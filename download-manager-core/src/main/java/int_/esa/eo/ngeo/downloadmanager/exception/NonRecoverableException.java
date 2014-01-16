@@ -11,18 +11,18 @@ package int_.esa.eo.ngeo.downloadmanager.exception;
  */
 public class NonRecoverableException extends RuntimeException {
 
-	private static final long serialVersionUID = 7917867989020486916L;
+    private static final long serialVersionUID = 7917867989020486916L;
 
-	public NonRecoverableException(String message, Throwable cause) {
-		super(message,cause);
-	}
+    public NonRecoverableException(String message, Throwable cause) {
+        super(message,cause);
+    }
 
-	public NonRecoverableException(Throwable cause) {
-		super(cause);
-	}
+    public NonRecoverableException(Throwable cause) {
+        super(cause);
+    }
 
-	public NonRecoverableException(String message) {
-		super(message);
-	}
-	
+    public NonRecoverableException(String message) {
+        super(message);
+    }
+
 }

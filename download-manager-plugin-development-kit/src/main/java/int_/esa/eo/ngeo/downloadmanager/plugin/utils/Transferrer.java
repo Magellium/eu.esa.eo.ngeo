@@ -22,59 +22,59 @@ import org.slf4j.LoggerFactory;
  * Since the source and destination are passed in as arguments, they should be closed in the calling class
  */
 public class Transferrer {
-	
-	private int readLength;
-	private boolean aborted;
-	private static final Logger LOGGER = LoggerFactory.getLogger(Transferrer.class);
-	
-	public Transferrer(int readLength) {
-		this.readLength = readLength;
-	}
 
-	/**
-	 * @param destination
-	 * @param inputStream
-	 * @param fileMetadata
-	 * @param bytesAlreadyDownloaded
-	 * @param filesProgressListener
-	 * @return true if the contents of the inputStream has been transferred to the destination completely, false if the transfer has been interrupted (by a cancel / pause command)
-	 * @throws IOException Occurs when reading the source stream.
-	 */
-	public boolean doTransfer(ReadableByteChannel source, SeekableByteChannel destination, String fileMetadataUuid, FilesDownloadListener filesProgressListener) throws IOException {
-		long startTime, elapsedTime;
-		try {
-			//start download from the end of the file - used primarily for resume scenarios
-			destination.position(destination.size());
-			
-			ByteBuffer bytebuf = ByteBuffer.allocateDirect(readLength);
+    private int readLength;
+    private boolean aborted;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Transferrer.class);
 
-			startTime = System.nanoTime();
-			int bytesRead;
-			while ((bytesRead = source.read(bytebuf)) >= 0 && !aborted) { 
-				// flip the buffer which set the limit to current position, and position to 0.
-				bytebuf.flip();
-				int bytesWritten = destination.write(bytebuf);
-				// Clear buffer for the next read
-				bytebuf.clear();
+    public Transferrer(int readLength) {
+        this.readLength = readLength;
+    }
 
-				filesProgressListener.notifyOfBytesTransferred(fileMetadataUuid, bytesWritten);
-			}
-			
-			//check if we have reached the end of file, of whether we have dropped out as a result of an abort command
-			if(bytesRead == -1) {
-				elapsedTime = System.nanoTime() - startTime;
-				LOGGER.debug("Elapsed Time is " + (elapsedTime / 1000000.0) + " msec");				
-        		return true;
-	        }else{
-	    		return false;
-	        }
-		} finally {
-			// Since the source and destination are passed in as arguments, they should be closed in the calling class
-		}
-		//transfer has been aborted i.e. is not complete.
-	}
+    /**
+     * @param destination
+     * @param inputStream
+     * @param fileMetadata
+     * @param bytesAlreadyDownloaded
+     * @param filesProgressListener
+     * @return true if the contents of the inputStream has been transferred to the destination completely, false if the transfer has been interrupted (by a cancel / pause command)
+     * @throws IOException Occurs when reading the source stream.
+     */
+    public boolean doTransfer(ReadableByteChannel source, SeekableByteChannel destination, String fileMetadataUuid, FilesDownloadListener filesProgressListener) throws IOException {
+        long startTime, elapsedTime;
+        try {
+            //start download from the end of the file - used primarily for resume scenarios
+            destination.position(destination.size());
 
-	public void abortTransfer() {
-		aborted = true;
-	}
+            ByteBuffer bytebuf = ByteBuffer.allocateDirect(readLength);
+
+            startTime = System.nanoTime();
+            int bytesRead;
+            while ((bytesRead = source.read(bytebuf)) >= 0 && !aborted) { 
+                // flip the buffer which set the limit to current position, and position to 0.
+                bytebuf.flip();
+                int bytesWritten = destination.write(bytebuf);
+                // Clear buffer for the next read
+                bytebuf.clear();
+
+                filesProgressListener.notifyOfBytesTransferred(fileMetadataUuid, bytesWritten);
+            }
+
+            //check if we have reached the end of file, of whether we have dropped out as a result of an abort command
+            if(bytesRead == -1) {
+                elapsedTime = System.nanoTime() - startTime;
+                LOGGER.debug("Elapsed Time is " + (elapsedTime / 1000000.0) + " msec");
+                return true;
+            }else{
+                return false;
+            }
+        } finally {
+            // Since the source and destination are passed in as arguments, they should be closed in the calling class
+        }
+        //transfer has been aborted i.e. is not complete.
+    }
+
+    public void abortTransfer() {
+        aborted = true;
+    }
 }

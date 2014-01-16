@@ -6,8 +6,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface FilesDownloadListener {
-	void notifyOfProductDetails(String productName, List<FileDownloadMetadata> fileDownloadMetadataList);
-	void notifyOfBytesTransferred(String fileDownloadMetadataUuid, long numberOfBytes);
-	void notifyOfFileStatusChange(EDownloadStatus fileDownloadStatus, String message);
-	void notifyOfCompletedPath(String fileDownloadMetadataUuid, Path completedPath);
+    void notifyOfProductDetails(String productName, List<FileDownloadMetadata> fileDownloadMetadataList);
+    void notifyOfBytesTransferred(String fileDownloadMetadataUuid, long numberOfBytes);
+    void notifyOfFileStatusChange(EDownloadStatus fileDownloadStatus, String message);
+    void notifyOfCompletedPath(String fileDownloadMetadataUuid, Path completedPath);
 }

@@ -8,63 +8,63 @@ import javax.validation.constraints.Size;
 
 // TODO: Cross-field validation
 public class AdvancedConfigSettings extends ConfigSettings{
-	
-	@Min(value=1, message="Number of parallel product download threads must be at least one")
-	@Max(value=5, message="Number of parallel product download threads must be less than or equal to 5")
-	private int noOfParallelProductDownloadThreads;
-	
-	// TODO: Does this encompass both the "command" and the "parameters"?
-	private String productDownloadCompleteCommand; 
-	
-	@Size(min=0, max=40, message="Web interface username must be no longer than 40 characters")
-	@Pattern(regexp="^$|[a-zA-Z0-9]+$", message="Web interface username must be alphanumeric with no spaces")
-	private String webInterfaceUsername;
-	
-	@Size(min=0, max=40, message="Web interface password must be no longer than 40 characters")
-	private String webInterfacePassword;
-	
-	private boolean webInterfaceRemoteAccessEnabled;
 
-	public int getNoOfParallelProductDownloadThreads() {
-		return noOfParallelProductDownloadThreads;
-	}
+    @Min(value=1, message="Number of parallel product download threads must be at least one")
+    @Max(value=5, message="Number of parallel product download threads must be less than or equal to 5")
+    private int noOfParallelProductDownloadThreads;
 
-	public void setNoOfParallelProductDownloadThreads(int noOfParallelProductDownloadThreads) {
-		this.noOfParallelProductDownloadThreads = noOfParallelProductDownloadThreads;
-	}
+    // TODO: Does this encompass both the "command" and the "parameters"?
+    private String productDownloadCompleteCommand; 
 
-	public String getProductDownloadCompleteCommand() {
-		return productDownloadCompleteCommand;
-	}
+    @Size(min=0, max=40, message="Web interface username must be no longer than 40 characters")
+    @Pattern(regexp="^$|[a-zA-Z0-9]+$", message="Web interface username must be alphanumeric with no spaces")
+    private String webInterfaceUsername;
 
-	public void setProductDownloadCompleteCommand(
-			String productDownloadCompleteCommand) {
-		this.productDownloadCompleteCommand = productDownloadCompleteCommand;
-	}
+    @Size(min=0, max=40, message="Web interface password must be no longer than 40 characters")
+    private String webInterfacePassword;
 
-	public String getWebInterfaceUsername() {
-		return webInterfaceUsername;
-	}
+    private boolean webInterfaceRemoteAccessEnabled;
 
-	public void setWebInterfaceUsername(String webInterfaceUsername) {
-		this.webInterfaceUsername = webInterfaceUsername;
-	}
+    public int getNoOfParallelProductDownloadThreads() {
+        return noOfParallelProductDownloadThreads;
+    }
 
-	public String getWebInterfacePassword() {
-		return webInterfacePassword;
-	}
+    public void setNoOfParallelProductDownloadThreads(int noOfParallelProductDownloadThreads) {
+        this.noOfParallelProductDownloadThreads = noOfParallelProductDownloadThreads;
+    }
 
-	public void setWebInterfacePassword(String webInterfacePassword) {
-		this.webInterfacePassword = webInterfacePassword;
-	}
+    public String getProductDownloadCompleteCommand() {
+        return productDownloadCompleteCommand;
+    }
 
-	public boolean isWebInterfaceRemoteAccessEnabled() {
-		return webInterfaceRemoteAccessEnabled;
-	}
+    public void setProductDownloadCompleteCommand(
+            String productDownloadCompleteCommand) {
+        this.productDownloadCompleteCommand = productDownloadCompleteCommand;
+    }
 
-	public void setWebInterfaceRemoteAccessEnabled(
-			boolean webInterfaceRemoteAccessEnabled) {
-		this.webInterfaceRemoteAccessEnabled = webInterfaceRemoteAccessEnabled;
-	}
-	
+    public String getWebInterfaceUsername() {
+        return webInterfaceUsername;
+    }
+
+    public void setWebInterfaceUsername(String webInterfaceUsername) {
+        this.webInterfaceUsername = webInterfaceUsername;
+    }
+
+    public String getWebInterfacePassword() {
+        return webInterfacePassword;
+    }
+
+    public void setWebInterfacePassword(String webInterfacePassword) {
+        this.webInterfacePassword = webInterfacePassword;
+    }
+
+    public boolean isWebInterfaceRemoteAccessEnabled() {
+        return webInterfaceRemoteAccessEnabled;
+    }
+
+    public void setWebInterfaceRemoteAccessEnabled(
+            boolean webInterfaceRemoteAccessEnabled) {
+        this.webInterfaceRemoteAccessEnabled = webInterfaceRemoteAccessEnabled;
+    }
+
 }

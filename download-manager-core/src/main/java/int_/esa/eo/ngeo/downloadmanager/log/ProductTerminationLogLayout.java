@@ -3,8 +3,8 @@ package int_.esa.eo.ngeo.downloadmanager.log;
 import org.apache.log4j.PatternLayout;
 
 public class ProductTerminationLogLayout extends PatternLayout {
-	@Override
-	public String getHeader() {     
+    @Override
+    public String getHeader() {     
         StringBuilder header = new StringBuilder();
         header.append("Status, ");
         header.append("Product URL, ");
@@ -16,6 +16,6 @@ public class ProductTerminationLogLayout extends PatternLayout {
         header.append("Path of product, ");
         header.append("Reason for failure");
         header.append(System.getProperty("line.separator"));
-		return header.toString();
+        return header.toString();
     }
 }

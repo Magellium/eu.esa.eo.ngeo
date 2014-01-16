@@ -49,7 +49,7 @@ public class DownloadScheduler {
     }
 
     public void changeProductPriority(Product product) {
-        ProductDownloadThread productDownloadThread = getProductDownloadThread(product);		
+        ProductDownloadThread productDownloadThread = getProductDownloadThread(product);
         if(productDownloadThread != null) {
             mThreadPoolExecutor.resubmitProductDownloadThreadAfterChangeOfPriority(productDownloadThread);
             mThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();

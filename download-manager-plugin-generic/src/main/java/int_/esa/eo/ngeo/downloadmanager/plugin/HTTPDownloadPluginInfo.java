@@ -4,23 +4,23 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPluginInfo;
 
 public class HTTPDownloadPluginInfo implements IDownloadPluginInfo {
 
-	public String getName() {
-		return "Generic Download Plugin (HTTP)";
-	}
+    public String getName() {
+        return "Generic Download Plugin (HTTP)";
+    }
 
-	public int[] getPluginVersion() {
-		return new int[] { 0, 5, 9};
-	}
+    public int[] getPluginVersion() {
+        return new int[] { 0, 5, 9};
+    }
 
-	public String[] getMatchingPatterns() {
-		return new String[] {"http://.*","https://.*"};
-	}
+    public String[] getMatchingPatterns() {
+        return new String[] {"http://.*","https://.*"};
+    }
 
-	public int[] getDMMinVersion() {
-		return new int[] { 0, 5, 9};
-	}
+    public int[] getDMMinVersion() {
+        return new int[] { 0, 5, 9};
+    }
 
-	public boolean handlePause() {
-		return true;
-	}
+    public boolean handlePause() {
+        return true;
+    }
 }

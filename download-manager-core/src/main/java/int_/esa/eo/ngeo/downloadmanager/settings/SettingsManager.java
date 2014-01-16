@@ -30,213 +30,213 @@ import org.slf4j.LoggerFactory;
  * NB: We may not currently support distinguishing between cases where a setting has been defined to have a blank value and cases where the setting has not been defined. 
  */
 public class SettingsManager implements SettingsSubject {
-	private static final String THERE_IS_NO_SETTING_FOR = "There is no setting for %s";
+    private static final String THERE_IS_NO_SETTING_FOR = "There is no setting for %s";
 
-	private static final String DM_HOME = "DM_HOME";
+    private static final String DM_HOME = "DM_HOME";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsManager.class);
-	
-	private final String NAME_OF_CONF_DIR = "conf";
-	private final String NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE     = "user-modifiable-settings.properties";
-	private final String NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE = "non-user-modifiable-settings.properties";
-	
-	private Properties nonUserModifiableProperties = new Properties();
-	private Properties userModifiableProperties = new Properties();
-	
-	private List<SettingsObserver> observers;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SettingsManager.class);
 
-	public SettingsManager() {
-		this.observers = new ArrayList<>();
-	}
-	
-	public void init() {
-		// Load non-user-modifiable settings
-		String persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
-		String defaultValuesPathRelativeToClasspath = "/META-INF/non-user-modifiable-settings.properties";
-		loadPropertiesFromPersistentStoreOrDefaults(nonUserModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
+    private final String NAME_OF_CONF_DIR = "conf";
+    private final String NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE     = "user-modifiable-settings.properties";
+    private final String NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE = "non-user-modifiable-settings.properties";
 
-		// Load the user-modifiable settings
-		persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
-		defaultValuesPathRelativeToClasspath = "/META-INF/user-modifiable-settings.properties";
-		loadPropertiesFromPersistentStoreOrDefaults(userModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
-	}
+    private Properties nonUserModifiableProperties = new Properties();
+    private Properties userModifiableProperties = new Properties();
 
-	private void loadPropertiesFromPersistentStoreOrDefaults(Properties properties, String persistentStoreAbsolutePath, String defaultValuesPathRelativeToClasspath) {
-		InputStream in = null;
-		try {
-			File nonUserModifiableSettingsPersistentStore = new File(persistentStoreAbsolutePath); 
-			if (nonUserModifiableSettingsPersistentStore.exists()) {
-				in = new FileInputStream(nonUserModifiableSettingsPersistentStore);
-			}else{
-				LOGGER.info(String.format("Persistent property file \"%s\" does not exist; will use defaults instead", persistentStoreAbsolutePath));
-				in = SettingsManager.class.getResourceAsStream(defaultValuesPathRelativeToClasspath);
-			}
-			// TODO: Investigate whether to wrap InputStream within a BufferedInputStream
-			properties.load(in);
-		} catch (IOException e) {
-				throw new NonRecoverableException(e);
-		} finally {
-			IOUtils.closeQuietly(in);
-		}
-	}
-	
-	public String getSetting(UserModifiableSetting userModifiableSetting) {
-		String settingName = userModifiableSetting.toString();
-		String setting = userModifiableProperties.getProperty(settingName);
-		if (StringUtils.isEmpty(setting)) {
-			LOGGER.debug(String.format(THERE_IS_NO_SETTING_FOR, settingName));
-			return setting;
-		}
-		switch (userModifiableSetting) {
-		case SSO_PASSWORD:
-			return decrypt(setting);
-		default:
-			return setting;
-		}
-	}
+    private List<SettingsObserver> observers;
 
-	public String getSetting(NonUserModifiableSetting nonUserModifiableSetting) {
-		String settingName = nonUserModifiableSetting.toString();
-		String setting = nonUserModifiableProperties.getProperty(settingName);
-		if (StringUtils.isEmpty(setting)) {
-			LOGGER.debug(String.format(THERE_IS_NO_SETTING_FOR, settingName));
-		}
-		return setting;
-	}
+    public SettingsManager() {
+        this.observers = new ArrayList<>();
+    }
 
-	private String decrypt(String setting) {
-		Base64 base64 = new Base64();
-		return new String(base64.decode(setting.getBytes()));
-	}
+    public void init() {
+        // Load non-user-modifiable settings
+        String persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
+        String defaultValuesPathRelativeToClasspath = "/META-INF/non-user-modifiable-settings.properties";
+        loadPropertiesFromPersistentStoreOrDefaults(nonUserModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
 
-	public synchronized void setUserModifiableSetting(UserModifiableSetting userModifiableSetting, String value) {
-		Map<UserModifiableSetting, String> userModifiableSettings = new HashMap<>();
-		userModifiableSettings.put(userModifiableSetting, value);
-		setUserModifiableSettings(userModifiableSettings);
-	}
+        // Load the user-modifiable settings
+        persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
+        defaultValuesPathRelativeToClasspath = "/META-INF/user-modifiable-settings.properties";
+        loadPropertiesFromPersistentStoreOrDefaults(userModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
+    }
 
-	public synchronized void setUserModifiableSettings(Map<UserModifiableSetting, String> userModifiableSettings) {
-		for (Entry<UserModifiableSetting, String> userModifiableSettingEntry : userModifiableSettings.entrySet()) {
-			UserModifiableSetting userModifiableSetting = userModifiableSettingEntry.getKey();
-			String value = userModifiableSettingEntry.getValue();
-			
-			if (userModifiableSetting.equals(UserModifiableSetting.SSO_PASSWORD)) {
-				value = encrypt(value);
-			}
-			userModifiableProperties.setProperty(userModifiableSetting.toString(), value);
-		}
-		updatePersistentStore(SettingsType.USER_MODIFIABLE);
+    private void loadPropertiesFromPersistentStoreOrDefaults(Properties properties, String persistentStoreAbsolutePath, String defaultValuesPathRelativeToClasspath) {
+        InputStream in = null;
+        try {
+            File nonUserModifiableSettingsPersistentStore = new File(persistentStoreAbsolutePath); 
+            if (nonUserModifiableSettingsPersistentStore.exists()) {
+                in = new FileInputStream(nonUserModifiableSettingsPersistentStore);
+            }else{
+                LOGGER.info(String.format("Persistent property file \"%s\" does not exist; will use defaults instead", persistentStoreAbsolutePath));
+                in = SettingsManager.class.getResourceAsStream(defaultValuesPathRelativeToClasspath);
+            }
+            // TODO: Investigate whether to wrap InputStream within a BufferedInputStream
+            properties.load(in);
+        } catch (IOException e) {
+            throw new NonRecoverableException(e);
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
+    }
 
-		List<UserModifiableSetting> settingsToNotifyOfUpdate = new ArrayList<>();
-		settingsToNotifyOfUpdate.addAll(userModifiableSettings.keySet());
-		
-		notifyObserversOfUpdateToUserModifiableSettings(settingsToNotifyOfUpdate);
-	}
+    public String getSetting(UserModifiableSetting userModifiableSetting) {
+        String settingName = userModifiableSetting.toString();
+        String setting = userModifiableProperties.getProperty(settingName);
+        if (StringUtils.isEmpty(setting)) {
+            LOGGER.debug(String.format(THERE_IS_NO_SETTING_FOR, settingName));
+            return setting;
+        }
+        switch (userModifiableSetting) {
+        case SSO_PASSWORD:
+            return decrypt(setting);
+        default:
+            return setting;
+        }
+    }
 
-	public synchronized void setNonUserModifiableSetting(NonUserModifiableSetting nonUserModifiableSetting, String value) {
-		Map<NonUserModifiableSetting, String> nonUserModifiableSettings = new HashMap<>();
-		nonUserModifiableSettings.put(nonUserModifiableSetting, value);
-		setNonUserModifiableSettings(nonUserModifiableSettings);
-	}
+    public String getSetting(NonUserModifiableSetting nonUserModifiableSetting) {
+        String settingName = nonUserModifiableSetting.toString();
+        String setting = nonUserModifiableProperties.getProperty(settingName);
+        if (StringUtils.isEmpty(setting)) {
+            LOGGER.debug(String.format(THERE_IS_NO_SETTING_FOR, settingName));
+        }
+        return setting;
+    }
 
-	public synchronized void setNonUserModifiableSettings(Map<NonUserModifiableSetting, String> nonUserModifiableSettings) {
-		for (Entry<NonUserModifiableSetting, String> nonUserModifiableSettingEntry : nonUserModifiableSettings.entrySet()) {
-			NonUserModifiableSetting nonUserModifiableSetting = nonUserModifiableSettingEntry.getKey();
-			String value = nonUserModifiableSettingEntry.getValue();
+    private String decrypt(String setting) {
+        Base64 base64 = new Base64();
+        return new String(base64.decode(setting.getBytes()));
+    }
 
-			nonUserModifiableProperties.setProperty(nonUserModifiableSetting.toString(), value);
-		}
-		//save properties to file
-		updatePersistentStore(SettingsType.NON_USER_MODIFIABLE);
+    public synchronized void setUserModifiableSetting(UserModifiableSetting userModifiableSetting, String value) {
+        Map<UserModifiableSetting, String> userModifiableSettings = new HashMap<>();
+        userModifiableSettings.put(userModifiableSetting, value);
+        setUserModifiableSettings(userModifiableSettings);
+    }
 
-		List<NonUserModifiableSetting> settingsToNotifyOfUpdate = new ArrayList<>();
-		settingsToNotifyOfUpdate.addAll(nonUserModifiableSettings.keySet());
-		
-		notifyObserversOfUpdateToNonUserModifiableSettings(settingsToNotifyOfUpdate);
-	}
+    public synchronized void setUserModifiableSettings(Map<UserModifiableSetting, String> userModifiableSettings) {
+        for (Entry<UserModifiableSetting, String> userModifiableSettingEntry : userModifiableSettings.entrySet()) {
+            UserModifiableSetting userModifiableSetting = userModifiableSettingEntry.getKey();
+            String value = userModifiableSettingEntry.getValue();
 
-	private String encrypt(String value) {
-	    return Base64.encodeBase64String(value.getBytes());
-	}
+            if (userModifiableSetting.equals(UserModifiableSetting.SSO_PASSWORD)) {
+                value = encrypt(value);
+            }
+            userModifiableProperties.setProperty(userModifiableSetting.toString(), value);
+        }
+        updatePersistentStore(SettingsType.USER_MODIFIABLE);
 
-	protected synchronized void updatePersistentStore(SettingsType settingsType) {
-		try {
-			String pathNameOfPersistentStore = getPathNameOfPersistentStore(settingsType);
-			File persistentStore = new File(pathNameOfPersistentStore);
-			// TODO: Investigate whether to wrap OutputStream within a BufferedOutputStream
-			OutputStream out = new FileOutputStream(persistentStore);
-			if (settingsType == SettingsType.NON_USER_MODIFIABLE) {
-				nonUserModifiableProperties.store(out, "");
-			}else{
-				userModifiableProperties.store(out, "");
-			}
-		} catch (IOException e) {
-			LOGGER.error(String.format("Unable to update the persistent store for %s settings", settingsType.toString()), e);
-		}
-	}
+        List<UserModifiableSetting> settingsToNotifyOfUpdate = new ArrayList<>();
+        settingsToNotifyOfUpdate.addAll(userModifiableSettings.keySet());
 
-	private String getPathNameOfPersistentStore(SettingsType settingsType) {
-		File parentFolderOfPersistentStores = new File(System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR);
-		parentFolderOfPersistentStores.mkdirs();
-		
-		String pathNameOfPersistentStore = Paths.get(parentFolderOfPersistentStores.getAbsolutePath(),
-				settingsType == SettingsType.NON_USER_MODIFIABLE ? NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE
-																 : NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE).toString();
-		return pathNameOfPersistentStore;
-	}
+        notifyObserversOfUpdateToUserModifiableSettings(settingsToNotifyOfUpdate);
+    }
 
-	/*
-	 * TODO: Move into a seperate builder class? visibility of properties might need to be changed
-	 *       to protected or getter methods created
-	 */
-	public ConfigResponse buildConfigResponse() {
-		ConfigResponse configResponse = new ConfigResponse();
+    public synchronized void setNonUserModifiableSetting(NonUserModifiableSetting nonUserModifiableSetting, String value) {
+        Map<NonUserModifiableSetting, String> nonUserModifiableSettings = new HashMap<>();
+        nonUserModifiableSettings.put(nonUserModifiableSetting, value);
+        setNonUserModifiableSettings(nonUserModifiableSettings);
+    }
 
-		List<UserModifiableSettingEntry> userModifiableSettingEntryList = new ArrayList<>();
-		for (Map.Entry<Object, Object> userModifiablePropertiesEntry : userModifiableProperties.entrySet()) {
-			UserModifiableSetting key = UserModifiableSetting.valueOf((String)userModifiablePropertiesEntry.getKey());
-			String value = (String) userModifiablePropertiesEntry.getValue();
-			
-			UserModifiableSettingEntry userModifiableSettingEntry = new UserModifiableSettingEntry();
-			userModifiableSettingEntry.setKey(key);
-			userModifiableSettingEntry.setValue(value);
-			
-			userModifiableSettingEntryList.add(userModifiableSettingEntry);
-		}
-		List<NonUserModifiableSettingEntry> nonUserModifiableSettingEntryList = new ArrayList<>();
-		for (Map.Entry<Object, Object> nonUserModifiablePropertiesEntry : nonUserModifiableProperties.entrySet()) {
-			NonUserModifiableSetting key = NonUserModifiableSetting.valueOf((String)nonUserModifiablePropertiesEntry.getKey());
-			String value = (String) nonUserModifiablePropertiesEntry.getValue();
-			
-			NonUserModifiableSettingEntry nonUserModifiableSettingEntry = new NonUserModifiableSettingEntry();
-			nonUserModifiableSettingEntry.setKey(key);
-			nonUserModifiableSettingEntry.setValue(value);
-			
-			nonUserModifiableSettingEntryList.add(nonUserModifiableSettingEntry);
-		}
+    public synchronized void setNonUserModifiableSettings(Map<NonUserModifiableSetting, String> nonUserModifiableSettings) {
+        for (Entry<NonUserModifiableSetting, String> nonUserModifiableSettingEntry : nonUserModifiableSettings.entrySet()) {
+            NonUserModifiableSetting nonUserModifiableSetting = nonUserModifiableSettingEntry.getKey();
+            String value = nonUserModifiableSettingEntry.getValue();
 
-		configResponse.setUserModifiableSettingEntries(userModifiableSettingEntryList);
-		configResponse.setNonUserModifiableSettingEntries(nonUserModifiableSettingEntryList);
+            nonUserModifiableProperties.setProperty(nonUserModifiableSetting.toString(), value);
+        }
+        //save properties to file
+        updatePersistentStore(SettingsType.NON_USER_MODIFIABLE);
 
-		return configResponse;
-	}
+        List<NonUserModifiableSetting> settingsToNotifyOfUpdate = new ArrayList<>();
+        settingsToNotifyOfUpdate.addAll(nonUserModifiableSettings.keySet());
 
-	@Override
-	public void registerObserver(SettingsObserver o) {
-		this.observers.add(o);
-	}
+        notifyObserversOfUpdateToNonUserModifiableSettings(settingsToNotifyOfUpdate);
+    }
 
-	@Override
-	public void notifyObserversOfUpdateToUserModifiableSettings(List<UserModifiableSetting> userModifiableSettings) {
-		for (SettingsObserver o : observers) {
-			o.updateToUserModifiableSettings(userModifiableSettings);
-		}
-	}
+    private String encrypt(String value) {
+        return Base64.encodeBase64String(value.getBytes());
+    }
 
-	@Override
-	public void notifyObserversOfUpdateToNonUserModifiableSettings(List<NonUserModifiableSetting> nonUserModifiableSettings) {
-		for (SettingsObserver o : observers) {
-			o.updateToNonUserModifiableSettings(nonUserModifiableSettings);
-		}
-	}
+    protected synchronized void updatePersistentStore(SettingsType settingsType) {
+        try {
+            String pathNameOfPersistentStore = getPathNameOfPersistentStore(settingsType);
+            File persistentStore = new File(pathNameOfPersistentStore);
+            // TODO: Investigate whether to wrap OutputStream within a BufferedOutputStream
+            OutputStream out = new FileOutputStream(persistentStore);
+            if (settingsType == SettingsType.NON_USER_MODIFIABLE) {
+                nonUserModifiableProperties.store(out, "");
+            }else{
+                userModifiableProperties.store(out, "");
+            }
+        } catch (IOException e) {
+            LOGGER.error(String.format("Unable to update the persistent store for %s settings", settingsType.toString()), e);
+        }
+    }
+
+    private String getPathNameOfPersistentStore(SettingsType settingsType) {
+        File parentFolderOfPersistentStores = new File(System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR);
+        parentFolderOfPersistentStores.mkdirs();
+
+        String pathNameOfPersistentStore = Paths.get(parentFolderOfPersistentStores.getAbsolutePath(),
+                settingsType == SettingsType.NON_USER_MODIFIABLE ? NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE
+                        : NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE).toString();
+        return pathNameOfPersistentStore;
+    }
+
+    /*
+     * TODO: Move into a seperate builder class? visibility of properties might need to be changed
+     *       to protected or getter methods created
+     */
+    public ConfigResponse buildConfigResponse() {
+        ConfigResponse configResponse = new ConfigResponse();
+
+        List<UserModifiableSettingEntry> userModifiableSettingEntryList = new ArrayList<>();
+        for (Map.Entry<Object, Object> userModifiablePropertiesEntry : userModifiableProperties.entrySet()) {
+            UserModifiableSetting key = UserModifiableSetting.valueOf((String)userModifiablePropertiesEntry.getKey());
+            String value = (String) userModifiablePropertiesEntry.getValue();
+
+            UserModifiableSettingEntry userModifiableSettingEntry = new UserModifiableSettingEntry();
+            userModifiableSettingEntry.setKey(key);
+            userModifiableSettingEntry.setValue(value);
+
+            userModifiableSettingEntryList.add(userModifiableSettingEntry);
+        }
+        List<NonUserModifiableSettingEntry> nonUserModifiableSettingEntryList = new ArrayList<>();
+        for (Map.Entry<Object, Object> nonUserModifiablePropertiesEntry : nonUserModifiableProperties.entrySet()) {
+            NonUserModifiableSetting key = NonUserModifiableSetting.valueOf((String)nonUserModifiablePropertiesEntry.getKey());
+            String value = (String) nonUserModifiablePropertiesEntry.getValue();
+
+            NonUserModifiableSettingEntry nonUserModifiableSettingEntry = new NonUserModifiableSettingEntry();
+            nonUserModifiableSettingEntry.setKey(key);
+            nonUserModifiableSettingEntry.setValue(value);
+
+            nonUserModifiableSettingEntryList.add(nonUserModifiableSettingEntry);
+        }
+
+        configResponse.setUserModifiableSettingEntries(userModifiableSettingEntryList);
+        configResponse.setNonUserModifiableSettingEntries(nonUserModifiableSettingEntryList);
+
+        return configResponse;
+    }
+
+    @Override
+    public void registerObserver(SettingsObserver o) {
+        this.observers.add(o);
+    }
+
+    @Override
+    public void notifyObserversOfUpdateToUserModifiableSettings(List<UserModifiableSetting> userModifiableSettings) {
+        for (SettingsObserver o : observers) {
+            o.updateToUserModifiableSettings(userModifiableSettings);
+        }
+    }
+
+    @Override
+    public void notifyObserversOfUpdateToNonUserModifiableSettings(List<NonUserModifiableSetting> nonUserModifiableSettings) {
+        for (SettingsObserver o : observers) {
+            o.updateToNonUserModifiableSettings(nonUserModifiableSettings);
+        }
+    }
 }

@@ -33,11 +33,11 @@ import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
  *
  * <p/>
  * Clients that wish to "log out" of the environment protected by UM-SSO can do the following:<p/>
- *   	clCore.getUmssoHttpClient().getState().clearCookies();
+ *      clCore.getUmssoHttpClient().getState().clearCookies();
  * <p/>
  * Assumptions:
  *   <ul>
- *   	<li>UmssoCLOutput.isResourceAccessed() is redundant; a client can infer this from HTTPMethod.getStatusCode()</li>
+ *      <li>UmssoCLOutput.isResourceAccessed() is redundant; a client can infer this from HTTPMethod.getStatusCode()</li>
  *   </ul>
  *   
  * Note that this class depends on the truststore containing the appropriate server certificate(s), as per SIE-EOOP_UMSSO_JCL_TN_2.1.1.doc. <p/>

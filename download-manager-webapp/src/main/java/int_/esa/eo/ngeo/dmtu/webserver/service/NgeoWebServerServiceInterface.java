@@ -9,7 +9,7 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLRequ;
 import java.net.URL;
 
 public interface NgeoWebServerServiceInterface {
-	UmSsoHttpRequestAndResponse registrationMgmt(URL ngEOWebServerUrl, DMRegistrationMgmntRequ registrationMgmntRequest) throws ServiceException;
-	UmSsoHttpRequestAndResponse monitoringURL(URL ngEOWebServerUrl, MonitoringURLRequ monitoringUrlRequest) throws ServiceException;
-	UmSsoHttpRequestAndResponse dataAccessMonitoring(URL ngEOWebServerUrl, DataAccessMonitoringRequ dataAccessMonitoringRequest) throws ServiceException;
+    UmSsoHttpRequestAndResponse registrationMgmt(URL ngEOWebServerUrl, DMRegistrationMgmntRequ registrationMgmntRequest) throws ServiceException;
+    UmSsoHttpRequestAndResponse monitoringURL(URL ngEOWebServerUrl, MonitoringURLRequ monitoringUrlRequest) throws ServiceException;
+    UmSsoHttpRequestAndResponse dataAccessMonitoring(URL ngEOWebServerUrl, DataAccessMonitoringRequ dataAccessMonitoringRequest) throws ServiceException;
 }

@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 public class HomeController {
-	
-	@Autowired
-	private SettingsManager settingsManager;
-	
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String home() {
-		if (!Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP)) || !Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED))) {
-			return "redirect:/config/firststartup";
-		}
-		
-		return "home";
-	}
+
+    @Autowired
+    private SettingsManager settingsManager;
+
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String home() {
+        if (!Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_SETUP)) || !Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.DM_IS_REGISTERED))) {
+            return "redirect:/config/firststartup";
+        }
+
+        return "home";
+    }
 }

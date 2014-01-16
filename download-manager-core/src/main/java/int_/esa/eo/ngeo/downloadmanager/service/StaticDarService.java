@@ -10,18 +10,18 @@ import java.net.URL;
 import com.siemens.pse.umsso.client.UmssoCLException;
 
 public class StaticDarService implements StaticDarServiceInterface {
-	private ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
-	
-	public StaticDarService(ConnectionPropertiesSynchronizedUmSsoHttpClient umSsoClientSingleton) {
-		this.connectionPropertiesSynchronizedUmSsoHttpClient = umSsoClientSingleton;
-	}
-	
-	@Override
-	public UmSsoHttpRequestAndResponse getStaticDar(URL staticDarUrl) throws ServiceException {
-		try {
-			return connectionPropertiesSynchronizedUmSsoHttpClient.getUmSsoHttpClient().executeGetRequest(staticDarUrl);
-		} catch (UmssoCLException | IOException e) {
-			throw new ServiceException(e);
-		}
-	}
+    private ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
+
+    public StaticDarService(ConnectionPropertiesSynchronizedUmSsoHttpClient umSsoClientSingleton) {
+        this.connectionPropertiesSynchronizedUmSsoHttpClient = umSsoClientSingleton;
+    }
+
+    @Override
+    public UmSsoHttpRequestAndResponse getStaticDar(URL staticDarUrl) throws ServiceException {
+        try {
+            return connectionPropertiesSynchronizedUmSsoHttpClient.getUmSsoHttpClient().executeGetRequest(staticDarUrl);
+        } catch (UmssoCLException | IOException e) {
+            throw new ServiceException(e);
+        }
+    }
 }

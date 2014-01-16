@@ -18,74 +18,74 @@ import org.slf4j.LoggerFactory;
  * in sync with the corresponding settings of the SettingsManager.
  */
 public class ConnectionPropertiesSynchronizedUmSsoHttpClient implements SettingsObserver {
-	private SettingsManager settingsManager;
-	private List<UserModifiableSetting> userModifiableSettingsToObserve;
-	private UmSsoHttpClient umSsoHttpClient;
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPropertiesSynchronizedUmSsoHttpClient.class);
+    private SettingsManager settingsManager;
+    private List<UserModifiableSetting> userModifiableSettingsToObserve;
+    private UmSsoHttpClient umSsoHttpClient;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPropertiesSynchronizedUmSsoHttpClient.class);
 
-	public ConnectionPropertiesSynchronizedUmSsoHttpClient(SettingsManager settingsManager) {
-		this.settingsManager = settingsManager;
-		userModifiableSettingsToObserve = new ArrayList<>();
-		userModifiableSettingsToObserve.add(UserModifiableSetting.SSO_USERNAME);
-		userModifiableSettingsToObserve.add(UserModifiableSetting.SSO_PASSWORD);
-		userModifiableSettingsToObserve.add(UserModifiableSetting.WEB_PROXY_HOST);
-		userModifiableSettingsToObserve.add(UserModifiableSetting.WEB_PROXY_PORT);
-		userModifiableSettingsToObserve.add(UserModifiableSetting.WEB_PROXY_USERNAME);
-		userModifiableSettingsToObserve.add(UserModifiableSetting.WEB_PROXY_PASSWORD);
-	}
+    public ConnectionPropertiesSynchronizedUmSsoHttpClient(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+        userModifiableSettingsToObserve = new ArrayList<>();
+        userModifiableSettingsToObserve.add(UserModifiableSetting.SSO_USERNAME);
+        userModifiableSettingsToObserve.add(UserModifiableSetting.SSO_PASSWORD);
+        userModifiableSettingsToObserve.add(UserModifiableSetting.WEB_PROXY_HOST);
+        userModifiableSettingsToObserve.add(UserModifiableSetting.WEB_PROXY_PORT);
+        userModifiableSettingsToObserve.add(UserModifiableSetting.WEB_PROXY_USERNAME);
+        userModifiableSettingsToObserve.add(UserModifiableSetting.WEB_PROXY_PASSWORD);
+    }
 
-	@Override
-	public void updateToUserModifiableSettings(List<UserModifiableSetting> userModifiableSetting) {
-		if(userModifiableSetting != null && !Collections.disjoint(userModifiableSettingsToObserve, userModifiableSetting)) {
-			LOGGER.debug("Settings which we are observing have changed, so update connection settings");
-			initUmSsoConnectionSettingsFromSettingsManager();
-		}
-	}
+    @Override
+    public void updateToUserModifiableSettings(List<UserModifiableSetting> userModifiableSetting) {
+        if(userModifiableSetting != null && !Collections.disjoint(userModifiableSettingsToObserve, userModifiableSetting)) {
+            LOGGER.debug("Settings which we are observing have changed, so update connection settings");
+            initUmSsoConnectionSettingsFromSettingsManager();
+        }
+    }
 
-	public void registerWithSettingsManager() {
-		settingsManager.registerObserver(this);
-	}
-	
-	public synchronized void initUmSsoConnectionSettingsFromSettingsManager() {
-		String umSsoUsername = settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME);
-		String umSsoPassword = settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD);
-		
-		String proxyHost = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_HOST);
-		String proxyPortString = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PORT);
-		int proxyPort;
-		if (proxyPortString == null || proxyPortString.isEmpty()) {
-			proxyPort = -1;
-		}else{
-			proxyPort = Integer.parseInt(proxyPortString);
-		}
-		String proxyUsername = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_USERNAME);
-		String proxyPassword = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PASSWORD);
-		
-		UmSsoHttpConnectionSettings umSsoHttpConnectionSettings;
-		if (!StringUtils.isEmpty(proxyHost)) {
-			if (!StringUtils.isEmpty(proxyUsername)) {
-				umSsoHttpConnectionSettings = new UmSsoHttpConnectionSettings(umSsoUsername, umSsoPassword, proxyHost, proxyPort, proxyUsername, proxyPassword);
-			}else{
-				umSsoHttpConnectionSettings = new UmSsoHttpConnectionSettings(umSsoUsername, umSsoPassword, proxyHost, proxyPort);
-			}
-		}else{
-			umSsoHttpConnectionSettings = new UmSsoHttpConnectionSettings(umSsoUsername, umSsoPassword);
-		}
-		
-		LOGGER.debug(String.format("New connection details:%n%s", umSsoHttpConnectionSettings.toString()));
-		if(umSsoHttpClient == null) {
-			umSsoHttpClient = new UmSsoHttpClient(umSsoHttpConnectionSettings);
-		}else{
-			umSsoHttpClient.setUmSsoHttpConnectionSettings(umSsoHttpConnectionSettings);
-		}
-	}
+    public void registerWithSettingsManager() {
+        settingsManager.registerObserver(this);
+    }
 
-	@Override
-	public void updateToNonUserModifiableSettings(List<NonUserModifiableSetting> nonUserModifiableSetting) {
-		//There are no non-user modifiable settings which this class is interested in
-	}
+    public synchronized void initUmSsoConnectionSettingsFromSettingsManager() {
+        String umSsoUsername = settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME);
+        String umSsoPassword = settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD);
 
-	public synchronized UmSsoHttpClient getUmSsoHttpClient() {
-		return umSsoHttpClient;
-	}
+        String proxyHost = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_HOST);
+        String proxyPortString = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PORT);
+        int proxyPort;
+        if (proxyPortString == null || proxyPortString.isEmpty()) {
+            proxyPort = -1;
+        }else{
+            proxyPort = Integer.parseInt(proxyPortString);
+        }
+        String proxyUsername = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_USERNAME);
+        String proxyPassword = settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PASSWORD);
+
+        UmSsoHttpConnectionSettings umSsoHttpConnectionSettings;
+        if (!StringUtils.isEmpty(proxyHost)) {
+            if (!StringUtils.isEmpty(proxyUsername)) {
+                umSsoHttpConnectionSettings = new UmSsoHttpConnectionSettings(umSsoUsername, umSsoPassword, proxyHost, proxyPort, proxyUsername, proxyPassword);
+            }else{
+                umSsoHttpConnectionSettings = new UmSsoHttpConnectionSettings(umSsoUsername, umSsoPassword, proxyHost, proxyPort);
+            }
+        }else{
+            umSsoHttpConnectionSettings = new UmSsoHttpConnectionSettings(umSsoUsername, umSsoPassword);
+        }
+
+        LOGGER.debug(String.format("New connection details:%n%s", umSsoHttpConnectionSettings.toString()));
+        if(umSsoHttpClient == null) {
+            umSsoHttpClient = new UmSsoHttpClient(umSsoHttpConnectionSettings);
+        }else{
+            umSsoHttpClient.setUmSsoHttpConnectionSettings(umSsoHttpConnectionSettings);
+        }
+    }
+
+    @Override
+    public void updateToNonUserModifiableSettings(List<NonUserModifiableSetting> nonUserModifiableSetting) {
+        //There are no non-user modifiable settings which this class is interested in
+    }
+
+    public synchronized UmSsoHttpClient getUmSsoHttpClient() {
+        return umSsoHttpClient;
+    }
 }

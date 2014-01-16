@@ -37,7 +37,7 @@ public class XMLWithSchemaTransformer {
 
     public void serializeAndInferSchema(Object inputObject, OutputStream out) throws ParseException, SchemaNotFoundException {
         LOGGER.debug(String.format("attempting to parse %s object into xml ", inputObject.getClass().getName()));
-        try {			
+        try {
             String schemaPath = schemaRepository.getSchema(inputObject.getClass());
 
             serialize(inputObject, out, schemaPath);
@@ -86,7 +86,7 @@ public class XMLWithSchemaTransformer {
         LOGGER.debug(String.format("attempting to parse inputstream into resultType %s",resultType.getName()));
 
         T returnValue;
-        try {			
+        try {
             String schemaPath = schemaRepository.getSchema(resultType);
 
             returnValue = deserialize(resultType, in, schemaPath);

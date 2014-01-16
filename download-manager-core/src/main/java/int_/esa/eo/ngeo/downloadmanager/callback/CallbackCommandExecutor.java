@@ -65,11 +65,11 @@ public class CallbackCommandExecutor {
                 }
 
                 LOGGER.debug(String.format("Process exit code for command \"%s\" = %s", commandLine.toString(), resultHandler.getExitValue()));
-            }			
+            }
         } 
     }
 
-    public String getOSShellName() {		
+    public String getOSShellName() {
         String osName = System.getProperty("os.name");
         return osName.toLowerCase().startsWith("windows") ? "cmd.exe" : "bash";
     }

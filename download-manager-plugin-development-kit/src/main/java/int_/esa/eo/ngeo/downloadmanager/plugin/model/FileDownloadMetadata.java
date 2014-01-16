@@ -8,68 +8,68 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileDownloadMetadata {
-	private final String uuid;
-	private final URL fileURL;
-	private final String fileName;
-	private final long downloadSize;
-	private final Path downloadPath;
+    private final String uuid;
+    private final URL fileURL;
+    private final String fileName;
+    private final long downloadSize;
+    private final Path downloadPath;
 
-	public FileDownloadMetadata(URL fileURL, String fileName, long downloadSize, Path downloadPath) {
-		this.uuid = UUID.randomUUID().toString();
-		this.fileURL = fileURL;
-		this.fileName = fileName;
-		this.downloadSize = downloadSize;
-		this.downloadPath = downloadPath;
-	}
-	
-	public String getUuid() {
-		return uuid;
-	}
-	
-	public URL getFileURL() {
-		return fileURL;
-	}
+    public FileDownloadMetadata(URL fileURL, String fileName, long downloadSize, Path downloadPath) {
+        this.uuid = UUID.randomUUID().toString();
+        this.fileURL = fileURL;
+        this.fileName = fileName;
+        this.downloadSize = downloadSize;
+        this.downloadPath = downloadPath;
+    }
 
-	public long getDownloadSize() {
-		return downloadSize;
-	}
+    public String getUuid() {
+        return uuid;
+    }
 
-	public Path getPartiallyDownloadedPath() {
-		 return getPathFromFileName(fileName, true);
-	}
+    public URL getFileURL() {
+        return fileURL;
+    }
 
-	public Path getCompletelyDownloadedPath() {
-		 return getPathFromFileName(fileName, false);
-	}
+    public long getDownloadSize() {
+        return downloadSize;
+    }
 
-	/* 
-	 * The filename may contain a folder in a metalink scenario. The file at the end of the path is be extracted
-	 * from the filename
-	 * If the file is partially downloaded (i.e. in progress) a dot will be appended to the filename.
-	 */
-	private Path getPathFromFileName(String fileName, boolean isPartiallyDownloaded) {
-		Pattern potentialFilePathPattern = Pattern.compile("(.*[\\\\/])([^\\\\/]*)");
-		Matcher matcher = potentialFilePathPattern.matcher(fileName);
-		if(matcher.find()) {
-			Path pathFromFileName = Paths.get(downloadPath.toAbsolutePath().toString());
-			for(int i=1; i <= matcher.groupCount(); i++) {
-				if(i == matcher.groupCount() && isPartiallyDownloaded) {
-					pathFromFileName = Paths.get(pathFromFileName.toString(), String.format(".%s", matcher.group(i)));
-				}else{
-					pathFromFileName = Paths.get(pathFromFileName.toString(), matcher.group(i));
-				}
-			}
-			return pathFromFileName;
-		}else{
-			if(isPartiallyDownloaded) {
-				return Paths.get(downloadPath.toAbsolutePath().toString(), String.format(".%s", fileName));
-			}else{
-				 return Paths.get(downloadPath.toAbsolutePath().toString(), fileName);
-			}
-		}
-	}
-	
-	public String getFileName() {
-		return fileName;
-	}
+    public Path getPartiallyDownloadedPath() {
+        return getPathFromFileName(fileName, true);
+    }
+
+    public Path getCompletelyDownloadedPath() {
+        return getPathFromFileName(fileName, false);
+    }
+
+    /* 
+     * The filename may contain a folder in a metalink scenario. The file at the end of the path is be extracted
+     * from the filename
+     * If the file is partially downloaded (i.e. in progress) a dot will be appended to the filename.
+     */
+    private Path getPathFromFileName(String fileName, boolean isPartiallyDownloaded) {
+        Pattern potentialFilePathPattern = Pattern.compile("(.*[\\\\/])([^\\\\/]*)");
+        Matcher matcher = potentialFilePathPattern.matcher(fileName);
+        if(matcher.find()) {
+            Path pathFromFileName = Paths.get(downloadPath.toAbsolutePath().toString());
+            for(int i=1; i <= matcher.groupCount(); i++) {
+                if(i == matcher.groupCount() && isPartiallyDownloaded) {
+                    pathFromFileName = Paths.get(pathFromFileName.toString(), String.format(".%s", matcher.group(i)));
+                }else{
+                    pathFromFileName = Paths.get(pathFromFileName.toString(), matcher.group(i));
+                }
+            }
+            return pathFromFileName;
+        }else{
+            if(isPartiallyDownloaded) {
+                return Paths.get(downloadPath.toAbsolutePath().toString(), String.format(".%s", fileName));
+            }else{
+                return Paths.get(downloadPath.toAbsolutePath().toString(), fileName);
+            }
+        }
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
 }
