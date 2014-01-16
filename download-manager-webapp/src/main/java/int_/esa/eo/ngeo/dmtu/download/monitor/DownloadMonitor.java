@@ -1,6 +1,5 @@
 package int_.esa.eo.ngeo.dmtu.download.monitor;
 
-import int_.esa.eo.ngeo.dmtu.callback.CallbackCommandExecutor;
 import int_.esa.eo.ngeo.dmtu.download.schedule.DownloadScheduler;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.dmtu.exception.DownloadProcessCreationException;
@@ -10,6 +9,7 @@ import int_.esa.eo.ngeo.dmtu.model.ActiveProducts;
 import int_.esa.eo.ngeo.dmtu.observer.DownloadObserver;
 import int_.esa.eo.ngeo.dmtu.observer.ProductObserver;
 import int_.esa.eo.ngeo.dmtu.plugin.ProductDownloadListener;
+import int_.esa.eo.ngeo.downloadmanager.callback.CallbackCommandExecutor;
 import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
