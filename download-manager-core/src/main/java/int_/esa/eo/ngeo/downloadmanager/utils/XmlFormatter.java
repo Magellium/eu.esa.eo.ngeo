@@ -31,8 +31,10 @@ public class XmlFormatter {
             final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
             final LSSerializer writer = impl.createLSSerializer();
 
-            writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE); // Set this to true if the output needs to be beautified.
-            writer.getDomConfig().setParameter("xml-declaration", keepDeclaration); // Set this to true if the declaration is needed to be outputted.
+            // Set this to true if the output needs to be beautified.
+            writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+            // Set this to true if the declaration is needed to be outputted.
+            writer.getDomConfig().setParameter("xml-declaration", keepDeclaration);
 
             return writer.writeToString(document);
         } catch (Exception e) {

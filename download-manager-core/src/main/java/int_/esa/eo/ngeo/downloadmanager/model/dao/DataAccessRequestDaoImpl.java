@@ -23,8 +23,7 @@ public class DataAccessRequestDaoImpl implements DataAccessRequestDao {
     @Override
     public List<DataAccessRequest> loadVisibleDars() {
         Query query = sessionFactory.getCurrentSession().createQuery(String.format("FROM DataAccessRequest as dar WHERE visible = TRUE"));
-        List<DataAccessRequest> list = query.list();
-        return list;
+        return query.list();
     }
 
     @Transactional(readOnly = true)
@@ -33,9 +32,7 @@ public class DataAccessRequestDaoImpl implements DataAccessRequestDao {
         Query query = sessionFactory.getCurrentSession().createQuery(String.format("FROM DataAccessRequest as dar WHERE darURL = :darURL"));
         query.setString("darURL", darURL);
 
-        Object uniqueResult = query.uniqueResult();
-        return (DataAccessRequest) uniqueResult;
-
+        return (DataAccessRequest) query.uniqueResult();
     }
 
     @Override

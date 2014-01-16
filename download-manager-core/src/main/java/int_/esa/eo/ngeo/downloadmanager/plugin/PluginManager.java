@@ -53,7 +53,6 @@ public class PluginManager {
         try {
             pluginFinder.search(pluginsPathAsString);
         } catch (Exception e) {
-            // TODO: Consider, instead of this, just logging a warning? Depends whether the default downloader is guaranteed to be loaded.
             throw new NonRecoverableException(e);
         }
 
@@ -85,7 +84,7 @@ public class PluginManager {
         String dmVersionString = downloadManagerProperties.getDownloadManagerVersion();
         String[] dmVersionParts = dmVersionString.split("\\.");
         for (int i=0; i < dmMinVersion.length; i++) {
-            // XXX: Addition of some error handling to cope with non-integer version parts would be desirable.
+            // Addition of some error handling to cope with non-integer version parts would be desirable.
             if (dmMinVersion[i] > Integer.parseInt(dmVersionParts[i])) {
                 areVersionsCompatible = false;
                 break;

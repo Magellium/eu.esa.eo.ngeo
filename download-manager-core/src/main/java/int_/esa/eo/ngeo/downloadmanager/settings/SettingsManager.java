@@ -36,9 +36,9 @@ public class SettingsManager implements SettingsSubject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingsManager.class);
 
-    private final String NAME_OF_CONF_DIR = "conf";
-    private final String NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE     = "user-modifiable-settings.properties";
-    private final String NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE = "non-user-modifiable-settings.properties";
+    private static final String CONF_DIR = "conf";
+    private static final String USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE     = "user-modifiable-settings.properties";
+    private static final String NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE = "non-user-modifiable-settings.properties";
 
     private Properties nonUserModifiableProperties = new Properties();
     private Properties userModifiableProperties = new Properties();
@@ -51,12 +51,12 @@ public class SettingsManager implements SettingsSubject {
 
     public void init() {
         // Load non-user-modifiable settings
-        String persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
+        String persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + CONF_DIR + File.separator + NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
         String defaultValuesPathRelativeToClasspath = "/META-INF/non-user-modifiable-settings.properties";
         loadPropertiesFromPersistentStoreOrDefaults(nonUserModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
 
         // Load the user-modifiable settings
-        persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR + File.separator + NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
+        persistentStoreAbsolutePath = System.getenv(DM_HOME) + File.separator + CONF_DIR + File.separator + USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE;
         defaultValuesPathRelativeToClasspath = "/META-INF/user-modifiable-settings.properties";
         loadPropertiesFromPersistentStoreOrDefaults(userModifiableProperties, persistentStoreAbsolutePath, defaultValuesPathRelativeToClasspath);
     }
@@ -71,7 +71,6 @@ public class SettingsManager implements SettingsSubject {
                 LOGGER.info(String.format("Persistent property file \"%s\" does not exist; will use defaults instead", persistentStoreAbsolutePath));
                 in = SettingsManager.class.getResourceAsStream(defaultValuesPathRelativeToClasspath);
             }
-            // TODO: Investigate whether to wrap InputStream within a BufferedInputStream
             properties.load(in);
         } catch (IOException e) {
             throw new NonRecoverableException(e);
@@ -163,7 +162,6 @@ public class SettingsManager implements SettingsSubject {
         try {
             String pathNameOfPersistentStore = getPathNameOfPersistentStore(settingsType);
             File persistentStore = new File(pathNameOfPersistentStore);
-            // TODO: Investigate whether to wrap OutputStream within a BufferedOutputStream
             OutputStream out = new FileOutputStream(persistentStore);
             if (settingsType == SettingsType.NON_USER_MODIFIABLE) {
                 nonUserModifiableProperties.store(out, "");
@@ -176,12 +174,12 @@ public class SettingsManager implements SettingsSubject {
     }
 
     private String getPathNameOfPersistentStore(SettingsType settingsType) {
-        File parentFolderOfPersistentStores = new File(System.getenv(DM_HOME) + File.separator + NAME_OF_CONF_DIR);
+        File parentFolderOfPersistentStores = new File(System.getenv(DM_HOME) + File.separator + CONF_DIR);
         parentFolderOfPersistentStores.mkdirs();
 
         String pathNameOfPersistentStore = Paths.get(parentFolderOfPersistentStores.getAbsolutePath(),
-                settingsType == SettingsType.NON_USER_MODIFIABLE ? NAME_OF_NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE
-                        : NAME_OF_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE).toString();
+                settingsType == SettingsType.NON_USER_MODIFIABLE ? NON_USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE
+                        : USER_MODIFIABLE_SETTINGS_PERSISTENT_STORE).toString();
         return pathNameOfPersistentStore;
     }
 

@@ -62,8 +62,7 @@ public class VisibleDataAccessRequests {
         List<DataAccessRequest> darList = new ArrayList<>();
         Collection<DataAccessRequest> dataAccessRequests = dataAccessRequestMap.values();
         for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
-            //TODO: Write a unit test to ensure this is correct.
-            //Include all visible DARs, except the manual DAR is specified.
+            //Include all visible DARs, except the manual DAR if specified.
             if(dataAccessRequest.isVisible() && (includeManualProductDar || !MANUAL_PRODUCT_DAR.equals(dataAccessRequest.getDarURL()))) {
                 darList.add(dataAccessRequest);
             }

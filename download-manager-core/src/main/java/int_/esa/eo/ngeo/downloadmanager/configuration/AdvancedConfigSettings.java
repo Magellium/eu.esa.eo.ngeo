@@ -6,14 +6,13 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 
-// TODO: Cross-field validation
 public class AdvancedConfigSettings extends ConfigSettings{
 
     @Min(value=1, message="Number of parallel product download threads must be at least one")
     @Max(value=5, message="Number of parallel product download threads must be less than or equal to 5")
     private int noOfParallelProductDownloadThreads;
 
-    // TODO: Does this encompass both the "command" and the "parameters"?
+    // This encompasses both the "command" and the "parameters"
     private String productDownloadCompleteCommand; 
 
     @Size(min=0, max=40, message="Web interface username must be no longer than 40 characters")

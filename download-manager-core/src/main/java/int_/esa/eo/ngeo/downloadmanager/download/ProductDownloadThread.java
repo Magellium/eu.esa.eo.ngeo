@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProductDownloadThread implements Runnable {
+    private static final String ERR_UNABLE_TO_START_DOWNLOAD = "Unable to start download.";
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ProductDownloadThread.class);
 
@@ -25,7 +27,7 @@ public class ProductDownloadThread implements Runnable {
         try {
             getDownloadProcess().startDownload();
         } catch (DMPluginException e) {
-            throw new NonRecoverableException("Unable to start download.", e);
+            throw new NonRecoverableException(ERR_UNABLE_TO_START_DOWNLOAD, e);
         }
     }
 
@@ -35,7 +37,7 @@ public class ProductDownloadThread implements Runnable {
             getDownloadProcess().pauseDownload();
             getProduct().setPausedByDownloadManager(true);
         } catch (DMPluginException e) {
-            LOGGER.error("Unable to start download.", e);
+            LOGGER.error(ERR_UNABLE_TO_START_DOWNLOAD, e);
         }
     }
 
