@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>int_.esa.eo.ngeo</groupId>
@@ -17,17 +18,17 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
-	    <dependency>
-	      <groupId>commons-lang</groupId>
-	      <artifactId>commons-lang</artifactId>
-	    </dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.htmlparser</groupId>
-		    <artifactId>htmlparser</artifactId>
+			<groupId>org.htmlparser</groupId>
+			<artifactId>htmlparser</artifactId>
 		</dependency>
 
 		<!-- Logging -->
@@ -74,19 +75,6 @@
 								</goals>
 							</execution>
 							<execution>
-								<id>generate-keypair</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>generateKeyPair</goal>
-								</goals>
-								<configuration>
-									<dname>cn=CLIENT</dname>
-									<alias>truststorekey</alias>
-									<keyalg>RSA</keyalg>
-									<validity>365</validity>
-								</configuration>
-							</execution>
-							<execution>
 								<id>import-task-6-tpz-reverse-proxy-certificate</id>
 								<phase>generate-resources</phase>
 								<goals>
@@ -112,7 +100,7 @@
 						<configuration>
 							<keystore>${project.build.directory}/download-manager-truststore.jks</keystore>
 							<keypass>whatever</keypass>
-							<storepass>password</storepass>
+							<storepass>changeit</storepass>
 							<noprompt>true</noprompt>
 							<verbose>false</verbose>
 						</configuration>
@@ -134,19 +122,6 @@
 								<goals>
 									<goal>clean</goal>
 								</goals>
-							</execution>
-							<execution>
-								<id>generate-keypair</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>generateKeyPair</goal>
-								</goals>
-								<configuration>
-									<dname>cn=CLIENT</dname>
-									<alias>truststorekey</alias>
-									<keyalg>RSA</keyalg>
-									<validity>365</validity>
-								</configuration>
 							</execution>
 							<execution>
 								<id>import-task-6-esa-reverse-proxy-certificate</id>
@@ -174,7 +149,7 @@
 						<configuration>
 							<keystore>${project.build.directory}/download-manager-truststore.jks</keystore>
 							<keypass>whatever</keypass>
-							<storepass>password</storepass>
+							<storepass>changeit</storepass>
 							<noprompt>true</noprompt>
 							<verbose>false</verbose>
 						</configuration>
@@ -183,4 +158,27 @@
 			</build>
 		</profile>
 	</profiles>
+	<build>
+		<plugins>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target name="copy and rename cacerts">
+                                <copy file="${java.home}/lib/security/cacerts" tofile="${project.build.directory}/download-manager-truststore.jks" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+	</build>
 </project>
