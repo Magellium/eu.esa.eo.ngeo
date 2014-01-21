@@ -7,6 +7,7 @@ import int_.esa.eo.ngeo.downloadmanager.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.downloadmanager.exception.DownloadProcessCreationException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NoPluginAvailableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NotificationException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ProductNotFoundException;
 import int_.esa.eo.ngeo.downloadmanager.http.ConnectionPropertiesSynchronizedUmSsoHttpClient;
 import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpConnectionSettings;
@@ -16,6 +17,7 @@ import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
+import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationManager;
 import int_.esa.eo.ngeo.downloadmanager.observer.DownloadObserver;
 import int_.esa.eo.ngeo.downloadmanager.observer.ProductObserver;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
@@ -43,6 +45,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
     private SettingsManager settingsManager;
     private ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
     private DataAccessRequestManager dataAccessRequestManager;
+    private NotificationManager notificationManager;
 
     private DownloadScheduler downloadScheduler;
 
@@ -52,12 +55,13 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadMonitor.class);
 
-    public DownloadMonitor(PluginManager pluginManager, SettingsManager settingsManager, ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient, DataAccessRequestManager dataAccessRequestManager) {
+    public DownloadMonitor(PluginManager pluginManager, SettingsManager settingsManager, ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient, DataAccessRequestManager dataAccessRequestManager, NotificationManager notificationManager) {
         this.pluginManager = pluginManager;
         this.settingsManager = settingsManager;
         this.connectionPropertiesSynchronizedUmSsoHttpClient = connectionPropertiesSynchronizedUmSsoHttpClient;
         this.dataAccessRequestManager = dataAccessRequestManager;
-
+        this.notificationManager = notificationManager;
+        
         dataAccessRequestManager.registerObserver(this);
         this.productTerminationLog = new ProductTerminationLog();
         activeProducts = new ActiveProducts();
@@ -258,7 +262,15 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
         dataAccessRequestManager.persistProduct(product);
         DataAccessRequest dataAccessRequest = dataAccessRequestManager.findDataAccessRequestByProduct(product);
         productTerminationLog.notifyProductDownloadTermination(product, dataAccessRequest);
+        
+        try {
+            notificationManager.sendProductTerminationNotification(product);
+        }catch(NotificationException ex) {
+            LOGGER.error("Unable to send email", ex);
+        }
     }
+
+
 
     public boolean pauseProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
         IDownloadProcess downloadProcess = activeProducts.getDownloadProcess(productUuid);

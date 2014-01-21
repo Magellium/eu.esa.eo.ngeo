@@ -88,6 +88,7 @@ public class SettingsManager implements SettingsSubject {
         }
         switch (userModifiableSetting) {
         case SSO_PASSWORD:
+        case EMAIL_SMTP_PASSWORD:
             return decrypt(setting);
         default:
             return setting;
@@ -117,11 +118,16 @@ public class SettingsManager implements SettingsSubject {
     public synchronized void setUserModifiableSettings(Map<UserModifiableSetting, String> userModifiableSettings) {
         for (Entry<UserModifiableSetting, String> userModifiableSettingEntry : userModifiableSettings.entrySet()) {
             UserModifiableSetting userModifiableSetting = userModifiableSettingEntry.getKey();
-            String value = userModifiableSettingEntry.getValue();
-
-            if (userModifiableSetting.equals(UserModifiableSetting.SSO_PASSWORD)) {
-                value = encrypt(value);
+            String value;
+            switch (userModifiableSetting) {
+            case SSO_PASSWORD:
+            case EMAIL_SMTP_PASSWORD:
+                value = encrypt(userModifiableSettingEntry.getValue());
+                break;
+            default:
+                value = userModifiableSettingEntry.getValue();
             }
+
             userModifiableProperties.setProperty(userModifiableSetting.toString(), value);
         }
         updatePersistentStore(SettingsType.USER_MODIFIABLE);

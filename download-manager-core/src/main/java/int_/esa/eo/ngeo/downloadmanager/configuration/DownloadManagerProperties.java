@@ -29,4 +29,8 @@ public class DownloadManagerProperties {
         downloadManagerVersion = downloadManagerVersion.replaceAll("-SNAPSHOT", "");
         return downloadManagerVersion;
     }
+
+    public String getDownloadManagerTitle() {
+        return downloadManagerProperties.getProperty("DM_TITLE");
+    }
 }

@@ -11,7 +11,8 @@
 	<div id="tabs">
 		<ul>
 			<li><a href="${pathForAnchors}#tabs-1">General</a></li>
-			<li><a href="${pathForAnchors}#tabs-2">Web Proxy</a></li>
+            <li><a href="${pathForAnchors}#tabs-2">Web Proxy</a></li>
+            <li><a href="${pathForAnchors}#tabs-3">Email</a></li>
 		</ul>
 		<div id="tabs-1">
 			<table>
@@ -22,14 +23,25 @@
 				<tr><td><spring:message code="label.web_interface_port_no" /> </td><td><form:input path="webInterfacePortNo" size="5"/></td></tr>
 			</table>
 		</div>
-		<div id="tabs-2">
-			<table>
-				<tr><td><spring:message code="label.proxy.host" /> </td><td><form:input path="webProxyHost" /></td></tr>
-				<tr><td><spring:message code="label.proxy.port" /> </td><td><form:input path="webProxyPort" /></td></tr>
-				<tr><td><spring:message code="label.proxy.username" /> </td><td><form:input path="webProxyUsername" /></td></tr>
-				<tr><td><spring:message code="label.proxy.password" /> </td><td><form:input path="webProxyPassword" showPassword="true" /></td></tr>
-			</table>
-		</div>
+        <div id="tabs-2">
+            <table>
+                <tr><td><spring:message code="label.proxy.host" /> </td><td><form:input path="webProxyHost" /></td></tr>
+                <tr><td><spring:message code="label.proxy.port" /> </td><td><form:input path="webProxyPort" /></td></tr>
+                <tr><td><spring:message code="label.proxy.username" /> </td><td><form:input path="webProxyUsername" /></td></tr>
+                <tr><td><spring:message code="label.proxy.password" /> </td><td><form:password path="webProxyPassword" showPassword="true" /></td></tr>
+            </table>
+        </div>
+        <div id="tabs-3">
+            <table>
+                <tr><td><spring:message code="label.email.recipients" /> </td><td><form:input path="emailRecipients" size="40" /></td></tr>
+                <tr><td><spring:message code="label.email.send_level" /> </td><td><form:select path="emailSendLevel"><form:options /></form:select></td></tr>
+                <tr><td><spring:message code="label.email.smtp.server" /> </td><td><form:input path="smtpServer" size="30" /></td></tr>
+                <tr><td><spring:message code="label.email.smtp.port" /> </td><td><form:input path="smtpPort" size="5" /></td></tr>
+                <tr><td><spring:message code="label.email.smtp.username" /> </td><td><form:input path="smtpUsername" size="40" /></td></tr>
+                <tr><td><spring:message code="label.email.smtp.password" /> </td><td><form:password path="smtpPassword" showPassword="true" /></td></tr>
+                <tr><td><spring:message code="label.email.smtp.security" /> </td><td><form:select path="smtpSecurity"><form:options /></form:select></td></tr>
+            </table>
+        </div>
 	</div>
 	<div id="configButtons">
 		<spring:message code="label.save_config_and_register" var="label_save_config_and_register" />

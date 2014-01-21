@@ -29,6 +29,17 @@ public class SettingsManagerTest {
     }
 
     @Test
+    public void setUserModifiableSettingEncryptedTest() {
+        assertNull(settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD));
+        settingsManager.setUserModifiableSetting(UserModifiableSetting.SSO_PASSWORD, "world");
+        assertEquals("world", settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD));
+
+        assertNull(settingsManager.getSetting(UserModifiableSetting.EMAIL_SMTP_PASSWORD));
+        settingsManager.setUserModifiableSetting(UserModifiableSetting.EMAIL_SMTP_PASSWORD, "download");
+        assertEquals("download", settingsManager.getSetting(UserModifiableSetting.EMAIL_SMTP_PASSWORD));
+}
+
+    @Test
     public void setNonUserModifiableSettingTest() {
         assertNull(settingsManager.getSetting(NonUserModifiableSetting.DM_ID));
         settingsManager.setNonUserModifiableSetting(NonUserModifiableSetting.DM_ID, "hello");

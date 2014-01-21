@@ -6,6 +6,11 @@ import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.configuration.AdvancedConfigSettings;
 import int_.esa.eo.ngeo.downloadmanager.configuration.ConfigSettings;
 import int_.esa.eo.ngeo.downloadmanager.exception.InvalidSettingValueException;
+import int_.esa.eo.ngeo.downloadmanager.exception.NotificationException;
+import int_.esa.eo.ngeo.downloadmanager.notifications.EmailSecurity;
+import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationLevel;
+import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationManager;
+import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationOutput;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
 import int_.esa.eo.ngeo.downloadmanager.rest.ConfigResponse;
 import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
@@ -22,6 +27,9 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -45,6 +53,11 @@ public class ConfigController {
 
     @Autowired
     private DARMonitor darMonitor;
+    
+    @Autowired
+    private NotificationManager notificationManager;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigController.class);
 
     @RequestMapping(value="/firststartup", method=RequestMethod.GET)
     public String showFirstStartupConfigForm(ModelMap model){
@@ -116,6 +129,9 @@ public class ConfigController {
             return ADVANCEDCONFIG_VIEW_NAME;
         }
 
+        String previousUmssoUsername = settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME);
+        String previousUmssoPassword = settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD);
+        
         Map<UserModifiableSetting, String> userModifiableSettings = new HashMap<>();
         userModifiableSettings.putAll(createConfigSettingsMap(advancedConfigSettings));
 
@@ -127,6 +143,13 @@ public class ConfigController {
 
         settingsManager.setUserModifiableSettings(userModifiableSettings);
         try {
+            sendNotificationOfUserCredentialsChange(previousUmssoUsername, previousUmssoPassword);
+        }catch(NotificationException ex) {
+            LOGGER.error("Unable to send email", ex);
+        }
+
+        
+        try {
             createBaseDownloadFolder(advancedConfigSettings.getBaseDownloadFolder());
         } catch (IOException e) {
             FieldError fieldError = new FieldError("AdvancedConfigSettings", "baseDownloadFolder", String.format("Unable to create base download directory: %s", e.getLocalizedMessage()));
@@ -136,6 +159,39 @@ public class ConfigController {
 
         return "redirect:/";
     }
+    
+    protected void sendNotificationOfUserCredentialsChange(String previousUmssoUsername, String previousUmssoPassword) throws NotificationException {
+        String currentUmssoUsername = settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME);
+        String currentUmssoPassword = settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD);
+        
+        //check if user's credentials have changed
+        if(!StringUtils.equals(previousUmssoUsername, currentUmssoUsername) || !StringUtils.equals(previousUmssoPassword, currentUmssoPassword)) {
+            
+            StringBuilder emailTitle = new StringBuilder();
+            
+            emailTitle.append("[");
+            emailTitle.append(notificationManager.getDownloadManagerProperties().getDownloadManagerTitle());
+            emailTitle.append(" ");
+            emailTitle.append(notificationManager.getDownloadManagerProperties().getDownloadManagerVersion());
+            emailTitle.append("] ");
+            emailTitle.append(NotificationLevel.INFO);
+            emailTitle.append(" - UM-SSO credentials changed");
+            
+            StringBuilder emailMessage = new StringBuilder();
+    
+            emailMessage.append("The UM-SSO credentials for Download Manager \"");
+            emailMessage.append(settingsManager.getSetting(UserModifiableSetting.DM_FRIENDLY_NAME));
+            emailMessage.append("\" have changed.");
+            emailMessage.append("\n\n");
+            emailMessage.append("UM-SSO username in use: ");
+            emailMessage.append(settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME));
+            emailMessage.append("\n\n");
+            emailMessage.append("This is an automated message, please do not reply.");
+            
+            notificationManager.sendNotification(NotificationLevel.INFO, emailTitle.toString(), emailMessage.toString(), NotificationOutput.EMAIL);
+        }
+    }
+
 
     private void getConfigSettingsFromManager(ConfigSettings configSettings) {
         configSettings.setSsoPassword(settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD));
@@ -152,6 +208,14 @@ public class ConfigController {
         configSettings.setWebProxyPort(settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PORT));
         configSettings.setWebProxyPassword(settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_PASSWORD));
         configSettings.setWebProxyUsername(settingsManager.getSetting(UserModifiableSetting.WEB_PROXY_USERNAME));
+        
+        configSettings.setEmailRecipients(settingsManager.getSetting(UserModifiableSetting.EMAIL_RECIPIENTS));
+        configSettings.setEmailSendLevel(NotificationLevel.valueOf(settingsManager.getSetting(UserModifiableSetting.EMAIL_SEND_NOTIFICATION_LEVEL)));
+        configSettings.setSmtpServer(settingsManager.getSetting(UserModifiableSetting.EMAIL_SMTP_SERVER));
+        configSettings.setSmtpPort(settingsManager.getSetting(UserModifiableSetting.EMAIL_SMTP_PORT));
+        configSettings.setSmtpUsername(settingsManager.getSetting(UserModifiableSetting.EMAIL_SMTP_USERNAME));
+        configSettings.setSmtpPassword(settingsManager.getSetting(UserModifiableSetting.EMAIL_SMTP_PASSWORD));
+        configSettings.setSmtpSecurity(EmailSecurity.valueOf(settingsManager.getSetting(UserModifiableSetting.EMAIL_SMTP_SECURITY_TYPE)));
     }
 
     private Map<UserModifiableSetting, String> createConfigSettingsMap(ConfigSettings configSettings) {
@@ -167,6 +231,13 @@ public class ConfigController {
         configSettingsMap.put(UserModifiableSetting.WEB_PROXY_USERNAME, configSettings.getWebProxyUsername());
         configSettingsMap.put(UserModifiableSetting.WEB_PROXY_PASSWORD, configSettings.getWebProxyPassword());
 
+        configSettingsMap.put(UserModifiableSetting.EMAIL_RECIPIENTS, configSettings.getEmailRecipients());
+        configSettingsMap.put(UserModifiableSetting.EMAIL_SEND_NOTIFICATION_LEVEL, configSettings.getEmailSendLevel().name());
+        configSettingsMap.put(UserModifiableSetting.EMAIL_SMTP_SERVER, configSettings.getSmtpServer());
+        configSettingsMap.put(UserModifiableSetting.EMAIL_SMTP_PORT, configSettings.getSmtpPort());
+        configSettingsMap.put(UserModifiableSetting.EMAIL_SMTP_USERNAME, configSettings.getSmtpUsername());
+        configSettingsMap.put(UserModifiableSetting.EMAIL_SMTP_PASSWORD, configSettings.getSmtpPassword());
+        configSettingsMap.put(UserModifiableSetting.EMAIL_SMTP_SECURITY_TYPE, configSettings.getSmtpSecurity().name());
         return configSettingsMap;
     }
 
