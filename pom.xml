@@ -8,7 +8,7 @@
 	<groupId>int_.esa.eo.ngeo</groupId>
 	<artifactId>download-manager</artifactId>
 	<packaging>pom</packaging>
-	<version>0.5.9-SNAPSHOT</version>
+	<version>0.6.0</version>
 	<name>Download Manager</name>
 
 	<properties>
@@ -46,7 +46,7 @@
 	</developers>
 
 	<scm>
-		<developerConnection>scm:svn:http://172.16.0.31/svn/NGEO/trunk/download-manager/</developerConnection>
+		<developerConnection>scm:svn:http://172.16.0.31/svn/NGEO/tags/DMTU_0.6.0</developerConnection>
 	</scm>
 
 	<build>
@@ -196,7 +196,7 @@
                             <hideType>true</hideType>
                             <hideTransitive>true</hideTransitive>
                             <hideVersion>true</hideVersion>
-                            <label></label>
+                            <label />
                         </configuration>
                     </plugin>
                 </plugins>
