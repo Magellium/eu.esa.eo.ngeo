@@ -22,6 +22,14 @@ Features
 
 Release History
 ========================================================
+0.6.0 - DREAM CDR Release
+    Release date 21st January 2014
+             - Added email notification functionality. Emails are sent in the following situations:
+                 - Change of UM-SSO credentials.
+                 - Product termination - INFO level for COMPLETED and CANCELLED status, ERROR for IN_ERROR status.
+                 - Include cacerts as the base for the download manager trust store. This is required for production 
+                   service which are protected by certificates signed by standard CA, and for any email services 
+                   which are secure (e.g. gmail).
 0.5.9
     Release date 7th January 2014
              - Improved the handling of a change to multiple settings simultaneously.
