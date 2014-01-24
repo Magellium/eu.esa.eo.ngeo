@@ -140,7 +140,7 @@
 									<goal>importCertificate</goal>
 								</goals>
 								<configuration>
-									<file>${basedir}/certs/ngEO_Task6/ESA/um-sso-idp.eo.esa.int.crt</file>
+									<file>${basedir}/certs/ngEO_Task6/ESA/ngrefssos1.ngeo.esa.int.crt</file>
 									<alias>task-6-esa-idp-certificate</alias>
 								</configuration>
 							</execution>
