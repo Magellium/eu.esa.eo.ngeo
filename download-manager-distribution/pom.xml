@@ -57,6 +57,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
+                <version>2.5.1</version>
 				<executions>
 <!-- 					<execution> -->
 <!-- 						<id>install-jre-win-i586-locally</id> -->
@@ -131,7 +132,9 @@
 				</executions>
 			</plugin>
 			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
 				<executions>
 					<execution>
 						<id>distro-assembly</id>

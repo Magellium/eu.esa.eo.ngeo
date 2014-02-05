@@ -103,6 +103,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
 				<inherited>false</inherited>
+			    <version>2.5.1</version>
 				<executions>
 					<execution>
 						<id>install-umsso-jar-locally</id>
