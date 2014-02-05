@@ -25,9 +25,7 @@ import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ConfigCommands extends ActionWithCommandResponse implements CommandMarker {
     private static final String SUCCESS_MESSAGE = "Change of configuration successful. Use the \"config\" command to view the current config settings.";
     private DownloadManagerService downloadManagerService;

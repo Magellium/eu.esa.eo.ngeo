@@ -17,9 +17,7 @@ import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ChangeProductPriority extends ActionWithCommandResponse implements CommandMarker {
     private static final String SUCCESS_MESSAGE = "Product priority changed.";
     private DownloadManagerService downloadManagerService;

@@ -16,9 +16,7 @@ import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
 
-@Component
 public class StopCommands extends ActionWithCommandResponse implements CommandMarker {
     private static final String TABS = "\t\t\t\t\t\t\t";
     private static final String SUCCESS_MESSAGE = "Stop command initiated. Please use the \"status\" command to monitor the progress of the products.";

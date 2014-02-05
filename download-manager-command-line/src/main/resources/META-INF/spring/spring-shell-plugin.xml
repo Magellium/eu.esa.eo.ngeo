@@ -21,6 +21,8 @@
         </constructor-arg>
     </bean>
 
+    <bean class="int_.esa.eo.ngeo.downloadmanager.cli.DownloadManagerCliHistoryFileNameProvider" />
+
     <bean class="int_.esa.eo.ngeo.downloadmanager.cli.commands.AddManualDownload">
         <constructor-arg index="0">
             <ref bean="downloadManagerService" />
@@ -92,5 +94,4 @@
             <ref bean="configurationProvider" />
         </constructor-arg>
     </bean>
-    <context:component-scan base-package="int_.esa.eo.ngeo.dmtu.cli" />
 </beans>

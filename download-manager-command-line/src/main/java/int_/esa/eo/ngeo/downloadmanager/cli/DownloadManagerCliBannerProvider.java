@@ -3,16 +3,11 @@ package int_.esa.eo.ngeo.downloadmanager.cli;
 import int_.esa.eo.ngeo.downloadmanager.cli.config.ConfigurationProvider;
 import int_.esa.eo.ngeo.downloadmanager.cli.config.DmCliSetting;
 
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.plugin.support.DefaultBannerProvider;
 import org.springframework.shell.support.util.OsUtils;
-import org.springframework.stereotype.Component;
 
-@Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class DownloadManagerCliBannerProvider extends DefaultBannerProvider implements CommandMarker {
     private static final String BANNER_WRAPPER = "===========================================================";
     private ConfigurationProvider configurationProvider;
