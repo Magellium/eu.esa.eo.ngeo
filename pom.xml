@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-	<!-- FIXME: mvn package doesn't work sometimes (always?); use "mvn clean 
-		package" instead. -->
-
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>int_.esa.eo.ngeo</groupId>
 	<artifactId>download-manager</artifactId>
@@ -323,6 +319,11 @@
 				<artifactId>spring-security-config</artifactId>
 				<version>${org.springframework-version}</version>
 			</dependency>
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-tx</artifactId>
+                <version>${org.springframework-version}</version>
+	        </dependency>
 
 			<!-- Web related dependencies -->
 			<dependency>
