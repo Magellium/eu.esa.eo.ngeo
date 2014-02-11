@@ -22,6 +22,11 @@ Features
 
 Release History
 ========================================================
+0.6.1
+    Release date 11th February 2014
+             - Corrected CLI configuration to store command history in the correct folder.
+             - Included missing dependency for persistence configuration.
+               This prevented the DM from starting when no direct connection to the internet was available.
 0.6.0 - DREAM CDR Release
     Release date 21st January 2014
              - Added email notification functionality. Emails are sent in the following situations:
