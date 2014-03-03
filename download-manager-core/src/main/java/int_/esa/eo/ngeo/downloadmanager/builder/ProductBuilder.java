@@ -11,17 +11,17 @@ import java.util.UUID;
 
 public class ProductBuilder {
     public Product buildProduct(String productAccessUrl) {
-        return buildProduct(productAccessUrl, null);
+        return buildProduct(productAccessUrl, null, ProductPriority.NORMAL);
     }
 
-    public Product buildProduct(String productAccessUrl, String downloadDirectory) {
+    public Product buildProduct(String productAccessUrl, String downloadDirectory, ProductPriority priority) {
         Product product = new Product();
         product.setProductAccessUrl(productAccessUrl);
         product.setUuid(UUID.randomUUID().toString());
         product.setCreationTimestamp(new Timestamp(new Date().getTime()));
         product.setNotified(false);
         product.setDownloadDirectory(downloadDirectory);
-        product.setPriority(ProductPriority.NORMAL);
+        product.setPriority(priority);
         product.setVisible(true);
 
         ProductProgress productProgress = new ProductProgress();

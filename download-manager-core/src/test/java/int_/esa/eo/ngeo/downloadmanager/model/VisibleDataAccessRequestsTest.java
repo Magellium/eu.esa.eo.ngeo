@@ -30,7 +30,7 @@ public class VisibleDataAccessRequestsTest {
 
 	@Test
 	public void testAddManualDownload() throws ProductAlreadyExistsInDarException, MalformedURLException {
-		Product productDownload = visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString());
+		Product productDownload = visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString(), ProductPriority.NORMAL);
 		assertNotNull(productDownload);
 		
 		assertEquals(1, visibleDataAccessRequests.getDARList(true).size());
@@ -47,8 +47,8 @@ public class VisibleDataAccessRequestsTest {
 
 	@Test
 	public void testAddManualDownloadTwoDownloads() throws MalformedURLException, ProductAlreadyExistsInDarException {
-		visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString());
-		visibleDataAccessRequests.addManualProductDownload("http://ipv4.download.thinkbroadband.com/10MB.zip");
+		visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString(), ProductPriority.NORMAL);
+		visibleDataAccessRequests.addManualProductDownload("http://ipv4.download.thinkbroadband.com/10MB.zip", ProductPriority.NORMAL);
 
 		DataAccessRequest manualDataAccessRequest = visibleDataAccessRequests.getDARList(true).get(0);
 		assertEquals(2, manualDataAccessRequest.getProductList().size());
@@ -56,10 +56,10 @@ public class VisibleDataAccessRequestsTest {
 
 	@Test
 	public void testAddManualDownloadSameDownloadTwice() throws MalformedURLException, ProductAlreadyExistsInDarException {
-		visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString());
+		visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString(), ProductPriority.NORMAL);
 		//add of a second manual download, which should throw a ProductAlreadyExistsInDarException
 		try {
-			visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString());
+			visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString(), ProductPriority.NORMAL);
 			fail("adding the same manual download twice should cause an exception to be thrown.");
 		}catch(ProductAlreadyExistsInDarException ex) {
 			assertEquals(String.format("Product %s already exists in DAR %s", downloadUrl.toString(), VisibleDataAccessRequests.MANUAL_PRODUCT_DAR), ex.getLocalizedMessage());
@@ -69,7 +69,7 @@ public class VisibleDataAccessRequestsTest {
 
 	@Test
 	public void testGetDataAccessRequestByUuid() throws ProductAlreadyExistsInDarException {
-		visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString());
+		visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString(), ProductPriority.NORMAL);
 		DataAccessRequest manualDataAccessRequest = visibleDataAccessRequests.getDARList(true).get(0);
 		
 		DataAccessRequest retrievedDAR = visibleDataAccessRequests.findDataAccessRequestByUuid(manualDataAccessRequest.getUuid());

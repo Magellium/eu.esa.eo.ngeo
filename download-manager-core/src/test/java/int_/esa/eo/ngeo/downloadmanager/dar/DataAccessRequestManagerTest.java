@@ -11,6 +11,7 @@ import int_.esa.eo.ngeo.downloadmanager.download.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.model.dao.DataAccessRequestDaoImpl;
 import int_.esa.eo.ngeo.downloadmanager.observer.ProductObserver;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
@@ -85,7 +86,7 @@ public class DataAccessRequestManagerTest {
         productAccess.setProductAccessURL(downloadUrl.toString());
         productAccess.setProductAccessStatus(ProductAccessStatus.READY);
         productAccessListObject.getProductAccesses().add(productAccess);
-        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, responseDate, productAccessListObject);
+        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, responseDate, productAccessListObject, ProductPriority.NORMAL);
 
         DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
         assertEquals(MonitoringStatus.IN_PROGRESS, updatedDAR.getMonitoringStatus());
@@ -101,7 +102,7 @@ public class DataAccessRequestManagerTest {
     @Test
     public void testUpdateDataAccessRequestDARDoesNotExist() {
         try {
-            dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, new Date(), null);
+            dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, new Date(), null, ProductPriority.NORMAL);
             fail("Updating a DAR that does not exist should throw an exception.");
         }catch(NonRecoverableException ex) {
             assertEquals(String.format("Data Access Request for url %s does not exist.",  testDarUrl.toString()), ex.getLocalizedMessage());
@@ -112,7 +113,7 @@ public class DataAccessRequestManagerTest {
     public void testUpdateDataAccessRequestEmptyProductList() throws DataAccessRequestAlreadyExistsException {
         addTestDAR();
 
-        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, new Date(), new ProductAccessList());
+        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, new Date(), new ProductAccessList(), ProductPriority.NORMAL);
         DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
         assertEquals(0, updatedDAR.getProductList().size());
     }
@@ -123,7 +124,7 @@ public class DataAccessRequestManagerTest {
         addTestDAR();
         Date responseDate = new Date();
 
-        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, responseDate, null);
+        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, responseDate, null, ProductPriority.NORMAL);
 
         DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
         assertEquals(MonitoringStatus.IN_PROGRESS, updatedDAR.getMonitoringStatus());
@@ -134,7 +135,7 @@ public class DataAccessRequestManagerTest {
     public void testUpdateDataAccessRequestCompletedProgress() throws DataAccessRequestAlreadyExistsException {
         addTestDAR();
 
-        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.COMPLETED, new Date(), new ProductAccessList());
+        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.COMPLETED, new Date(), new ProductAccessList(), ProductPriority.NORMAL);
         DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
         assertEquals(MonitoringStatus.COMPLETED, updatedDAR.getMonitoringStatus());
     }

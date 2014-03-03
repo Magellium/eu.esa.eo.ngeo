@@ -6,6 +6,7 @@ import int_.esa.eo.ngeo.downloadmanager.cli.exception.CLICommandException;
 import int_.esa.eo.ngeo.downloadmanager.cli.service.DownloadManagerResponseParser;
 import int_.esa.eo.ngeo.downloadmanager.cli.service.DownloadManagerService;
 import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarUuid;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
@@ -40,9 +41,10 @@ public class AddManualDownload extends ActionWithCommandResponse implements Comm
 
     @CliCommand(value = "add-dar", help = "Manually add a DAR")
     public String addDar(
-            @CliOption(key = { "url" }, mandatory = true, help = "URL of a Data Access Request") final String darUrl) {
+            @CliOption(key = { "url" }, mandatory = true, help = "URL of a Data Access Request") final String darUrl,
+            @CliOption(key = { "priority" }, mandatory = false, help = "Priority which all products should be set to.") final ProductPriority priority) {
         ManualDownloadType manualDownloadType = ManualDownloadType.DAR;
-        HttpURLConnection conn = getHttpConnectionForAdd(manualDownloadType.getPostParameterString(), darUrl);
+        HttpURLConnection conn = getHttpConnectionForAdd(manualDownloadType.getPostParameterString(), darUrl, priority);
         CommandResponseWithDarUuid commandResponseWithDarUuid;
         try {
             commandResponseWithDarUuid = downloadManagerResponseParser.parseCommandResponseWithDarUuid(conn);
@@ -53,12 +55,16 @@ public class AddManualDownload extends ActionWithCommandResponse implements Comm
         return getMessageFromCommandResponse(commandResponseWithDarUuid, manualDownloadType.getSuccessMessage());
     }
 
-    private HttpURLConnection getHttpConnectionForAdd(String parameterKey, String parameterValue) {
+    private HttpURLConnection getHttpConnectionForAdd(String postParameterString, String url, ProductPriority priority) {
+        if(priority == null) {
+            priority = ProductPriority.NORMAL;
+        }
+        
         String urlAsString = String.format("%s/download", configurationProvider.getProperty(DmCliSetting.DM_WEBAPP_URL));
         HttpURLConnection conn;
         try {
             URL commandUrl = new URL(urlAsString);
-            String parameters = String.format(parameterKey, URLEncoder.encode(parameterValue, StandardCharsets.UTF_8.displayName()));
+            String parameters = String.format(postParameterString, URLEncoder.encode(url, StandardCharsets.UTF_8.displayName()), priority.name());
             conn = downloadManagerService.sendPostCommand(commandUrl, parameters);
         } catch (MalformedURLException | UnsupportedEncodingException | ServiceException e) {
             throw new CLICommandException(e);
@@ -73,10 +79,11 @@ public class AddManualDownload extends ActionWithCommandResponse implements Comm
 
     @CliCommand(value = "add-product", help = "Manually add a product")
     public String addProduct(
-            @CliOption(key = { "url" }, mandatory = true, help = "URL of a single product to be downloaded") final String productDownloadUrl) { 
+            @CliOption(key = { "url" }, mandatory = true, help = "URL of a single product to be downloaded") final String productDownloadUrl,
+            @CliOption(key = { "priority" }, mandatory = false, help = "Priority which all products should be set to.") final ProductPriority priority) {
 
         ManualDownloadType manualDownloadType = ManualDownloadType.PRODUCT;
-        HttpURLConnection conn = getHttpConnectionForAdd(manualDownloadType.getPostParameterString(), productDownloadUrl);
+        HttpURLConnection conn = getHttpConnectionForAdd(manualDownloadType.getPostParameterString(), productDownloadUrl, priority);
 
         CommandResponseWithProductUuid commandResponseWithProductUuid;
         try {
@@ -89,8 +96,8 @@ public class AddManualDownload extends ActionWithCommandResponse implements Comm
     }
     
     enum ManualDownloadType {
-        DAR ("darUrl=%s", "DAR added, UUID is %s. Please use the \"status\" command to monitor the progress."),
-        PRODUCT ("productDownloadUrl=%s", "Product added, UUID is %s. Please use the \"status\" command to monitor the progress.");
+        DAR ("darUrl=%s&priority=%s", "DAR added, UUID is %s. Please use the \"status\" command to monitor the progress."),
+        PRODUCT ("productDownloadUrl=%s&priority=%s", "Product added, UUID is %s. Please use the \"status\" command to monitor the progress.");
 
         private final String postParameterString, successMessage;
 

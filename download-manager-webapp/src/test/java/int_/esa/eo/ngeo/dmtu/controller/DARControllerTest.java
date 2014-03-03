@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
 import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
 import int_.esa.eo.ngeo.downloadmanager.dar.DataAccessRequestManager;
@@ -11,11 +12,14 @@ import int_.esa.eo.ngeo.downloadmanager.download.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,9 +41,9 @@ public class DARControllerTest {
 	public void testAddManualProductDownload() throws ProductAlreadyExistsInDarException {
 		String downloadUrl = "http://download.tuxfamily.org/notepadplus/6.3.1/npp.6.3.1.bin.zip";
 		String uuid = UUID.randomUUID().toString();
-		when(dataAccessRequestManager.addManualProductDownload(downloadUrl)).thenReturn(uuid);
+		when(dataAccessRequestManager.addManualProductDownload(downloadUrl, ProductPriority.NORMAL)).thenReturn(uuid);
 		
-		CommandResponseWithProductUuid commandResponse = darController.addManualProductDownload(downloadUrl);
+		CommandResponseWithProductUuid commandResponse = darController.addManualProductDownload(downloadUrl, ProductPriority.NORMAL);
 		assertTrue(commandResponse.isSuccess());
 		assertEquals(uuid, commandResponse.getProductUuid());
 	}
@@ -61,7 +65,7 @@ public class DARControllerTest {
 		
 		when(dataAccessRequestManager.getVisibleDARList(true)).thenReturn(dataAccessRequestList);
 		
-		List<DataAccessRequest> dataAccessRequests = darController.getDataAccessRequestStatus().getDataAccessRequests();
+		List<DataAccessRequest> dataAccessRequests = darController.getDataAccessRequestStatus(true).getDataAccessRequests();
 		assertEquals(1,dataAccessRequests.size());
 		DataAccessRequest dataAccessRequest = dataAccessRequests.get(0);
 		assertEquals(MONITORING_URL, dataAccessRequest.getDarURL());
@@ -72,7 +76,7 @@ public class DARControllerTest {
 		List<DataAccessRequest> dataAccessRequestList = setupDataAccessRequestList();
 		when(dataAccessRequestManager.getProductList(dataAccessRequestList.get(0).getUuid())).thenReturn(new ArrayList<Product>(dataAccessRequestList.get(0).getProductList()));
 		
-		List<Product> productsFromDar = darController.getProducts(dataAccessRequestList.get(0).getUuid());
+		List<Product> productsFromDar = darController.getProducts(dataAccessRequestList.get(0).getUuid(), mock(HttpServletResponse.class));
 		assertEquals(2, productsFromDar.size());
 		List<String> productUrlsWhichShouldBeInProductListFromDar = new ArrayList<>(); 
 		productUrlsWhichShouldBeInProductListFromDar.add(PRODUCT_URL_NOTEPAD_PLUSPLUS);

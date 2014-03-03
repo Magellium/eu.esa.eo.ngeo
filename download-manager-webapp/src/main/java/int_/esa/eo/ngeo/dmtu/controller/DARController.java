@@ -12,6 +12,7 @@ import int_.esa.eo.ngeo.downloadmanager.http.ResponseHeaderParser;
 import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarUuid;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
@@ -59,24 +60,28 @@ public class DARController {
     }
 
     public void updateDAR(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessList) {
-        dataAccessRequestManager.updateDataAccessRequest(darMonitoringUrl, monitoringStatus, responseDate, productAccessList);
+        dataAccessRequestManager.updateDataAccessRequest(darMonitoringUrl, monitoringStatus, responseDate, productAccessList, ProductPriority.NORMAL);
     }
 
-    @RequestMapping(value="/download", method = RequestMethod.POST, params = "productDownloadUrl")
+    public void updateDAR(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessList, ProductPriority priorityForNewProducts) {
+        dataAccessRequestManager.updateDataAccessRequest(darMonitoringUrl, monitoringStatus, responseDate, productAccessList, priorityForNewProducts);
+    }
+
+    @RequestMapping(value="/download", method = RequestMethod.POST, params = {"productDownloadUrl"})
     @ResponseBody
-    public CommandResponseWithProductUuid addManualProductDownload(@RequestParam String productDownloadUrl) {
+    public CommandResponseWithProductUuid addManualProductDownload(@RequestParam String productDownloadUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         try {
-            return commandResponseBuilder.buildCommandResponseWithProductUuid(dataAccessRequestManager.addManualProductDownload(productDownloadUrl), "Unable to add manual product download");
+            return commandResponseBuilder.buildCommandResponseWithProductUuid(dataAccessRequestManager.addManualProductDownload(productDownloadUrl, priority), "Unable to add manual product download");
         } catch (ProductAlreadyExistsInDarException e) {
             LOGGER.error(String.format("Product already exists in the DAR: %s", productDownloadUrl), e);
             return commandResponseBuilder.buildCommandResponseWithProductUuid(null, e.getLocalizedMessage(), e.getClass().getName());
         }
     }
 
-    @RequestMapping(value="/download", method = RequestMethod.POST, params = "darUrl")
+    @RequestMapping(value="/download", method = RequestMethod.POST, params = {"darUrl"})
     @ResponseBody
-    public CommandResponseWithDarUuid addManualDar(@RequestParam String darUrl) {
+    public CommandResponseWithDarUuid addManualDarByUrl(@RequestParam String darUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         UmSsoHttpRequestAndResponse staticDarRequestAndResponse = null;
         try {
@@ -92,7 +97,7 @@ public class DARController {
             ProductAccessList productAccessList = dataAccessMonitoringResponse.getProductAccessList();
 
             String dataAccessRequestUuid = addDataAccessRequest(dataAccessRequestUrl, false);
-            updateDAR(dataAccessRequestUrl, monitoringStatus, responseDate, productAccessList);
+            updateDAR(dataAccessRequestUrl, monitoringStatus, responseDate, productAccessList, priority);
             return commandResponseBuilder.buildCommandResponseWithDarUuid(dataAccessRequestUuid, "Unable to add manual dar.");
         } catch (ParseException | ServiceException | DateParseException | IOException | DataAccessRequestAlreadyExistsException e) {
             LOGGER.error(String.format("%s whilst adding DAR %s: %s", e.getClass().getName(), darUrl, e.getLocalizedMessage()));

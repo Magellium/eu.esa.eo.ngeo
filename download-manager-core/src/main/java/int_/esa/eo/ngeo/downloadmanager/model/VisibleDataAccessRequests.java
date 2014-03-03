@@ -36,7 +36,7 @@ public class VisibleDataAccessRequests {
         dataAccessRequestMap.remove(dataAccessRequest.getUuid());
     }
 
-    public Product addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
+    public Product addManualProductDownload(String productDownloadUrl, ProductPriority productPriority) throws ProductAlreadyExistsInDarException {
         DataAccessRequest manualDataAccessRequest;
         if(this.manualDataAccessRequestUuid == null) {
             manualDataAccessRequest = new DataAccessRequestBuilder().buildDAR(MANUAL_PRODUCT_DAR, false);
@@ -51,7 +51,7 @@ public class VisibleDataAccessRequests {
             }
         }
 
-        Product newProduct = new ProductBuilder().buildProduct(productDownloadUrl);
+        Product newProduct = new ProductBuilder().buildProduct(productDownloadUrl, null, productPriority);
         addProductToProductDARMapping(newProduct, manualDataAccessRequest);
 
         addNewProduct(manualDataAccessRequest, newProduct);

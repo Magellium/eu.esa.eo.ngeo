@@ -7,6 +7,7 @@ import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ProductAlreadyExistsInDarException;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.model.VisibleDataAccessRequests;
 import int_.esa.eo.ngeo.downloadmanager.model.dao.DataAccessRequestDao;
 import int_.esa.eo.ngeo.downloadmanager.observer.ProductObserver;
@@ -123,7 +124,11 @@ public class DataAccessRequestManager implements ProductSubject {
 
 
     public String addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
-        Product newProduct = visibleDataAccessRequests.addManualProductDownload(productDownloadUrl);
+        return addManualProductDownload(productDownloadUrl, ProductPriority.NORMAL);
+    }
+    
+    public String addManualProductDownload(String productDownloadUrl, ProductPriority productPriority) throws ProductAlreadyExistsInDarException {
+        Product newProduct = visibleDataAccessRequests.addManualProductDownload(productDownloadUrl, productPriority);
 
         DataAccessRequest manualDataAccessRequest = findDataAccessRequestByProduct(newProduct);
         dataAccessRequestDao.updateDataAccessRequest(manualDataAccessRequest);
@@ -135,7 +140,7 @@ public class DataAccessRequestManager implements ProductSubject {
         return visibleDataAccessRequests.findDataAccessRequestByProductUuid(product.getUuid());
     }
 
-    public void updateDataAccessRequest(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessListObject) {
+    public void updateDataAccessRequest(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessListObject, ProductPriority productPriorityForNewProducts) {
         DataAccessRequest retrievedDataAccessRequest = getDataAccessRequestByMonitoringUrl(darMonitoringUrl);
         if(retrievedDataAccessRequest == null) {
             throw new NonRecoverableException(String.format("Data Access Request for url %s does not exist.", darMonitoringUrl));
@@ -167,7 +172,7 @@ public class DataAccessRequestManager implements ProductSubject {
                             productInDar.setNotified(true);
                         }
                     }else{
-                        Product newProduct = new ProductBuilder().buildProduct(productAccess.getProductAccessURL(), productAccess.getProductDownloadDirectory());
+                        Product newProduct = new ProductBuilder().buildProduct(productAccess.getProductAccessURL(), productAccess.getProductDownloadDirectory(), productPriorityForNewProducts);
                         visibleDataAccessRequests.addNewProduct(retrievedDataAccessRequest, newProduct);
                         newProductsAdded.add(newProduct);
                     }
