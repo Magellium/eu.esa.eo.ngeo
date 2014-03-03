@@ -26,6 +26,8 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.impl.cookie.DateParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +114,8 @@ public class DARController {
 
     @RequestMapping(value = "/dataAccessRequests", method = RequestMethod.GET)
     @ResponseBody
-    public StatusResponse getDataAccessRequestStatus() {
+    public StatusResponse getDataAccessRequestStatus(HttpServletResponse response) {
+        setNoCacheHeader(response);
         return getDataAccessRequestStatus(true);
     }
 
@@ -128,7 +131,12 @@ public class DARController {
 
     @RequestMapping(value = "/dataAccessRequests/{darUuid}", method = RequestMethod.GET)
     @ResponseBody
-    public List<Product> getProducts(@PathVariable String darUuid) {
+    public List<Product> getProducts(@PathVariable String darUuid, HttpServletResponse response) {
+        setNoCacheHeader(response);
         return dataAccessRequestManager.getProductList(darUuid);
+    }
+    
+    private void setNoCacheHeader(HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-cache");
     }
 }
