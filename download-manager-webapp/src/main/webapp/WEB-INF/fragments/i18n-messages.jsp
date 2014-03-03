@@ -13,7 +13,8 @@
 	messages['error.heading.communication_lost'] = "<spring:message code='error.heading.communication_lost' />";
 	messages['error.message.communication_lost'] = "<spring:message code='error.message.communication_lost' />";
 	messages['product_table.heading.product_access_url'] = "<spring:message code='product_table.heading.product_access_url' />";
-	messages['product_table.heading.total_size'] = "<spring:message code='product_table.heading.total_size' />";
+    messages['product_table.heading.priority'] = "<spring:message code='product_table.heading.priority' />";
+    messages['product_table.heading.total_size'] = "<spring:message code='product_table.heading.total_size' />";
 	messages['product_table.heading.downloaded_size'] = "<spring:message code='product_table.heading.downloaded_size' />";
 	messages['product_table.heading.progress'] = "<spring:message code='product_table.heading.progress' />";
 	messages['product_table.heading.product_status'] = "<spring:message code='product_table.heading.product_status' />";

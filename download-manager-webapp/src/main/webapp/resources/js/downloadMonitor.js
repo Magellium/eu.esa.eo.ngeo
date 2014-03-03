@@ -7,11 +7,12 @@ var DownloadMonitor = {
 	dardarURLColumnIndex: 1,
 	darMonitoringStatusColumnIndex: 2,
 	productAccessURLColumnIndex: 0,
-    productTotalFileSizeColumnIndex: 1,
-    productProgressDownloadedSizeColumnIndex: 2,
-    productProgressProgressPercentageColumnIndex: 3,
-    productProgressStatusColumnIndex: 4,
-    productActionsColumnIndex: 5,
+	productPriorityColumnIndex: 1,
+    productTotalFileSizeColumnIndex: 2,
+    productProgressDownloadedSizeColumnIndex: 3,
+    productProgressProgressPercentageColumnIndex: 4,
+    productProgressStatusColumnIndex: 5,
+    productActionsColumnIndex: 6,
 	initialiseDownloadForm : function(manualDownloadForm, downloadStatusTable) {
 		manualDownloadForm.find("#addProductDownload").click(function() {
 	    	DownloadMonitor.addProductDownload(manualDownloadForm.find("#productDownloadUrl").val(),downloadStatusTable);
@@ -124,6 +125,7 @@ var DownloadMonitor = {
 	    var aData = tableData.fnGetData( row );
 	    var sOut = '<table id="productList' + aData.uuid + '" style="padding-left:30px;"><thead><tr>';
 	    sOut += '<th class="productAccessURL">' + messages['product_table.heading.product_access_url'] + '</th>';
+	    sOut += '<th class="productAccessURL">' + messages['product_table.heading.priority'] + '</th>';
 	    sOut += '<th class="productDownloadedSize">' + messages['product_table.heading.total_size'] + '</th>';
 	    sOut += '<th class="productDownloadedSize">' + messages['product_table.heading.downloaded_size'] + '</th>';
 	    sOut += '<th class="productProgress">' + messages['product_table.heading.progress'] + '</th>';
@@ -159,6 +161,7 @@ var DownloadMonitor = {
         $("#productList"+aData.uuid).dataTable({
     		"aoColumns": [
 			              { "mData": "productAccessUrl" },
+			              { "mData": "priority" },
 			              { "mData": "totalFileSize" },
 			              { "mData": "productProgress.downloadedSize" },
 			              { "mData": "productProgress.progressPercentage" },
@@ -167,10 +170,11 @@ var DownloadMonitor = {
 			          ],
 			 "aoColumnDefs": [
 				              { "sWidth": "100px", "aTargets": [ 1 ] },
-				              { "sWidth": "100px", "aTargets": [ 2 ] },
-				              { "sWidth": "120px", "aTargets": [ 3 ] },
-				              { "sWidth": "80px", "aTargets": [ 4 ] },
-				              { "sWidth": "50px", "aTargets": [ 5 ] },
+				              { "sWidth": "40px", "aTargets": [ 2 ] },
+				              { "sWidth": "100px", "aTargets": [ 3 ] },
+				              { "sWidth": "120px", "aTargets": [ 4 ] },
+				              { "sWidth": "80px", "aTargets": [ 5 ] },
+				              { "sWidth": "50px", "aTargets": [ 6 ] },
 			                 ],
              "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
  				$(nRow).attr("data-product-id",aData.uuid);
