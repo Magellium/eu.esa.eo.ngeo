@@ -29,6 +29,7 @@ Release History
              - DMTU-103 - Hover over IN_ERROR icons in Firefox on does not show the error message
              - DMTU-155 - Back button on adv. config page does not work in IE
              - DMTU-149 - Web UI - Update of DAR / product status not working as expected in Internet Explorer
+             - DMTU-163 - Unable to download product which includes download options
              - Changed "Queued" status to "Waiting"
 0.6.1
     Release date 11th February 2014

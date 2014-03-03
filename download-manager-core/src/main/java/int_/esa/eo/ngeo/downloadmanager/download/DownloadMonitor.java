@@ -27,8 +27,10 @@ import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
 import int_.esa.eo.ngeo.downloadmanager.plugin.ProductDownloadListener;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting;
+import int_.esa.eo.ngeo.downloadmanager.utils.QuerystringEncoder;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -122,7 +124,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
     private IDownloadProcess createDownloadProcess(Product product) throws DownloadProcessCreationException {
         IDownloadPlugin downloadPlugin;
         try {
-            URI uri = new URI(product.getProductAccessUrl());
+            URI uri = new URI(new QuerystringEncoder().encodeQueryString(product.getProductAccessUrl()));
 
             downloadPlugin = pluginManager.determinePlugin(product.getProductAccessUrl());
 
@@ -142,7 +144,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
             UmSsoHttpConnectionSettings httpConnectionSettings = connectionPropertiesSynchronizedUmSsoHttpClient.getUmSsoHttpClient().getUmSsoHttpConnectionSettings();
 
             return downloadPlugin.createDownloadProcess(uri, downloadPath, httpConnectionSettings.getUmssoUsername(), httpConnectionSettings.getUmssoPassword(), productDownloadListener, httpConnectionSettings.getProxyHost(), httpConnectionSettings.getProxyPort(), httpConnectionSettings.getProxyUser(), httpConnectionSettings.getProxyPassword());
-        } catch (NoPluginAvailableException | URISyntaxException | DMPluginException ex) {
+        } catch (NoPluginAvailableException | URISyntaxException | DMPluginException | UnsupportedEncodingException ex) {
             LOGGER.error(String.format("Error whilst creating download process of product %s: %s", product.getProductAccessUrl(), ex.getLocalizedMessage()));
             product.getProductProgress().setStatus(EDownloadStatus.IN_ERROR);
             product.getProductProgress().setMessage(ex.getLocalizedMessage());
