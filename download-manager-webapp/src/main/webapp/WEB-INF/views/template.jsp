@@ -11,7 +11,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<c:set var="req" value="${pageContext.request}" />
-		<c:set var="baseURL" value="${fn:replace(req.requestURL, req.requestURI, req.contextPath)}" />
+		<c:set var="baseURL" value="${fn:replace(req.requestURL, req.requestURI, req.contextPath)}" scope="request" />
 		<base href="<c:url value="${baseURL}/" />" />
 
 		<c:set var="pathForAnchors" value="<%= request.getAttribute("javax.servlet.forward.request_uri")%>" scope="request" />
@@ -43,6 +43,11 @@
 		<script src="resources/js/jquery.dataTables.js"></script>
 		<script src="resources/js/external/jquery.notific8.min.js"></script>
 		<script src="resources/js/downloadMonitor.js"></script>
+		<script>
+			$(document).ready(function() {
+			    $(document).tooltip();
+			});
+		</script>
 
 	    <tiles:insertAttribute name="i18n-messages"/>
 	</body>

@@ -73,7 +73,7 @@
 	<div id="configButtons">
 		<spring:message code="label.back" var="label_back" />
 		<spring:message code="label.save_config" var="label_save_config" />
-		<input type="button" value="${label_back}" class="headerButton" onclick="document.location.href=''"/>&nbsp;
+		<input type="button" value="${label_back}" class="headerButton" onclick="document.location.href='${baseURL}'"/>&nbsp;
 		<input type="submit" value="${label_save_config}" />
 	</div>
 	<p><b><spring:message code="label.version" /></b> <spring:message code="version"/></p>
