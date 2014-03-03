@@ -224,6 +224,10 @@ ul#actions li {
 	text-align: center;
 }
 
+#menu .ui-menu-item a {
+    display: inline-block;
+}
+
 /* end of advanced configuration styles */
 
 .pageDescription {

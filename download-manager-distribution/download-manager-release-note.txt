@@ -22,6 +22,9 @@ Features
 
 Release History
 ========================================================
+0.6.2 - DREAM CDR Feedback
+    Release date TBD
+             - DMTU-156 - Display of Command Menu is different in IE than Chrome/Firefox
 0.6.1
     Release date 11th February 2014
              - Corrected CLI configuration to store command history in the correct folder.
@@ -32,9 +35,9 @@ Release History
              - Added email notification functionality. Emails are sent in the following situations:
                  - Change of UM-SSO credentials.
                  - Product termination - INFO level for COMPLETED and CANCELLED status, ERROR for IN_ERROR status.
-                 - Include cacerts as the base for the download manager trust store. This is required for production 
-                   service which are protected by certificates signed by standard CA, and for any email services 
-                   which are secure (e.g. gmail).
+             - Include cacerts as the base for the download manager trust store. This is required for production 
+               service which are protected by certificates signed by standard CA, and for any email services 
+               which are secure (e.g. gmail).
 0.5.9
     Release date 7th January 2014
              - Improved the handling of a change to multiple settings simultaneously.
