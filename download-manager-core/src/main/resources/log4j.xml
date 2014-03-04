@@ -42,15 +42,11 @@
 		<level value="info" />
 	</logger>
 	
-	<logger name="int_.esa.eo.ngeo.dmtu.jaxb">
+	<logger name="int_.esa.eo.ngeo.downloadmanager.dar">
 		<level value="info" />
 	</logger>
 
-	<logger name="int_.esa.eo.ngeo.dmtu.manager">
-		<level value="info" />
-	</logger>
-
-	<logger name="int_.esa.eo.ngeo.dmtu.download.monitor">
+	<logger name="int_.esa.eo.ngeo.downloadmanager.download">
 		<level value="info" />
 	</logger>
 	
@@ -59,7 +55,7 @@
 		<level value="info" />
 	</logger>
 
-	<logger name="int_.esa.eo.ngeo.dmtu.os.command">
+	<logger name="int_.esa.eo.ngeo.downloadmanager.callback">
 		<level value="info" />
 	</logger>
 
@@ -82,10 +78,6 @@
 	</logger>
 
 	<logger name="int_.esa.eo.ngeo.downloadmanager.http">
-		<level value="info" />
-	</logger>
-	
-	<logger name="int_.esa.eo.ngeo.dmtu.download.schedule">
 		<level value="info" />
 	</logger>
 	
