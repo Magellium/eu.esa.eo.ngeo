@@ -18,6 +18,16 @@ public class ProductBuilder {
         Product product = new Product();
         product.setProductAccessUrl(productAccessUrl);
         product.setUuid(UUID.randomUUID().toString());
+        /*
+         * add a small delay before setting the creation timestamp - this ensures that each product has a unique timestamp.
+         * The timestamp is used to determine which product should be downloaded first if priorities are the same.
+         */
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         product.setCreationTimestamp(new Timestamp(new Date().getTime()));
         product.setNotified(false);
         product.setDownloadDirectory(downloadDirectory);

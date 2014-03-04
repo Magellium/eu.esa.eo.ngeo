@@ -20,11 +20,13 @@ import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationManager;
 import int_.esa.eo.ngeo.downloadmanager.observer.DownloadObserver;
 import int_.esa.eo.ngeo.downloadmanager.observer.ProductObserver;
+import int_.esa.eo.ngeo.downloadmanager.observer.SettingsObserver;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin;
 import int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadProcess;
 import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
 import int_.esa.eo.ngeo.downloadmanager.plugin.ProductDownloadListener;
+import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.utils.QuerystringEncoder;
@@ -35,6 +37,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -42,7 +46,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DownloadMonitor implements ProductObserver, DownloadObserver {
+public class DownloadMonitor implements ProductObserver, DownloadObserver, SettingsObserver {
     private PluginManager pluginManager;
     private SettingsManager settingsManager;
     private ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
@@ -56,6 +60,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
     private ProductTerminationLog productTerminationLog;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadMonitor.class);
+    private List<UserModifiableSetting> userModifiableSettingsToObserve;
 
     public DownloadMonitor(PluginManager pluginManager, SettingsManager settingsManager, ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient, DataAccessRequestManager dataAccessRequestManager, NotificationManager notificationManager) {
         this.pluginManager = pluginManager;
@@ -67,13 +72,26 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
         dataAccessRequestManager.registerObserver(this);
         this.productTerminationLog = new ProductTerminationLog();
         activeProducts = new ActiveProducts();
+
+        userModifiableSettingsToObserve = new ArrayList<>();
+        userModifiableSettingsToObserve.add(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS);
     }
 
-    public void initDowloadPool() {
+    @Override
+    public void updateToUserModifiableSettings(List<UserModifiableSetting> userModifiableSetting) {
+        if(userModifiableSetting != null && !Collections.disjoint(userModifiableSettingsToObserve, userModifiableSetting)) {
+            LOGGER.debug("Number of concurrent download threads have changed, so update the number of concurrent threads in the Download Scheduler.");
+            int numberOfConcurrentDownloads = Integer.parseInt(settingsManager.getSetting(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS));
+            downloadScheduler.setConcurrentDownloads(numberOfConcurrentDownloads);
+        }
+    }
+
+    public void initDowloadPoolAndWatchSettingsManager() {
         String noOfParallelProductDownloadThreads = settingsManager.getSetting(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS);
         int concurrentProductDownloadThreads = Integer.parseInt(noOfParallelProductDownloadThreads);
         LOGGER.info(String.format("Creating thread pool for %s concurrent product download threads", concurrentProductDownloadThreads));
         downloadScheduler = new DownloadScheduler(concurrentProductDownloadThreads);
+        settingsManager.registerObserver(this);
     }
 
     @Override
@@ -349,5 +367,10 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver {
             throw new DownloadOperationException("Unable to send cancel request to all applicable downloads. Note that some products may be cancelled.");
         }
         return downloadsCancelledCompletely;
+    }
+
+    @Override
+    public void updateToNonUserModifiableSettings(List<NonUserModifiableSetting> nonUserModifiableSettings) {
+        //There are no non-user modifiable settings which this class is interested in
     }
 }

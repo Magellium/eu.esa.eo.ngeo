@@ -59,7 +59,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(CONCURRENT_PRODUCT_DOWNLOAD_THREADS);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(1)).pauseDownloadThread();
 	}
 
@@ -78,7 +78,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(CONCURRENT_PRODUCT_DOWNLOAD_THREADS);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 	}
 
@@ -97,7 +97,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 		
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(CONCURRENT_PRODUCT_DOWNLOAD_THREADS);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 	}
 
@@ -119,7 +119,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(CONCURRENT_PRODUCT_DOWNLOAD_THREADS);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(1)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(1)).pauseDownloadThread();
 	}
@@ -142,7 +142,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(2);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(1)).pauseDownloadThread();
 	}
@@ -165,7 +165,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(2);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(0)).pauseDownloadThread();
 	}
@@ -188,7 +188,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(2);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(0)).pauseDownloadThread();
 	}
@@ -211,7 +211,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(2);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(0)).pauseDownloadThread();
 	}
@@ -234,7 +234,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(CONCURRENT_PRODUCT_DOWNLOAD_THREADS);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(1)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(1)).pauseDownloadThread();
 	}
@@ -257,7 +257,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(2);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(1)).pauseDownloadThread();
 	}
@@ -280,7 +280,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(CONCURRENT_PRODUCT_DOWNLOAD_THREADS);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(1)).pauseDownloadThread();
 	}
@@ -303,7 +303,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(CONCURRENT_PRODUCT_DOWNLOAD_THREADS);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(1)).pauseDownloadThread();
 	}
@@ -326,7 +326,7 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
 		when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
 
-		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+		productDownloadThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(2);
 		verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
 		verify(currentlyRunningTask2.getProductDownloadThread(), times(0)).pauseDownloadThread();
 	}
@@ -416,4 +416,112 @@ public class ProductDownloadThreadPoolExecutorTest<V, T> {
 		}
 		return mockedQueue;
 	}
+
+    @Test
+    public void testChangeNumberOfConcurrentDownloadsReduceByOne() {
+        setConcurrentDownloads(3);
+        
+        Set<ComparableFutureTask<Long>> currentlyRunningTasks = new LinkedHashSet<ComparableFutureTask<Long>>();
+        ComparableFutureTask<Long> currentlyRunningTask1 = buildMockComparableFutureTask("currentlyRunningTask1", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask1);
+        ComparableFutureTask<Long> currentlyRunningTask2 = buildMockComparableFutureTask("currentlyRunningTask2", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask2);
+        ComparableFutureTask<Long> currentlyRunningTask3 = buildMockComparableFutureTask("currentlyRunningTask2", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask3);
+
+        when(productDownloadThreadPoolExecutor.getCurrentlyRunningTasks()).thenReturn(currentlyRunningTasks);
+
+        Map<String, ProductPriority> mockQueueEntryMap = new LinkedHashMap<>();
+        mockQueueEntryMap.put("queuedTask1", ProductPriority.NORMAL);
+        mockQueueEntryMap.put("queuedTask2", ProductPriority.NORMAL);
+        mockQueueEntryMap.put("queuedTask3", ProductPriority.NORMAL);
+        BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
+        when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
+
+        productDownloadThreadPoolExecutor.setConcurrentDownloads(2);
+        verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
+        verify(currentlyRunningTask2.getProductDownloadThread(), times(0)).pauseDownloadThread();
+        verify(currentlyRunningTask3.getProductDownloadThread(), times(1)).pauseDownloadThread();
+    }
+
+    @Test
+    public void testChangeNumberOfConcurrentDownloadsReduceByMoreThanOne() {
+        setConcurrentDownloads(3);
+        
+        Set<ComparableFutureTask<Long>> currentlyRunningTasks = new LinkedHashSet<ComparableFutureTask<Long>>();
+        ComparableFutureTask<Long> currentlyRunningTask1 = buildMockComparableFutureTask("currentlyRunningTask1", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask1);
+        ComparableFutureTask<Long> currentlyRunningTask2 = buildMockComparableFutureTask("currentlyRunningTask2", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask2);
+        ComparableFutureTask<Long> currentlyRunningTask3 = buildMockComparableFutureTask("currentlyRunningTask2", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask3);
+
+        when(productDownloadThreadPoolExecutor.getCurrentlyRunningTasks()).thenReturn(currentlyRunningTasks);
+
+        Map<String, ProductPriority> mockQueueEntryMap = new LinkedHashMap<>();
+        mockQueueEntryMap.put("queuedTask1", ProductPriority.NORMAL);
+        mockQueueEntryMap.put("queuedTask2", ProductPriority.NORMAL);
+        mockQueueEntryMap.put("queuedTask3", ProductPriority.NORMAL);
+        BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
+        when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
+
+        productDownloadThreadPoolExecutor.setConcurrentDownloads(1);
+        verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
+        verify(currentlyRunningTask2.getProductDownloadThread(), times(1)).pauseDownloadThread();
+        verify(currentlyRunningTask3.getProductDownloadThread(), times(1)).pauseDownloadThread();
+    }
+
+    @Test
+    public void testChangeNumberOfConcurrentDownloadsIncreaseByOne() {
+        setConcurrentDownloads(2);
+        
+        Set<ComparableFutureTask<Long>> currentlyRunningTasks = new LinkedHashSet<ComparableFutureTask<Long>>();
+        ComparableFutureTask<Long> currentlyRunningTask1 = buildMockComparableFutureTask("currentlyRunningTask1", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask1);
+        ComparableFutureTask<Long> currentlyRunningTask2 = buildMockComparableFutureTask("currentlyRunningTask2", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask2);
+        ComparableFutureTask<Long> currentlyRunningTask3 = buildMockComparableFutureTask("currentlyRunningTask2", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask3);
+
+        when(productDownloadThreadPoolExecutor.getCurrentlyRunningTasks()).thenReturn(currentlyRunningTasks);
+
+        Map<String, ProductPriority> mockQueueEntryMap = new LinkedHashMap<>();
+        mockQueueEntryMap.put("queuedTask1", ProductPriority.NORMAL);
+        mockQueueEntryMap.put("queuedTask2", ProductPriority.NORMAL);
+        mockQueueEntryMap.put("queuedTask3", ProductPriority.NORMAL);
+        BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
+        when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
+
+        productDownloadThreadPoolExecutor.setConcurrentDownloads(3);
+        verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
+        verify(currentlyRunningTask2.getProductDownloadThread(), times(0)).pauseDownloadThread();
+        verify(currentlyRunningTask3.getProductDownloadThread(), times(0)).pauseDownloadThread();
+    }
+
+    @Test
+    public void testChangeNumberOfConcurrentDownloadsIncreaseByMoreThanOne() {
+        setConcurrentDownloads(2);
+        
+        Set<ComparableFutureTask<Long>> currentlyRunningTasks = new LinkedHashSet<ComparableFutureTask<Long>>();
+        ComparableFutureTask<Long> currentlyRunningTask1 = buildMockComparableFutureTask("currentlyRunningTask1", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask1);
+        ComparableFutureTask<Long> currentlyRunningTask2 = buildMockComparableFutureTask("currentlyRunningTask2", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask2);
+        ComparableFutureTask<Long> currentlyRunningTask3 = buildMockComparableFutureTask("currentlyRunningTask2", ProductPriority.NORMAL, EDownloadStatus.RUNNING);
+        currentlyRunningTasks.add(currentlyRunningTask3);
+
+        when(productDownloadThreadPoolExecutor.getCurrentlyRunningTasks()).thenReturn(currentlyRunningTasks);
+
+        Map<String, ProductPriority> mockQueueEntryMap = new LinkedHashMap<>();
+        mockQueueEntryMap.put("queuedTask1", ProductPriority.NORMAL);
+        mockQueueEntryMap.put("queuedTask2", ProductPriority.NORMAL);
+        mockQueueEntryMap.put("queuedTask3", ProductPriority.NORMAL);
+        BlockingQueue<Runnable> mockQueue = createMockQueue(mockQueueEntryMap);
+        when(productDownloadThreadPoolExecutor.getQueue()).thenReturn(mockQueue);
+
+        productDownloadThreadPoolExecutor.setConcurrentDownloads(4);
+        verify(currentlyRunningTask1.getProductDownloadThread(), times(0)).pauseDownloadThread();
+        verify(currentlyRunningTask2.getProductDownloadThread(), times(0)).pauseDownloadThread();
+        verify(currentlyRunningTask3.getProductDownloadThread(), times(0)).pauseDownloadThread();
+    }
 }

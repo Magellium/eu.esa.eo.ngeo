@@ -61,14 +61,13 @@ public class ProductDownloadThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized void checkPrioritiesOfCurrentlyRunningDownloads() {
+    public synchronized void checkPrioritiesOfCurrentlyRunningDownloads(int concurrentDownloads) {
         //Retrieve a copy of the current queue - using toArray() does not guarantee order
         BlockingQueue<Runnable> combinedQueue = new PriorityBlockingQueue<>();
         combinedQueue.addAll(getCurrentlyRunningTasks());
         //Add all currently running tasks into the copy of the queue, so we now have one big queue with all tasks
         combinedQueue.addAll(getQueue());
 
-        int concurrentDownloads = getMaximumPoolSize();
         LOGGER.debug(String.format("Items in the queue %s, concurrent downloads %s", combinedQueue.size(), concurrentDownloads));
 
         //Remove all items in the combined queue which will be the running tasks after this process.
@@ -90,6 +89,12 @@ public class ProductDownloadThreadPoolExecutor extends ThreadPoolExecutor {
                 queueTask.getProductDownloadThread().pauseDownloadThread();
             }
         }
+    }
+    
+    public synchronized void setConcurrentDownloads(int concurrentDownloads) {
+        checkPrioritiesOfCurrentlyRunningDownloads(concurrentDownloads);
+        super.setCorePoolSize(concurrentDownloads);
+        super.setMaximumPoolSize(concurrentDownloads);
     }
 
     @SuppressWarnings("unchecked")

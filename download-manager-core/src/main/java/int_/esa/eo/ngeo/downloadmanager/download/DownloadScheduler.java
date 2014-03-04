@@ -26,7 +26,7 @@ public class DownloadScheduler {
 
         mThreadPoolExecutor.submit(productDownloadThread);
         activeProductDownloadThreads.add(productDownloadThread);
-        mThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+        mThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(mThreadPoolExecutor.getMaximumPoolSize());
     }
 
     public void shutdown() {
@@ -52,7 +52,7 @@ public class DownloadScheduler {
         ProductDownloadThread productDownloadThread = getProductDownloadThread(product);
         if(productDownloadThread != null) {
             mThreadPoolExecutor.resubmitProductDownloadThreadAfterChangeOfPriority(productDownloadThread);
-            mThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads();
+            mThreadPoolExecutor.checkPrioritiesOfCurrentlyRunningDownloads(mThreadPoolExecutor.getMaximumPoolSize());
         }
     }
 
@@ -63,5 +63,9 @@ public class DownloadScheduler {
             }
         }
         return null;
+    }
+    
+    public void setConcurrentDownloads(int concurrentDownloads) {
+        mThreadPoolExecutor.setConcurrentDownloads(concurrentDownloads);
     }
 }

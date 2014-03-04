@@ -39,7 +39,7 @@ public class ApplicationContextRefreshedListener implements ApplicationListener<
 
     @Autowired
     private ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
-
+    
     @Override
     public void onApplicationEvent(ContextRefreshedEvent arg0) {
         LOGGER.info("Starting Download Manager.");
@@ -49,11 +49,11 @@ public class ApplicationContextRefreshedListener implements ApplicationListener<
 
         connectionPropertiesSynchronizedUmSsoHttpClient.registerWithSettingsManager();
         connectionPropertiesSynchronizedUmSsoHttpClient.initUmSsoConnectionSettingsFromSettingsManager();
-
+        
         pluginManager.detectPlugins();
 
-        downloadMonitor.initDowloadPool();
-
+        downloadMonitor.initDowloadPoolAndWatchSettingsManager();
+        
         // Loads DARs from the DB
         dataAccessRequestManager.loadDARs();
 
