@@ -27,14 +27,30 @@ Release History
              - DMTU-159 - REST interface - Send DAR directly to DMTU
              - DMTU-158 - REST interface - Set priority when adding DAR/product
              - DMTU-164 - REST interface - Include DAR UUID into response of "Add Product" operation.
-             - DMTU-156 - Display of Command Menu is different in IE than Chrome/Firefox
-             - DMTU-103 - Hover over IN_ERROR icons in Firefox on does not show the error message
-             - DMTU-155 - Back button on adv. config page does not work in IE
-             - DMTU-149 - Web UI - Update of DAR / product status not working as expected in Internet Explorer
-             - DMTU-45 - Changes to the number of concurrent download threads no longer require an application restart.
+             - DMTU-45  - Changes to the number of concurrent download threads no longer require an application restart.
+             - Web UI improvements:
+                 - DMTU-103 - Hover over IN_ERROR icons in Firefox on does not show the error message
+                 - DMTU-155 - Back button on adv. config page does not work in IE
+                 - DMTU-149 - Web UI - Update of DAR / product status not working as expected in Internet Explorer
+                 - DMTU-156 - Display of Command Menu is different in IE than Chrome/Firefox
+                 - DMTU-157 - Memory leak in Web UI
+                 - Improvements to display the DAR and Product details by only updating the data which has changed.
+                   This resolves the issue where the error icon and pause/resume/cancel buttons became unresponsive.
+                 - Updated headings of the columns in the DAR and Product tables to reflect the data displayed.
+                 - The "Data Access Request" column (formerly "Monitoring URL") displays the name of the DAR
+                   if specified, otherwise the monitoring URL is displayed.
+                 - Monitoring Status for manually added DARs or the Manual Data Access Request is now displayed as
+                   "Not applicable".
+                 - Changed "Queued" status in Web UI to "Waiting"
+                 - The DAR table now changes width when the browser window is resized.
+                 - All columns except the Product column are now a fixed width, and the Product column fills the rest of the table.
+                 - Added tooltip for Product column. This is to assist the circumstances where the Product URL is too big to be displayed in its entirety.
+                 - Added tooltip for pause and resume and cancel buttons.
+                 - Sorting of products within a DAR is now available for all columns except status and actions.
+                 - Minor style changes to improve layout.
              - Download Manager specific logging entries are no longer shown in the console. Check the logs folder 
                for the files which contain these entries.
-             - Changed "Queued" status in Web UI to "Waiting"
+
 0.6.1
     Release date 11th February 2014
              - Corrected CLI configuration to store command history in the correct folder.
