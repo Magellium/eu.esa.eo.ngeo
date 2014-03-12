@@ -24,7 +24,8 @@
 	messages['dar_status.IN_PROGRESS'] = "<spring:message code='dar_status.IN_PROGRESS' />";
 	messages['dar_status.COMPLETED'] = "<spring:message code='dar_status.COMPLETED' />";
 	messages['dar_status.PAUSED'] = "<spring:message code='dar_status.PAUSED' />";
-	messages['dar_status.CANCELLED'] = "<spring:message code='dar_status.CANCELLED' />";
+    messages['dar_status.CANCELLED'] = "<spring:message code='dar_status.CANCELLED' />";
+    messages['dar_status.NA'] = "<spring:message code='dar_status.NA' />";
 	messages['download_status.NOT_STARTED'] = "<spring:message code='download_status.NOT_STARTED' />";
 	messages['download_status.IDLE'] = "<spring:message code='download_status.IDLE' />";
 	messages['download_status.RUNNING'] = "<spring:message code='download_status.RUNNING' />";

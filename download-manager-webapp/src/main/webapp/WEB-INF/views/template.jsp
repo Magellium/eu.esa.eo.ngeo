@@ -42,7 +42,6 @@
 		<script src="resources/js/jquery-ui-1.10.3.custom.min.js"></script>
 		<script src="resources/js/jquery.dataTables.js"></script>
 		<script src="resources/js/external/jquery.notific8.min.js"></script>
-		<script src="resources/js/downloadMonitor.js"></script>
 		<script>
 			$(document).ready(function() {
 			    $(document).tooltip();

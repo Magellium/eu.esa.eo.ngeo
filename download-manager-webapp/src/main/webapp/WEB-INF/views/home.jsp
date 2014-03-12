@@ -65,22 +65,27 @@
 	</tbody>
 </table>
 <p><br /><br /></p>
+<script src="resources/js/downloadMonitor.js"></script>
+<script src="resources/js/darStatusTable.js"></script>
+<script src="resources/js/productStatusTable.js"></script>
+<script src="resources/js/messageDisplay.js"></script>
 <script>
 	$(document).ready(function() {
-		DownloadMonitor.initialiseDownloadForm($("#manualDownloadForm"),$("#downloadStatusTable"));
-		DownloadMonitor.initialiseDownloadStatusTable($("#downloadStatusTable"));
-		$("#menu").menu( { icons: { submenu: "ui-icon-carat-1-s" }, position: { my: "right top", at: "left center" } });
-		$(".clearActivityHistory").click(function() {
-			DownloadMonitor.clearActivityHistory($('#downloadStatusTable'));
-		});
-		$(".stopMonitoring").click(function() {
-			DownloadMonitor.stopDownloads("monitoring");
-		});
-		$(".stopMonitoringNow").click(function() {
-			DownloadMonitor.stopDownloads("monitoring_now");
-		});
-		$(".stopAll").click(function() {
-			DownloadMonitor.stopDownloads("all");
-		});
+        $("#menu").menu( { icons: { submenu: "ui-icon-carat-1-s" }, position: { my: "right top", at: "left center" } });
+        $(".clearActivityHistory").click(function() {
+            DownloadMonitor.clearActivityHistory($('#downloadStatusTable'));
+        });
+        $(".stopMonitoring").click(function() {
+            DownloadMonitor.stopDownloads("monitoring");
+        });
+        $(".stopMonitoringNow").click(function() {
+            DownloadMonitor.stopDownloads("monitoring_now");
+        });
+        $(".stopAll").click(function() {
+            DownloadMonitor.stopDownloads("all");
+        });
+        DownloadMonitor.initialiseDownloadForm($("#manualDownloadForm"),$("#downloadStatusTable"));
+
+        DarStatusTable.initialiseDarStatusTable($("#downloadStatusTable"));
 	});
 </script>

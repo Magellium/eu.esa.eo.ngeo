@@ -64,6 +64,11 @@ input[type="submit"],input[type="button"] {
 
 table.dataTable {
 	font-size: 0.9em;
+	table-layout: fixed;
+}
+
+table.dataTable thead th {
+	padding: 3px 5px 3px 5px;
 }
 
 table.dataTable td {
@@ -73,7 +78,7 @@ table.dataTable td {
 }
 
 table.dataTable td.details {
-	padding-left: 50px;
+	padding-left: 36px;
 	padding-bottom: 10px;
 	border: 0px;
 }
@@ -248,10 +253,20 @@ div.clearboth {
 }
 
 #downloadStatusTable {
-	margin-left: 5px;
+	width: 100%;
 }
 
 .darDetails {
 	margin: 2px;
 	float: left;
+}
+
+div.ui-tooltip {
+    max-width: 600px;
+    overflow: hidden;
+    word-break: break-all;
+}
+
+.productAccessUrlCell {
+	overflow: hidden;
 }
