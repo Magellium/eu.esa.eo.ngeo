@@ -7,7 +7,8 @@
         <id name="uuid" type="string">
             <column name="data_access_request_id" />
         </id>
-		<property name="darURL" column="darURL" type="string" length="8190" />
+        <property name="darURL" column="darURL" type="string" length="8190" />
+        <property name="darName" column="darName" type="string" />
 		<property name="monitoringStatus">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus</param>

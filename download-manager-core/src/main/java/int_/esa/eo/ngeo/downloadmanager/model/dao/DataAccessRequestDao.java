@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DataAccessRequestDao {
     List<DataAccessRequest> loadVisibleDars();
-    DataAccessRequest getDarByMonitoringUrl(String darURL);
+    DataAccessRequest getDar(String monitoringUrl, String darName);
     void updateDataAccessRequest(DataAccessRequest dataAccessRequest);
     void updateProduct(Product product);
 }

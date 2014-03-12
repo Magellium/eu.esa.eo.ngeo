@@ -24,12 +24,13 @@ Release History
 ========================================================
 0.6.2 - DREAM CDR Feedback
     Release date TBD
-             - DMTU-158 - REST interface - set priority when adding DAR/product
+             - DMTU-159 - REST interface - Send DAR directly to DMTU
+             - DMTU-158 - REST interface - Set priority when adding DAR/product
+             - DMTU-164 - REST interface - Include DAR UUID into response of "Add Product" operation.
              - DMTU-156 - Display of Command Menu is different in IE than Chrome/Firefox
              - DMTU-103 - Hover over IN_ERROR icons in Firefox on does not show the error message
              - DMTU-155 - Back button on adv. config page does not work in IE
              - DMTU-149 - Web UI - Update of DAR / product status not working as expected in Internet Explorer
-             - DMTU-163 - Unable to download product which includes download options
              - DMTU-45 - Changes to the number of concurrent download threads no longer require an application restart.
              - Download Manager specific logging entries are no longer shown in the console. Check the logs folder 
                for the files which contain these entries.

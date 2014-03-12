@@ -12,8 +12,7 @@ import int_.esa.eo.ngeo.downloadmanager.cli.service.DownloadManagerService;
 import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarUuid;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarDetails;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -57,11 +56,26 @@ public class AddManualDownloadTest {
         String parameters = String.format("darUrl=%s&priority=%s", URLEncoder.encode(darUrl, StandardCharsets.UTF_8.displayName()), ProductPriority.NORMAL.name());
         when(downloadManagerService.sendPostCommand(serviceUrl, parameters)).thenReturn(conn);
 
-        CommandResponseWithDarUuid commandResponseWithDarUuid = new CommandResponseWithDarUuid();
-        commandResponseWithDarUuid.setSuccess(true);
-        commandResponseWithDarUuid.setDarUuid("abc123");
-        when(downloadManagerResponseParser.parseCommandResponseWithDarUuid(conn)).thenReturn(commandResponseWithDarUuid);
+        CommandResponseWithDarDetails commandResponseWithDarDetails = new CommandResponseWithDarDetails();
+        commandResponseWithDarDetails.setSuccess(true);
+        commandResponseWithDarDetails.setDarUuid("abc123");
+        when(downloadManagerResponseParser.parseCommandResponseWithDarDetails(conn)).thenReturn(commandResponseWithDarDetails);
         assertEquals("DAR added, UUID is abc123. Please use the \"status\" command to monitor the progress.", addManualDownload.addDar(darUrl, ProductPriority.NORMAL));
+    }
+
+    @Test
+    public void addDarWithNoPriorityTest() throws IOException, ServiceException, CLICommandException {
+        HttpURLConnection conn = mock(HttpURLConnection.class);
+        String darUrl = "http://localhost:8080/download-manager-mock-web-server/static/manualDAR";
+        URL serviceUrl = new URL("http://localhost:8082/download-manager/download");
+        String parameters = String.format("darUrl=%s&priority=%s", URLEncoder.encode(darUrl, StandardCharsets.UTF_8.displayName()), ProductPriority.NORMAL.name());
+        when(downloadManagerService.sendPostCommand(serviceUrl, parameters)).thenReturn(conn);
+
+        CommandResponseWithDarDetails commandResponseWithDarDetails = new CommandResponseWithDarDetails();
+        commandResponseWithDarDetails.setSuccess(true);
+        commandResponseWithDarDetails.setDarUuid("abc123");
+        when(downloadManagerResponseParser.parseCommandResponseWithDarDetails(conn)).thenReturn(commandResponseWithDarDetails);
+        assertEquals("DAR added, UUID is abc123. Please use the \"status\" command to monitor the progress.", addManualDownload.addDar(darUrl, null));
     }
 
     @Test
@@ -72,12 +86,12 @@ public class AddManualDownloadTest {
         String parameters = String.format("darUrl=%s&priority=%s", URLEncoder.encode(darUrl, StandardCharsets.UTF_8.displayName()), ProductPriority.NORMAL.name());
         when(downloadManagerService.sendPostCommand(serviceUrl, parameters)).thenReturn(conn);
 
-        CommandResponseWithDarUuid commandResponseWithDarUuid = new CommandResponseWithDarUuid();
-        commandResponseWithDarUuid.setSuccess(false);
-        commandResponseWithDarUuid.setErrorMessage("Unable to add DAR, invalid format.");
-        commandResponseWithDarUuid.setErrorType("int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException");
+        CommandResponseWithDarDetails commandResponseWithDarDetails = new CommandResponseWithDarDetails();
+        commandResponseWithDarDetails.setSuccess(false);
+        commandResponseWithDarDetails.setErrorMessage("Unable to add DAR, invalid format.");
+        commandResponseWithDarDetails.setErrorType("int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException");
 
-        when(downloadManagerResponseParser.parseCommandResponseWithDarUuid(conn)).thenReturn(commandResponseWithDarUuid);
+        when(downloadManagerResponseParser.parseCommandResponseWithDarDetails(conn)).thenReturn(commandResponseWithDarDetails);
         try {
             addManualDownload.addDar(darUrl, ProductPriority.NORMAL);
         }catch(CLICommandException ex) {
@@ -107,7 +121,7 @@ public class AddManualDownloadTest {
         String parameters = String.format("darUrl=%s&priority=%s", URLEncoder.encode(darUrl, StandardCharsets.UTF_8.displayName()), ProductPriority.NORMAL.name());
         when(downloadManagerService.sendPostCommand(serviceUrl, parameters)).thenReturn(conn);
 
-        when(downloadManagerResponseParser.parseCommandResponseWithDarUuid(conn)).thenThrow(new ServiceException("Unable to parse command response for add product."));
+        when(downloadManagerResponseParser.parseCommandResponseWithDarDetails(conn)).thenThrow(new ServiceException("Unable to parse command response for add product."));
         try {
             addManualDownload.addDar(darUrl, ProductPriority.NORMAL);
         }catch(CLICommandException ex) {
@@ -123,7 +137,7 @@ public class AddManualDownloadTest {
         String parameters = String.format("darUrl=%s&priority=%s", URLEncoder.encode(darUrl, StandardCharsets.UTF_8.displayName()), ProductPriority.NORMAL.name());
         when(downloadManagerService.sendPostCommand(serviceUrl, parameters)).thenReturn(conn);
 
-        when(downloadManagerResponseParser.parseCommandResponseWithDarUuid(conn)).thenReturn(null);
+        when(downloadManagerResponseParser.parseCommandResponseWithDarDetails(conn)).thenReturn(null);
         try {
             addManualDownload.addDar(darUrl, ProductPriority.NORMAL);
         }catch(CLICommandException ex) {
@@ -139,11 +153,12 @@ public class AddManualDownloadTest {
         String parameters = String.format("productDownloadUrl=%s&priority=%s", URLEncoder.encode(productDownloadUrl, StandardCharsets.UTF_8.displayName()), ProductPriority.NORMAL.name());
         when(downloadManagerService.sendPostCommand(serviceUrl, parameters)).thenReturn(conn);
 
-        CommandResponseWithProductUuid commandResponseWithProductUuid = new CommandResponseWithProductUuid();
-        commandResponseWithProductUuid.setSuccess(true);
-        commandResponseWithProductUuid.setProductUuid("productUuid123");
-        when(downloadManagerResponseParser.parseCommandResponseWithProductUuid(conn)).thenReturn(commandResponseWithProductUuid);
-        assertEquals("Product added, UUID is productUuid123. Please use the \"status\" command to monitor the progress.", addManualDownload.addProduct(productDownloadUrl, ProductPriority.NORMAL));
+        CommandResponseWithDarDetails commandResponseWithDarDetails = new CommandResponseWithDarDetails();
+        commandResponseWithDarDetails.setSuccess(true);
+        commandResponseWithDarDetails.setDarUuid("darUuidABC");
+        commandResponseWithDarDetails.setProductUuid("productUuid123");
+        when(downloadManagerResponseParser.parseCommandResponseWithDarDetails(conn)).thenReturn(commandResponseWithDarDetails);
+        assertEquals("Product added, DAR UUID is darUuidABC and Product UUID is productUuid123. Please use the \"status\" command to monitor the progress.", addManualDownload.addProduct(productDownloadUrl, ProductPriority.NORMAL));
     }
 
     @Test
@@ -154,7 +169,7 @@ public class AddManualDownloadTest {
         String parameters = String.format("productDownloadUrl=%s&priority=%s", URLEncoder.encode(productDownloadUrl, StandardCharsets.UTF_8.displayName()), ProductPriority.NORMAL.name());
         when(downloadManagerService.sendPostCommand(serviceUrl, parameters)).thenReturn(conn);
 
-        when(downloadManagerResponseParser.parseCommandResponseWithProductUuid(conn)).thenThrow(new ServiceException("Unable to parse command response for add product."));
+        when(downloadManagerResponseParser.parseCommandResponseWithDarDetails(conn)).thenThrow(new ServiceException("Unable to parse command response for add product."));
 
         try {
             addManualDownload.addProduct(productDownloadUrl, ProductPriority.NORMAL);

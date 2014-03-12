@@ -3,8 +3,7 @@ package int_.esa.eo.ngeo.downloadmanager.cli.service;
 import int_.esa.eo.ngeo.downloadmanager.cli.exception.ResourceNotFoundException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarUuid;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarDetails;
 import int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse;
 import int_.esa.eo.ngeo.downloadmanager.transform.JSONTransformer;
 
@@ -35,24 +34,14 @@ public class DownloadManagerResponseParser {
         return parseResponse(conn, CommandResponse.class, unexpectedResponseHandler);
     }
 
-    public CommandResponseWithDarUuid parseCommandResponseWithDarUuid(HttpURLConnection conn) throws ServiceException {
-        UnexpectedResponseHandler<CommandResponseWithDarUuid> unexpectedResponseHandler = new UnexpectedResponseHandler<CommandResponseWithDarUuid>() {
+    public CommandResponseWithDarDetails parseCommandResponseWithDarDetails(HttpURLConnection conn) throws ServiceException {
+        UnexpectedResponseHandler<CommandResponseWithDarDetails> unexpectedResponseHandler = new UnexpectedResponseHandler<CommandResponseWithDarDetails>() {
             @Override
-            public ServiceException createServiceExceptionForUnexpectedResponse(int httpResponseCode, CommandResponseWithDarUuid parsedResponse) {
+            public ServiceException createServiceExceptionForUnexpectedResponse(int httpResponseCode, CommandResponseWithDarDetails parsedResponse) {
                 return new ServiceException(String.format(SERVICE_EXCEPTION_ERROR_STRING + ": %s", httpResponseCode, parsedResponse.getErrorMessage()));
             }
         };
-        return parseResponse(conn, CommandResponseWithDarUuid.class, unexpectedResponseHandler);
-    }
-
-    public CommandResponseWithProductUuid parseCommandResponseWithProductUuid(HttpURLConnection conn) throws ServiceException {
-        UnexpectedResponseHandler<CommandResponseWithProductUuid> unexpectedResponseHandler = new UnexpectedResponseHandler<CommandResponseWithProductUuid>() {
-            @Override
-            public ServiceException createServiceExceptionForUnexpectedResponse(int httpResponseCode, CommandResponseWithProductUuid parsedResponse) {
-                return new ServiceException(String.format(SERVICE_EXCEPTION_ERROR_STRING + ": %s", httpResponseCode, parsedResponse.getErrorMessage()));
-            }
-        };
-        return parseResponse(conn, CommandResponseWithProductUuid.class, unexpectedResponseHandler);
+        return parseResponse(conn, CommandResponseWithDarDetails.class, unexpectedResponseHandler);
     }
 
     public StatusResponse parseStatusResponse(HttpURLConnection conn) throws ServiceException {

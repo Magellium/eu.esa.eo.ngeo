@@ -18,12 +18,14 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccess;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 
-import java.net.URL;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,50 +102,63 @@ public class DataAccessRequestManager implements ProductSubject {
         }
     }
 
-    public String addDataAccessRequest(URL monitoringUrl, boolean monitored) throws DataAccessRequestAlreadyExistsException {
-        DataAccessRequest retrievedDataAccessRequest = getDataAccessRequestByMonitoringUrl(monitoringUrl);
+    public String addDataAccessRequest(String monitoringUrl, String darName, boolean monitored) throws DataAccessRequestAlreadyExistsException {
+        DataAccessRequest retrievedDataAccessRequest = getDataAccessRequest(monitoringUrl, darName);
         if(retrievedDataAccessRequest != null) {
-            throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request for url %s already exists.", monitoringUrl));
+            if(monitoringUrl != null) {
+                throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request with monitoring url %s already exists.", monitoringUrl));
+            }else{
+                throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request with DAR Name '%s' already exists.", darName));
+            }
         }else{
-            DataAccessRequest dataAccessRequest = new DataAccessRequestBuilder().buildDAR(monitoringUrl.toString(), monitored);
+            DataAccessRequest dataAccessRequest;
+            if(monitoringUrl != null) {
+                dataAccessRequest = new DataAccessRequestBuilder().buildDAR(monitoringUrl.toString(), darName, monitored);
+            }else{
+                dataAccessRequest = new DataAccessRequestBuilder().buildDAR(null, darName, monitored);
+            }
             visibleDataAccessRequests.addDAR(dataAccessRequest);
             dataAccessRequestDao.updateDataAccessRequest(dataAccessRequest);
             return dataAccessRequest.getUuid();
         }
     }
 
-    public DataAccessRequest getDataAccessRequestByMonitoringUrl(URL monitoringUrl) {
-        DataAccessRequest dataAccessRequestFromVisibleList = visibleDataAccessRequests.getDataAccessRequestByMonitoringUrl(monitoringUrl);
+    public DataAccessRequest getDataAccessRequest(String monitoringUrl, String darName) {
+        DataAccessRequest dataAccessRequestFromVisibleList = visibleDataAccessRequests.getDataAccessRequest(monitoringUrl, darName);
         if(dataAccessRequestFromVisibleList != null) {
             return dataAccessRequestFromVisibleList;
         }
 
         //a DAR with this monitoringUrl is not active, check if it is in the database
-        return dataAccessRequestDao.getDarByMonitoringUrl(monitoringUrl.toString());
+        return dataAccessRequestDao.getDar(monitoringUrl, darName);
     }
 
 
-    public String addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
+    public Pair<String, String> addManualProductDownload(String productDownloadUrl) throws ProductAlreadyExistsInDarException {
         return addManualProductDownload(productDownloadUrl, ProductPriority.NORMAL);
     }
     
-    public String addManualProductDownload(String productDownloadUrl, ProductPriority productPriority) throws ProductAlreadyExistsInDarException {
+    public Pair<String, String> addManualProductDownload(String productDownloadUrl, ProductPriority productPriority) throws ProductAlreadyExistsInDarException {
         Product newProduct = visibleDataAccessRequests.addManualProductDownload(productDownloadUrl, productPriority);
 
         DataAccessRequest manualDataAccessRequest = findDataAccessRequestByProduct(newProduct);
         dataAccessRequestDao.updateDataAccessRequest(manualDataAccessRequest);
         notifyObserversOfNewProduct(newProduct);
-        return newProduct.getUuid();
+        return new ImmutablePair<String, String>(manualDataAccessRequest.getUuid(), newProduct.getUuid());
     }
 
     public DataAccessRequest findDataAccessRequestByProduct(Product product) {
         return visibleDataAccessRequests.findDataAccessRequestByProductUuid(product.getUuid());
     }
 
-    public void updateDataAccessRequest(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessListObject, ProductPriority productPriorityForNewProducts) {
-        DataAccessRequest retrievedDataAccessRequest = getDataAccessRequestByMonitoringUrl(darMonitoringUrl);
+    public void updateDataAccessRequest(String monitoringUrl, String darName, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessListObject, ProductPriority productPriorityForNewProducts) {
+        DataAccessRequest retrievedDataAccessRequest = getDataAccessRequest(monitoringUrl, darName);
         if(retrievedDataAccessRequest == null) {
-            throw new NonRecoverableException(String.format("Data Access Request for url %s does not exist.", darMonitoringUrl));
+            if(StringUtils.isNotEmpty(monitoringUrl)) {
+                throw new NonRecoverableException(String.format("Data Access Request with url %s does not exist.", monitoringUrl));
+            }else{
+                throw new NonRecoverableException(String.format("Data Access Request with name url %s does not exist.", darName));
+            }
         }
 
         MonitoringStatus previousMonitoringStatus = retrievedDataAccessRequest.getMonitoringStatus();

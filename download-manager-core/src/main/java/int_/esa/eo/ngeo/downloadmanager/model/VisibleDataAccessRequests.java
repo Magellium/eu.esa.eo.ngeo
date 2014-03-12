@@ -5,13 +5,14 @@ import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ProductAlreadyExistsInDarException;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class VisibleDataAccessRequests {
     private Map<String, DataAccessRequest> dataAccessRequestMap;
@@ -27,7 +28,7 @@ public class VisibleDataAccessRequests {
     public void addDAR(DataAccessRequest dataAccessRequest) {
         String uuid = dataAccessRequest.getUuid();
         dataAccessRequestMap.put(uuid, dataAccessRequest);
-        if(dataAccessRequest.getDarURL().equals(MANUAL_PRODUCT_DAR)) {
+        if(StringUtils.isNotEmpty(dataAccessRequest.getDarName()) && dataAccessRequest.getDarName().equals(MANUAL_PRODUCT_DAR)) {
             manualDataAccessRequestUuid = uuid;
         }
     }
@@ -39,7 +40,7 @@ public class VisibleDataAccessRequests {
     public Product addManualProductDownload(String productDownloadUrl, ProductPriority productPriority) throws ProductAlreadyExistsInDarException {
         DataAccessRequest manualDataAccessRequest;
         if(this.manualDataAccessRequestUuid == null) {
-            manualDataAccessRequest = new DataAccessRequestBuilder().buildDAR(MANUAL_PRODUCT_DAR, false);
+            manualDataAccessRequest = new DataAccessRequestBuilder().buildDAR(null, MANUAL_PRODUCT_DAR, false);
             this.manualDataAccessRequestUuid = manualDataAccessRequest.getUuid();
             dataAccessRequestMap.put(manualDataAccessRequestUuid, manualDataAccessRequest);
         }else{
@@ -47,7 +48,7 @@ public class VisibleDataAccessRequests {
 
             Product productInDar = findProductInDar(manualDataAccessRequest, productDownloadUrl);
             if(productInDar != null) {
-                throw new ProductAlreadyExistsInDarException(String.format("Product %s already exists in DAR %s", productDownloadUrl, manualDataAccessRequest.getDarURL()));
+                throw new ProductAlreadyExistsInDarException(String.format("Product %s already exists in %s", productDownloadUrl, MANUAL_PRODUCT_DAR));
             }
         }
 
@@ -63,7 +64,7 @@ public class VisibleDataAccessRequests {
         Collection<DataAccessRequest> dataAccessRequests = dataAccessRequestMap.values();
         for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
             //Include all visible DARs, except the manual DAR if specified.
-            if(dataAccessRequest.isVisible() && (includeManualProductDar || !MANUAL_PRODUCT_DAR.equals(dataAccessRequest.getDarURL()))) {
+            if(dataAccessRequest.isVisible() && (includeManualProductDar || !MANUAL_PRODUCT_DAR.equals(dataAccessRequest.getDarName()))) {
                 darList.add(dataAccessRequest);
             }
         }
@@ -96,10 +97,10 @@ public class VisibleDataAccessRequests {
         return dataAccessRequest;
     }
 
-    public DataAccessRequest getDataAccessRequestByMonitoringUrl(URL monitoringUrl) {
+    public DataAccessRequest getDataAccessRequest(String monitoringUrl, String darName) {
         Collection<DataAccessRequest> dataAccessRequests = this.dataAccessRequestMap.values();
         for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
-            if(dataAccessRequest.getDarURL().equals(monitoringUrl.toString())) {
+            if((monitoringUrl != null && StringUtils.equals(dataAccessRequest.getDarURL(), monitoringUrl)) || (darName != null && StringUtils.equals(dataAccessRequest.getDarName(), darName))) {
                 return dataAccessRequest;
             }
         }

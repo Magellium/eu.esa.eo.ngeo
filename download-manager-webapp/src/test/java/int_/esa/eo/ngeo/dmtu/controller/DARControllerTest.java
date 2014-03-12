@@ -3,8 +3,8 @@ package int_.esa.eo.ngeo.dmtu.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
 import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
 import int_.esa.eo.ngeo.downloadmanager.dar.DataAccessRequestManager;
@@ -13,7 +13,7 @@ import int_.esa.eo.ngeo.downloadmanager.exception.ProductAlreadyExistsInDarExcep
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarDetails;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +21,15 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DARControllerTest {
@@ -40,18 +44,21 @@ public class DARControllerTest {
 	@Test
 	public void testAddManualProductDownload() throws ProductAlreadyExistsInDarException {
 		String downloadUrl = "http://download.tuxfamily.org/notepadplus/6.3.1/npp.6.3.1.bin.zip";
-		String uuid = UUID.randomUUID().toString();
-		when(dataAccessRequestManager.addManualProductDownload(downloadUrl, ProductPriority.NORMAL)).thenReturn(uuid);
+        String darUuid = UUID.randomUUID().toString();
+        String productUuid = UUID.randomUUID().toString();
+        Pair<String, String> darAndProductUuidPair = new ImmutablePair<>(darUuid, productUuid);
+		when(dataAccessRequestManager.addManualProductDownload(downloadUrl, ProductPriority.NORMAL)).thenReturn(darAndProductUuidPair);
 		
-		CommandResponseWithProductUuid commandResponse = darController.addManualProductDownload(downloadUrl, ProductPriority.NORMAL);
+		CommandResponseWithDarDetails commandResponse = darController.addManualProductDownload(downloadUrl, ProductPriority.NORMAL);
 		assertTrue(commandResponse.isSuccess());
-		assertEquals(uuid, commandResponse.getProductUuid());
+        assertEquals(darUuid, commandResponse.getDarUuid());
+        assertEquals(productUuid, commandResponse.getProductUuid());
 	}
 
 	public List<DataAccessRequest> setupDataAccessRequestList() {
 		List<DataAccessRequest> dataAccessRequestList;
 		dataAccessRequestList = new ArrayList<DataAccessRequest>();
-		DataAccessRequest dataAccessRequest = new DataAccessRequestBuilder().buildDAR(MONITORING_URL, true);
+		DataAccessRequest dataAccessRequest = new DataAccessRequestBuilder().buildDAR(MONITORING_URL, null, true);
 		dataAccessRequest.getProductList().add(new ProductBuilder().buildProduct(PRODUCT_URL_NOTEPAD_PLUSPLUS));
 		dataAccessRequest.getProductList().add(new ProductBuilder().buildProduct(PRODUCT_URL_UBUNTU));
 		

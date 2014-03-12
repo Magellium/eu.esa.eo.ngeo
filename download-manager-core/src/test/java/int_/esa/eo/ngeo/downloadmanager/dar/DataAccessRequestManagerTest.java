@@ -20,7 +20,6 @@ import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessStatus;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 
 import org.junit.Before;
@@ -35,17 +34,17 @@ public class DataAccessRequestManagerTest {
 
     private ProductObserver observer;
 
-    private URL downloadUrl;
-    private URL testDarUrl,testDarUrl2;
+    private String downloadUrl;
+    private String testDarUrl,testDarUrl2;
 
     @Before
     public void setup() throws MalformedURLException {
         dataAccessRequestDao = mock(DataAccessRequestDaoImpl.class);
         dataAccessRequestManager = new DataAccessRequestManager(dataAccessRequestDao);
         
-        this.downloadUrl = new URL("http://download.tuxfamily.org/notepadplus/6.3.1/npp.6.3.1.bin.zip");
-        this.testDarUrl = new URL("http://test.dar.url.com/");
-        this.testDarUrl2 = new URL("http://test.dar.url2.com/");
+        this.downloadUrl = "http://download.tuxfamily.org/notepadplus/6.3.1/npp.6.3.1.bin.zip";
+        this.testDarUrl = "http://test.dar.url.com/";
+        this.testDarUrl2 = "http://test.dar.url2.com/";
         observer = mock(DownloadMonitor.class);
         dataAccessRequestManager.registerObserver(observer);
     }
@@ -56,24 +55,19 @@ public class DataAccessRequestManagerTest {
     }
 
     @Test
-    public void testObserver() {
-        //XXX: complete this test
-    }
-
-    @Test
     public void testGetDataAccessRequestByMonitoringUrl() throws DataAccessRequestAlreadyExistsException {
-        dataAccessRequestManager.addDataAccessRequest(testDarUrl2, true);
-        dataAccessRequestManager.addDataAccessRequest(testDarUrl, true);
+        dataAccessRequestManager.addDataAccessRequest(testDarUrl2, null, true);
+        dataAccessRequestManager.addDataAccessRequest(testDarUrl, null, true);
         DataAccessRequest addedDataAccessRequest = dataAccessRequestManager.getVisibleDARList(true).get(1);
 
-        DataAccessRequest retrievedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
+        DataAccessRequest retrievedDAR = dataAccessRequestManager.getDataAccessRequest(testDarUrl, null);
         assertEquals(addedDataAccessRequest, retrievedDAR);
     }
 
     @Test
     public void testGetDataAccessRequestByMonitoringUrlDARDoesNotExist() {
-        when(dataAccessRequestDao.getDarByMonitoringUrl(testDarUrl.toString())).thenReturn(null);
-        assertNull(dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl));
+        when(dataAccessRequestDao.getDar(testDarUrl.toString(), null)).thenReturn(null);
+        assertNull(dataAccessRequestManager.getDataAccessRequest(testDarUrl, null));
     }
 
     @Test
@@ -86,9 +80,9 @@ public class DataAccessRequestManagerTest {
         productAccess.setProductAccessURL(downloadUrl.toString());
         productAccess.setProductAccessStatus(ProductAccessStatus.READY);
         productAccessListObject.getProductAccesses().add(productAccess);
-        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, responseDate, productAccessListObject, ProductPriority.NORMAL);
+        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, null, MonitoringStatus.IN_PROGRESS, responseDate, productAccessListObject, ProductPriority.NORMAL);
 
-        DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
+        DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequest(testDarUrl, null);
         assertEquals(MonitoringStatus.IN_PROGRESS, updatedDAR.getMonitoringStatus());
         assertEquals(responseDate, updatedDAR.getLastResponseDate());
 
@@ -96,16 +90,16 @@ public class DataAccessRequestManagerTest {
     }
 
     private void addTestDAR() throws DataAccessRequestAlreadyExistsException {
-        dataAccessRequestManager.addDataAccessRequest(testDarUrl, true);
+        dataAccessRequestManager.addDataAccessRequest(testDarUrl, null, true);
     }
 
     @Test
     public void testUpdateDataAccessRequestDARDoesNotExist() {
         try {
-            dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, new Date(), null, ProductPriority.NORMAL);
+            dataAccessRequestManager.updateDataAccessRequest(testDarUrl, null, MonitoringStatus.IN_PROGRESS, new Date(), null, ProductPriority.NORMAL);
             fail("Updating a DAR that does not exist should throw an exception.");
         }catch(NonRecoverableException ex) {
-            assertEquals(String.format("Data Access Request for url %s does not exist.",  testDarUrl.toString()), ex.getLocalizedMessage());
+            assertEquals(String.format("Data Access Request with url %s does not exist.",  testDarUrl.toString()), ex.getLocalizedMessage());
         }
     }
 
@@ -113,8 +107,8 @@ public class DataAccessRequestManagerTest {
     public void testUpdateDataAccessRequestEmptyProductList() throws DataAccessRequestAlreadyExistsException {
         addTestDAR();
 
-        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, new Date(), new ProductAccessList(), ProductPriority.NORMAL);
-        DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
+        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, null, MonitoringStatus.IN_PROGRESS, new Date(), new ProductAccessList(), ProductPriority.NORMAL);
+        DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequest(testDarUrl, null);
         assertEquals(0, updatedDAR.getProductList().size());
     }
 
@@ -124,9 +118,9 @@ public class DataAccessRequestManagerTest {
         addTestDAR();
         Date responseDate = new Date();
 
-        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.IN_PROGRESS, responseDate, null, ProductPriority.NORMAL);
+        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, null, MonitoringStatus.IN_PROGRESS, responseDate, null, ProductPriority.NORMAL);
 
-        DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
+        DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequest(testDarUrl, null);
         assertEquals(MonitoringStatus.IN_PROGRESS, updatedDAR.getMonitoringStatus());
         assertEquals(responseDate, updatedDAR.getLastResponseDate());
     }
@@ -135,8 +129,8 @@ public class DataAccessRequestManagerTest {
     public void testUpdateDataAccessRequestCompletedProgress() throws DataAccessRequestAlreadyExistsException {
         addTestDAR();
 
-        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, MonitoringStatus.COMPLETED, new Date(), new ProductAccessList(), ProductPriority.NORMAL);
-        DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(testDarUrl);
+        dataAccessRequestManager.updateDataAccessRequest(testDarUrl, null, MonitoringStatus.COMPLETED, new Date(), new ProductAccessList(), ProductPriority.NORMAL);
+        DataAccessRequest updatedDAR = dataAccessRequestManager.getDataAccessRequest(testDarUrl, null);
         assertEquals(MonitoringStatus.COMPLETED, updatedDAR.getMonitoringStatus());
     }
 }

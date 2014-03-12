@@ -125,19 +125,17 @@ public class MonitoringUrlTask implements Runnable {
                     List<String> monitoringUrlList = monitoringUrls.getMonitoringURLs();
                     LOGGER.debug(String.format("Monitoring URL has %s new DARs to monitor",monitoringUrlList.size()));
                     for (String darMonitoringUrlString : monitoringUrlList) {
-                        URL darMonitoringUrl;
                         try {
-                            darMonitoringUrl = new URL(darMonitoringUrlString);
                             String darUuid = null;
                             try {
-                                darUuid = darController.addDataAccessRequest(darMonitoringUrl, true);
+                                darUuid = darController.addDataAccessRequestWithDarUrl(darMonitoringUrlString, true);
                             } catch (DataAccessRequestAlreadyExistsException e) {
-                                LOGGER.warn(String.format("Monitoring URL has %s already been added to the Download Manager.",darMonitoringUrl));
+                                LOGGER.warn(String.format("Monitoring URL has %s already been added to the Download Manager.", darMonitoringUrlString));
                             }
-
+    
                             if(StringUtils.isNotEmpty(darUuid)) {
                                 LOGGER.debug("Starting new dataAccessMonitoringTask from MonitoringUrlTask");
-                                DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
+                                DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrlString, refreshPeriod);
                                 darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());
                             }
                         } catch (MalformedURLException e) {

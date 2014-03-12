@@ -58,7 +58,7 @@ public class GetStatusTest {
         //setup basic status response
         StatusResponse statusResponse = new StatusResponse();
         List<DataAccessRequest> darList = new ArrayList<>();
-        DataAccessRequest dar = new DataAccessRequestBuilder().buildDAR("test dar url", true);
+        DataAccessRequest dar = new DataAccessRequestBuilder().buildDAR("http://www.test.com/dar", null, true);
         Product product1 = new ProductBuilder().buildProduct("product 1 url");
         product1.setTotalFileSize(-1);
         product1.getProductProgress().setDownloadedSize(21345);
@@ -83,7 +83,7 @@ public class GetStatusTest {
         dar.setProductList(productList);
         darList.add(dar);
 
-        DataAccessRequest hiddenDar = new DataAccessRequestBuilder().buildDAR("hidden dar url", true);
+        DataAccessRequest hiddenDar = new DataAccessRequestBuilder().buildDAR("hidden dar url", "hidden dar name", true);
         hiddenDar.setVisible(false);
         darList.add(hiddenDar);
         
@@ -91,7 +91,7 @@ public class GetStatusTest {
         when(downloadManagerResponseParser.parseStatusResponse(conn)).thenReturn(statusResponse);
 
         StringBuilder expectedOutput = new StringBuilder(100);
-        expectedOutput.append("test dar url: IN_PROGRESS\n\n");
+        expectedOutput.append("http://www.test.com/dar\nMonitoring Status: IN_PROGRESS\n\n");
 
         expectedOutput.append(String.format("\tproduct 1 url (%s)\n", product1.getUuid()));
         expectedOutput.append("\t\tDownloaded: 21,345 / Unknown (Unknown %)\n");
@@ -107,6 +107,40 @@ public class GetStatusTest {
 
         assertEquals(expectedOutput.toString(), getStatus.getStatus());
     }
+    
+    @Test
+    public void getStatusWithNameNotMonitoredTest() throws CLICommandException, ServiceException, IOException {
+        HttpURLConnection conn = mock(HttpURLConnection.class);
+        when(downloadManagerService.sendGetCommand(new URL("http://localhost:8082/download-manager/dataAccessRequests"))).thenReturn(conn);
+
+        //setup basic status response
+        StatusResponse statusResponse = new StatusResponse();
+        List<DataAccessRequest> darList = new ArrayList<>();
+        DataAccessRequest dar = new DataAccessRequestBuilder().buildDAR(null, "Test DAR name", false);
+        Product product3 = new ProductBuilder().buildProduct("product 3 url");
+        product3.setTotalFileSize(5242880);
+        product3.getProductProgress().setDownloadedSize(5242880);
+        product3.getProductProgress().setProgressPercentage(100);
+        product3.getProductProgress().setStatus(EDownloadStatus.COMPLETED);
+        
+        List<Product> productList = new ArrayList<>();
+        productList.add(product3);
+
+        dar.setProductList(productList);
+        darList.add(dar);
+
+        statusResponse.setDataAccessRequests(darList);
+        when(downloadManagerResponseParser.parseStatusResponse(conn)).thenReturn(statusResponse);
+
+        StringBuilder expectedOutput = new StringBuilder(100);
+        expectedOutput.append("Test DAR name\n\n");
+
+        expectedOutput.append(String.format("\tproduct 3 url (%s)\n", product3.getUuid()));
+        expectedOutput.append("\t\tDownloaded: 5,242,880 / 5,242,880 (100%)\n");
+        expectedOutput.append("\t\tStatus: COMPLETED\n\n");
+
+        assertEquals(expectedOutput.toString(), getStatus.getStatus());
+    }    
 
     @Test
     public void getStatusEmptyDarListTest() throws CLICommandException, ServiceException, IOException {

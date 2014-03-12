@@ -8,9 +8,10 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class DataAccessRequestBuilder {
-    public DataAccessRequest buildDAR(String darURL, boolean monitored) {
+    public DataAccessRequest buildDAR(String monitoringURL, String darName, boolean monitored) {
         DataAccessRequest dataAccessRequest = new DataAccessRequest();
-        dataAccessRequest.setDarURL(darURL);
+        dataAccessRequest.setDarURL(monitoringURL);
+        dataAccessRequest.setDarName(darName);
         dataAccessRequest.setMonitored(monitored);
         dataAccessRequest.setUuid(UUID.randomUUID().toString());
         dataAccessRequest.setProductList(new ArrayList<Product>());

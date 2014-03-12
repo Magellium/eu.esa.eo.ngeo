@@ -11,11 +11,13 @@ import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
 import int_.esa.eo.ngeo.downloadmanager.http.ResponseHeaderParser;
 import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
 import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
+import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,7 +43,7 @@ public class DataAccessMonitoringTask implements Runnable {
     private URL darMonitoringUrl;
     private int refreshPeriod;
 
-    public DataAccessMonitoringTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService, DARController darController, MonitoringController monitoringController, TaskScheduler darMonitorScheduler, String downloadManagerId, URL darMonitoringUrl, int refreshPeriod) {
+    public DataAccessMonitoringTask(NgeoWebServerRequestBuilder ngeoWebServerRequestBuilder, NgeoWebServerResponseParser ngeoWebServerResponseParser, NgeoWebServerServiceInterface ngeoWebServerService, DARController darController, MonitoringController monitoringController, TaskScheduler darMonitorScheduler, String downloadManagerId, String darMonitoringUrlString, int refreshPeriod) throws MalformedURLException {
         this.ngeoWebServerRequestBuilder = ngeoWebServerRequestBuilder;
         this.ngeoWebServerResponseParser= ngeoWebServerResponseParser; 
         this.ngeoWebServerService = ngeoWebServerService;
@@ -50,14 +52,14 @@ public class DataAccessMonitoringTask implements Runnable {
         this.darMonitorScheduler = darMonitorScheduler;
 
         this.downloadManagerId = downloadManagerId;
-        this.darMonitoringUrl = darMonitoringUrl;
+        this.darMonitoringUrl = new URL(darMonitoringUrlString);
         this.refreshPeriod = refreshPeriod;
     }
 
     public void run() {
         LOGGER.debug("Starting DataAccessMonitoringTask");
 
-        DataAccessRequest dataAccessRequest = darController.getDataAccessRequestByMonitoringUrl(darMonitoringUrl);
+        DataAccessRequest dataAccessRequest = darController.getDataAccessRequestByMonitoringUrl(darMonitoringUrl.toString());
         if(dataAccessRequest == null) {
             throw new NonRecoverableException(String.format("Unable to retrieve internal Data Access Request details: %s", darMonitoringUrl));
         }
@@ -80,7 +82,7 @@ public class DataAccessMonitoringTask implements Runnable {
             monitoringStatus = dataAccessMonitoringResponse.getMonitoringStatus();
             ProductAccessList productAccessList = dataAccessMonitoringResponse.getProductAccessList();
 
-            darController.updateDAR(darMonitoringUrl, monitoringStatus, responseDate, productAccessList);
+            darController.updateDARWithDarUrl(darMonitoringUrl.toString(), monitoringStatus, responseDate, productAccessList, ProductPriority.NORMAL);
         } catch (ParseException | ServiceException | DateParseException e) {
             LOGGER.error(String.format("%s whilst calling DataAccessMonitoring %s: %s", e.getClass().getName(), darMonitoringUrl, e.getLocalizedMessage()));
             LOGGER.debug("DataAccessMonitoring exception Stack trace:", e);
@@ -102,7 +104,11 @@ public class DataAccessMonitoringTask implements Runnable {
         c.setTime(new Date());
         c.add(Calendar.SECOND, refreshPeriod);
 
-        DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl, refreshPeriod);
-        darMonitorScheduler.schedule(dataAccessMonitoringTask, c.getTime());
+        try {
+            DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrl.toString(), refreshPeriod);
+            darMonitorScheduler.schedule(dataAccessMonitoringTask, c.getTime());
+        } catch (MalformedURLException e) {
+            LOGGER.error(String.format("Unable to parse ngEO Web Server DAR Monitoring URL %s", darMonitoringUrl.toString()),e);
+        }
     }
 }

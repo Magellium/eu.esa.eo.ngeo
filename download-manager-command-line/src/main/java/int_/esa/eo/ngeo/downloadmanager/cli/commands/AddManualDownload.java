@@ -8,8 +8,7 @@ import int_.esa.eo.ngeo.downloadmanager.cli.service.DownloadManagerService;
 import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarUuid;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarDetails;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -18,6 +17,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -45,14 +45,8 @@ public class AddManualDownload extends ActionWithCommandResponse implements Comm
             @CliOption(key = { "priority" }, mandatory = false, help = "Priority which all products should be set to.") final ProductPriority priority) {
         ManualDownloadType manualDownloadType = ManualDownloadType.DAR;
         HttpURLConnection conn = getHttpConnectionForAdd(manualDownloadType.getPostParameterString(), darUrl, priority);
-        CommandResponseWithDarUuid commandResponseWithDarUuid;
-        try {
-            commandResponseWithDarUuid = downloadManagerResponseParser.parseCommandResponseWithDarUuid(conn);
-        } catch (ServiceException  e) {
-            throw new CLICommandException(e);
-        }
-
-        return getMessageFromCommandResponse(commandResponseWithDarUuid, manualDownloadType.getSuccessMessage());
+        
+        return getMessageFromHttpConnection(conn, manualDownloadType);
     }
 
     private HttpURLConnection getHttpConnectionForAdd(String postParameterString, String url, ProductPriority priority) {
@@ -85,19 +79,12 @@ public class AddManualDownload extends ActionWithCommandResponse implements Comm
         ManualDownloadType manualDownloadType = ManualDownloadType.PRODUCT;
         HttpURLConnection conn = getHttpConnectionForAdd(manualDownloadType.getPostParameterString(), productDownloadUrl, priority);
 
-        CommandResponseWithProductUuid commandResponseWithProductUuid;
-        try {
-            commandResponseWithProductUuid = downloadManagerResponseParser.parseCommandResponseWithProductUuid(conn);
-        } catch (ServiceException  e) {
-            throw new CLICommandException(e);
-        }
-
-        return getMessageFromCommandResponse(commandResponseWithProductUuid, manualDownloadType.getSuccessMessage());
+        return getMessageFromHttpConnection(conn, manualDownloadType);
     }
     
     enum ManualDownloadType {
         DAR ("darUrl=%s&priority=%s", "DAR added, UUID is %s. Please use the \"status\" command to monitor the progress."),
-        PRODUCT ("productDownloadUrl=%s&priority=%s", "Product added, UUID is %s. Please use the \"status\" command to monitor the progress.");
+        PRODUCT ("productDownloadUrl=%s&priority=%s", "Product added, DAR UUID is %s and Product UUID is %s. Please use the \"status\" command to monitor the progress.");
 
         private final String postParameterString, successMessage;
 
@@ -115,13 +102,27 @@ public class AddManualDownload extends ActionWithCommandResponse implements Comm
         }
     }
     
+    public String getMessageFromHttpConnection(HttpURLConnection conn, ManualDownloadType manualDownloadType) {
+        CommandResponseWithDarDetails commandResponseWithDarDetails;
+        try {
+            commandResponseWithDarDetails = downloadManagerResponseParser.parseCommandResponseWithDarDetails(conn);
+        } catch (ServiceException  e) {
+            throw new CLICommandException(e);
+        }
+
+        return getMessageFromCommandResponse(commandResponseWithDarDetails, manualDownloadType.getSuccessMessage());
+    }
+    
     @Override
     public String getMessageFromCommandResponse(CommandResponse commandResponse, String successMessage) {
         if (commandResponse != null && commandResponse.isSuccess()) {
-            if(commandResponse instanceof CommandResponseWithDarUuid) {
-                return String.format(successMessage, ((CommandResponseWithDarUuid)commandResponse).getDarUuid());
-            }else if(commandResponse instanceof CommandResponseWithProductUuid) {
-                return String.format(successMessage, ((CommandResponseWithProductUuid)commandResponse).getProductUuid());
+            if(commandResponse instanceof CommandResponseWithDarDetails) {
+                CommandResponseWithDarDetails commandResponseWithDarDetails = (CommandResponseWithDarDetails)commandResponse;
+                if(StringUtils.isNotEmpty(commandResponseWithDarDetails.getProductUuid())) {
+                    return String.format(successMessage, commandResponseWithDarDetails.getDarUuid(), commandResponseWithDarDetails.getProductUuid());
+                }else{
+                    return String.format(successMessage, commandResponseWithDarDetails.getDarUuid());
+                }
             }else{
                 throw createCommandExceptionUnsuccessfulCommandResponse(commandResponse);
             }

@@ -32,18 +32,41 @@ public class NgeoWebServerResponseParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(NgeoWebServerResponseParser.class);
 
     public DMRegistrationMgmntResp parseDMRegistrationMgmntResponse(URL ngEOWebServerUrl, UmssoHttpResponse response) throws ServiceException, ParseException {
-        return handleNgEoWebServerResponse(ngEOWebServerUrl, response, DMRegistrationMgmntResp.class);
+        return handleNgEoWebServerResponse(response, DMRegistrationMgmntResp.class, ngEOWebServerUrl);
     }
 
     public MonitoringURLResp parseMonitoringURLResponse(URL ngEOWebServerUrl, UmssoHttpResponse response) throws ServiceException, ParseException {
-        return handleNgEoWebServerResponse(ngEOWebServerUrl, response, MonitoringURLResp.class);
+        return handleNgEoWebServerResponse(response, MonitoringURLResp.class, ngEOWebServerUrl);
     }
 
     public DataAccessMonitoringResp parseDataAccessMonitoringResponse(URL ngEOWebServerUrl, UmssoHttpResponse response) throws ServiceException, ParseException {
-        return handleNgEoWebServerResponse(ngEOWebServerUrl, response, DataAccessMonitoringResp.class);
+        return handleNgEoWebServerResponse(response, DataAccessMonitoringResp.class, ngEOWebServerUrl);
     }
 
-    public <T> T handleNgEoWebServerResponse(URL serviceUrl, UmssoHttpResponse response, Class<T> resultType) throws ServiceException, ParseException {
+    public DataAccessMonitoringResp parseDataAccessMonitoringResponseFromString(String darResponse) throws ServiceException, ParseException {
+        return handleDarResponse(darResponse, DataAccessMonitoringResp.class);
+    }
+
+    public <T> T handleDarResponse(String darResponse, Class<T> resultType) throws ServiceException, ParseException {
+        try {
+            T responseAsObject;
+            try {
+                responseAsObject = xmlWithSchemaTransformer.deserializeAndInferSchema(new ByteArrayInputStream(darResponse.getBytes()), resultType);
+            }catch(ParseException e) {
+                LOGGER.debug(String.format("Parse exception occurred, response - %s: %n%s", resultType.getName(), darResponse));
+                throw e;
+            }
+    
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(String.format("response - %s: %n%s", resultType.getName(), new XmlFormatter().format(darResponse)));
+            }
+            return responseAsObject;
+        } catch (SchemaNotFoundException e) {
+            throw new ServiceException(String.format(e.getLocalizedMessage()));
+        }
+    }
+    
+    public <T> T handleNgEoWebServerResponse(UmssoHttpResponse response, Class<T> resultType, URL serviceUrl) throws ServiceException, ParseException {
         try {
             String responseBodyAsString = UmssoHttpResponseHelper.getInstance().getResponseBodyAsString(response);
             /* 
@@ -53,7 +76,7 @@ public class NgeoWebServerResponseParser {
 
             InputStream responseBodyAsStream = new ByteArrayInputStream(response.getBody());
             int httpStatusCode = response.getStatusLine().getStatusCode();
-            LOGGER.debug(String.format("status code: %s",httpStatusCode));
+            LOGGER.debug(String.format("status code: %s", httpStatusCode));
             switch(httpStatusCode) {
             case HttpStatus.SC_OK:
                 T responseAsObject;

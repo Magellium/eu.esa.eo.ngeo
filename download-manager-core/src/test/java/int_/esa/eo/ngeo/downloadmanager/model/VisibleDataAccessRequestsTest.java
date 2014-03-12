@@ -2,6 +2,7 @@ package int_.esa.eo.ngeo.downloadmanager.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ProductAlreadyExistsInDarException;
@@ -39,7 +40,7 @@ public class VisibleDataAccessRequestsTest {
 		DataAccessRequest manualDataAccessRequest = visibleDataAccessRequests.getDARList(true).get(0);
 		assertNotNull(manualDataAccessRequest);
 		
-		assertEquals(VisibleDataAccessRequests.MANUAL_PRODUCT_DAR,manualDataAccessRequest.getDarURL());
+		assertEquals(VisibleDataAccessRequests.MANUAL_PRODUCT_DAR, manualDataAccessRequest.getDarName());
 		List<Product> productList = manualDataAccessRequest.getProductList();
 		assertEquals(1, productList.size());
 		assertEquals(productList.get(0).getProductAccessUrl(), downloadUrl.toString());
@@ -62,7 +63,7 @@ public class VisibleDataAccessRequestsTest {
 			visibleDataAccessRequests.addManualProductDownload(downloadUrl.toString(), ProductPriority.NORMAL);
 			fail("adding the same manual download twice should cause an exception to be thrown.");
 		}catch(ProductAlreadyExistsInDarException ex) {
-			assertEquals(String.format("Product %s already exists in DAR %s", downloadUrl.toString(), VisibleDataAccessRequests.MANUAL_PRODUCT_DAR), ex.getLocalizedMessage());
+			assertEquals(String.format("Product %s already exists in Manual Data Access Request", downloadUrl.toString()), ex.getLocalizedMessage());
 		}
 		
 	}
@@ -86,4 +87,44 @@ public class VisibleDataAccessRequestsTest {
 			assertEquals(String.format("Unable to find Data Access Request for uuid %s", myUuid), ex.getLocalizedMessage());
 		}
 	}
+	
+	@Test
+	public void getDataAccessRequestWithMonitoringUrlTest() throws ProductAlreadyExistsInDarException {
+	    DataAccessRequest dar = new DataAccessRequest();
+	    dar.setDarURL("http://www.test.com/dar");
+	    
+        visibleDataAccessRequests.addDAR(dar);
+        
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  null));
+        assertNull(visibleDataAccessRequests.getDataAccessRequest("test",  null));
+        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest("http://www.test.com/dar",  null));
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  "test"));
+	}
+
+    @Test
+    public void getDataAccessRequestWithDarNameTest() throws ProductAlreadyExistsInDarException {
+        DataAccessRequest dar = new DataAccessRequest();
+        dar.setDarName("Test DAR");
+        
+        visibleDataAccessRequests.addDAR(dar);
+        
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  null));
+        assertNull(visibleDataAccessRequests.getDataAccessRequest("http://www.test.com/dar",  null));
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  "test"));
+        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest(null,  "Test DAR"));
+    }
+
+    @Test
+    public void getDataAccessRequestWithMonitoringUrlAndDarNameTest() throws ProductAlreadyExistsInDarException {
+        DataAccessRequest dar = new DataAccessRequest();
+        dar.setDarURL("http://www.test.com/dar");
+        dar.setDarName("Test DAR");
+        
+        visibleDataAccessRequests.addDAR(dar);
+        
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  null));
+        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest("http://www.test.com/dar",  null));
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  "test"));
+        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest(null,  "Test DAR"));
+    }
 }

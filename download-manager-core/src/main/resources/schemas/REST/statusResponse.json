@@ -1,3 +1,4 @@
+
 {
 	"title": "REST Interface Status Response",
 	"type":"object",
@@ -20,6 +21,11 @@
 						"pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
 						"required":true
 					},
+                    "darName":{
+                        "type":"string",
+                        "description": "User-friendly name for the DAR. Used to identify DARs which are not monitored.",
+                        "required":true
+                    },
 					"darURL":{
 						"type":"string",
 						"description":"The originator URL for this DAR. Used to monitor for new products if provided by a Web Server.",

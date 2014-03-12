@@ -1,0 +1,23 @@
+{
+	"title": "REST Interface Command Response with Data Access Request Details",
+	"type":"object",
+	"javaType": "int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarDetails",
+	"description":"The response provided as a result of an 'add dar' or 'add product' command sent to the Download Manager. The response includes the DAR UUID and optionally the Product UUID if the 'add product' command has been executed.",
+	"required":true,
+	"extends" : {
+		"$ref" : "commandResponse.json"
+	},
+	"properties": {
+		"darUuid": {
+			"type":"string",
+			"description":"The UUID of the added DAR if the add command was successful.",
+			"required":true
+		},
+        "productUuid": {
+            "type":"string",
+            "description":"The UUID of the added product if the add command was successful.",
+            "required":false
+        }
+	},
+	"additionalProperties": false
+}

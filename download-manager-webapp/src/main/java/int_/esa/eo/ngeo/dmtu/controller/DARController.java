@@ -14,8 +14,7 @@ import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.model.Product;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarUuid;
-import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithProductUuid;
+import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarDetails;
 import int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse;
 import int_.esa.eo.ngeo.downloadmanager.service.StaticDarService;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
@@ -29,6 +28,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.impl.cookie.DateParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,33 +55,38 @@ public class DARController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DARController.class);
 
-    public String addDataAccessRequest(URL darMonitoringUrl, boolean monitored) throws DataAccessRequestAlreadyExistsException {
-        return dataAccessRequestManager.addDataAccessRequest(darMonitoringUrl, monitored);
+    public String addDataAccessRequestWithDarUrl(String darUrl, boolean monitored) throws DataAccessRequestAlreadyExistsException {
+        return dataAccessRequestManager.addDataAccessRequest(darUrl, null, monitored);
     }
 
-    public void updateDAR(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessList) {
-        dataAccessRequestManager.updateDataAccessRequest(darMonitoringUrl, monitoringStatus, responseDate, productAccessList, ProductPriority.NORMAL);
+    public String addDataAccessRequestWithName(String darName) throws DataAccessRequestAlreadyExistsException {
+        return dataAccessRequestManager.addDataAccessRequest(null, darName, false);
     }
 
-    public void updateDAR(URL darMonitoringUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessList, ProductPriority priorityForNewProducts) {
-        dataAccessRequestManager.updateDataAccessRequest(darMonitoringUrl, monitoringStatus, responseDate, productAccessList, priorityForNewProducts);
+    public void updateDARWithDarUrl(String darUrl, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessList, ProductPriority priority) {
+        dataAccessRequestManager.updateDataAccessRequest(darUrl, null, monitoringStatus, responseDate, productAccessList, priority);
+    }
+
+    public void updateDARWithName(String darName, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessList, ProductPriority priority) {
+        dataAccessRequestManager.updateDataAccessRequest(null, darName, monitoringStatus, responseDate, productAccessList, priority);
     }
 
     @RequestMapping(value="/download", method = RequestMethod.POST, params = {"productDownloadUrl"})
     @ResponseBody
-    public CommandResponseWithProductUuid addManualProductDownload(@RequestParam String productDownloadUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+    public CommandResponseWithDarDetails addManualProductDownload(@RequestParam String productDownloadUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         try {
-            return commandResponseBuilder.buildCommandResponseWithProductUuid(dataAccessRequestManager.addManualProductDownload(productDownloadUrl, priority), "Unable to add manual product download");
+            Pair<String, String> darAndProductUuidPair = dataAccessRequestManager.addManualProductDownload(productDownloadUrl, priority);
+            return commandResponseBuilder.buildCommandResponseWithDarAndProductUuid(darAndProductUuidPair.getLeft(), darAndProductUuidPair.getRight(), "Unable to add manual product download");
         } catch (ProductAlreadyExistsInDarException e) {
             LOGGER.error(String.format("Product already exists in the DAR: %s", productDownloadUrl), e);
-            return commandResponseBuilder.buildCommandResponseWithProductUuid(null, e.getLocalizedMessage(), e.getClass().getName());
+            return commandResponseBuilder.buildCommandResponseWithDarAndProductUuid(null, e.getLocalizedMessage(), e.getClass().getName());
         }
     }
 
     @RequestMapping(value="/download", method = RequestMethod.POST, params = {"darUrl"})
     @ResponseBody
-    public CommandResponseWithDarUuid addManualDarByUrl(@RequestParam String darUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+    public CommandResponseWithDarDetails addManualDarByUrl(@RequestParam String darUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         UmSsoHttpRequestAndResponse staticDarRequestAndResponse = null;
         try {
@@ -95,9 +100,8 @@ public class DARController {
 
             MonitoringStatus monitoringStatus = dataAccessMonitoringResponse.getMonitoringStatus();
             ProductAccessList productAccessList = dataAccessMonitoringResponse.getProductAccessList();
-
-            String dataAccessRequestUuid = addDataAccessRequest(dataAccessRequestUrl, false);
-            updateDAR(dataAccessRequestUrl, monitoringStatus, responseDate, productAccessList, priority);
+            String dataAccessRequestUuid = addDataAccessRequestWithDarUrl(darUrl, false);
+            updateDARWithDarUrl(darUrl, monitoringStatus, responseDate, productAccessList, priority);
             return commandResponseBuilder.buildCommandResponseWithDarUuid(dataAccessRequestUuid, "Unable to add manual dar.");
         } catch (ParseException | ServiceException | DateParseException | IOException | DataAccessRequestAlreadyExistsException e) {
             LOGGER.error(String.format("%s whilst adding DAR %s: %s", e.getClass().getName(), darUrl, e.getLocalizedMessage()));
@@ -107,6 +111,26 @@ public class DARController {
             if (staticDarRequestAndResponse != null) {
                 staticDarRequestAndResponse.cleanupHttpResources();
             }
+        }
+    }
+
+    @RequestMapping(value="/download", method = RequestMethod.POST, params = {"dar", "darName"})
+    @ResponseBody
+    public CommandResponseWithDarDetails addManualDar(@RequestParam String dar, String darName, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+        CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
+        try {
+            DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.handleDarResponse(dar, DataAccessMonitoringResp.class);
+            Date responseDate = new Date();
+    
+            MonitoringStatus monitoringStatus = dataAccessMonitoringResponse.getMonitoringStatus();
+            ProductAccessList productAccessList = dataAccessMonitoringResponse.getProductAccessList();
+            String dataAccessRequestUuid = addDataAccessRequestWithName(darName);
+            updateDARWithName(darName, monitoringStatus, responseDate, productAccessList, priority);
+            return commandResponseBuilder.buildCommandResponseWithDarUuid(dataAccessRequestUuid, "Unable to add manual dar.");
+        } catch (ParseException | ServiceException | DataAccessRequestAlreadyExistsException e) {
+            LOGGER.error(String.format("%s whilst adding DAR %s: %s", e.getClass().getName(), darName, e.getLocalizedMessage()));
+            LOGGER.debug("Manual DAR exception stack trace:", e);
+            return commandResponseBuilder.buildCommandResponseWithDarUuid(null, String.format("Error whilst adding DAR: %s", e.getLocalizedMessage()), NonRecoverableException.class.getName());
         }
     }
 
@@ -130,8 +154,8 @@ public class DARController {
         return statusResponse;
     }
 
-    public DataAccessRequest getDataAccessRequestByMonitoringUrl(URL monitoringUrl) {
-        return dataAccessRequestManager.getDataAccessRequestByMonitoringUrl(monitoringUrl);
+    public DataAccessRequest getDataAccessRequestByMonitoringUrl(String monitoringUrl) {
+        return dataAccessRequestManager.getDataAccessRequest(monitoringUrl, null);
     }
 
     @RequestMapping(value = "/dataAccessRequests/{darUuid}", method = RequestMethod.GET)

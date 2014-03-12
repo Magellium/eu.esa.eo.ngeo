@@ -18,6 +18,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -63,9 +64,15 @@ public class GetStatus implements CommandMarker {
 
         for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
             if(dataAccessRequest.isVisible()) {
-                output.append(dataAccessRequest.getDarURL());
-                output.append(": ");
-                output.append(dataAccessRequest.getMonitoringStatus());
+                if(StringUtils.isNotEmpty(dataAccessRequest.getDarName())) {
+                    output.append(dataAccessRequest.getDarName());
+                }else{
+                    output.append(dataAccessRequest.getDarURL());
+                }
+                if(dataAccessRequest.isMonitored()) {
+                    output.append("\nMonitoring Status: ");                    
+                    output.append(dataAccessRequest.getMonitoringStatus());
+                }
                 output.append("\n\n");
                 for (Product product : dataAccessRequest.getProductList()) {
                     if(product.isVisible()) {
