@@ -1,5 +1,6 @@
 package int_.esa.eo.ngeo.downloadmanager.plugin;
 
+import int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException;
 import int_.esa.eo.ngeo.downloadmanager.model.ProductProgress;
 import int_.esa.eo.ngeo.downloadmanager.observer.DownloadObserver;
 import int_.esa.eo.ngeo.downloadmanager.observer.DownloadSubject;
@@ -53,5 +54,12 @@ public class ProductDownloadListener implements IProductDownloadListener, Downlo
     @Override
     public void productDetails(String productName, Integer numberOfFiles, Long overallSize) {
         notifyObserversOfProductDetails(productUuid, productName, numberOfFiles, overallSize);
+    }
+
+    @Override
+    public void progress(Integer progressPercentage, Long downloadedSize,
+            EDownloadStatus status, String message, DMPluginException exception) {
+        //The DMTU does not use the DMPluginException exception for notifications
+        progress(progressPercentage, downloadedSize, status, message);
     }
 }

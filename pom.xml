@@ -13,7 +13,7 @@
 		<org.slf4j-version>1.7.5</org.slf4j-version>
 		<org.springframework-version>3.1.4.RELEASE</org.springframework-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<plugin-interface-version>1.5</plugin-interface-version>
+		<plugin-interface-version>1.6</plugin-interface-version>
 		<umsso-jcl-version>2.2.3</umsso-jcl-version>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 	</properties>
@@ -219,10 +219,10 @@
 				<version>4.2.2</version>
 			</dependency>
 			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>2.4</version>
-			</dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.3</version>
+  			</dependency>
 			<dependency>
 				<groupId>commons-configuration</groupId>
 				<artifactId>commons-configuration</artifactId>

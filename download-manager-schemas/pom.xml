@@ -23,8 +23,8 @@
 		     see https://github.com/joelittlejohn/jsonschema2pojo/wiki/Getting-Started#the-maven-plugin
 		-->
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 
 		<!-- Logging -->
