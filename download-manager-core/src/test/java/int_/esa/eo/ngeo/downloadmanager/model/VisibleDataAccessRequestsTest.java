@@ -95,10 +95,18 @@ public class VisibleDataAccessRequestsTest {
 	    
         visibleDataAccessRequests.addDAR(dar);
         
-        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  null));
-        assertNull(visibleDataAccessRequests.getDataAccessRequest("test",  null));
-        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest("http://www.test.com/dar",  null));
-        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  "test"));
+        DataAccessRequest darToFind = new DataAccessRequest();
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(darToFind));
+        
+        darToFind.setDarURL("test");
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(darToFind));
+
+        darToFind.setDarURL("http://www.test.com/dar");
+        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest(darToFind));
+
+        darToFind.setDarURL(null);
+        darToFind.setDarName("test");
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(darToFind));
 	}
 
     @Test
@@ -108,10 +116,18 @@ public class VisibleDataAccessRequestsTest {
         
         visibleDataAccessRequests.addDAR(dar);
         
-        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  null));
-        assertNull(visibleDataAccessRequests.getDataAccessRequest("http://www.test.com/dar",  null));
-        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  "test"));
-        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest(null,  "Test DAR"));
+        DataAccessRequest darToFind = new DataAccessRequest();
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(darToFind));
+
+        darToFind.setDarURL("http://www.test.com/dar");
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(darToFind));
+
+        darToFind.setDarURL(null);
+        darToFind.setDarName("test");
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(darToFind));
+
+        darToFind.setDarName("Test DAR");
+        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest(darToFind));
     }
 
     @Test
@@ -122,9 +138,17 @@ public class VisibleDataAccessRequestsTest {
         
         visibleDataAccessRequests.addDAR(dar);
         
-        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  null));
-        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest("http://www.test.com/dar",  null));
-        assertNull(visibleDataAccessRequests.getDataAccessRequest(null,  "test"));
-        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest(null,  "Test DAR"));
+        DataAccessRequest darToFind = new DataAccessRequest();
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(darToFind));
+
+        darToFind.setDarURL("http://www.test.com/dar");
+        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest(darToFind));
+
+        darToFind.setDarURL(null);
+        darToFind.setDarName("test");
+        assertNull(visibleDataAccessRequests.getDataAccessRequest(darToFind));
+        
+        darToFind.setDarName("Test DAR");
+        assertEquals(dar, visibleDataAccessRequests.getDataAccessRequest(darToFind));
     }
 }
