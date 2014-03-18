@@ -28,10 +28,10 @@ public class DataAccessRequestDaoImpl implements DataAccessRequestDao {
 
     @Transactional(readOnly = true)
     @Override
-    public DataAccessRequest getDar(String monitoringUrl, String darName) {
+    public DataAccessRequest searchForDar(DataAccessRequest searchDar) {
         Query query = sessionFactory.getCurrentSession().createQuery(String.format("FROM DataAccessRequest as dar WHERE darURL = :darURL OR darName = :darName"));
-        query.setString("darURL", monitoringUrl);
-        query.setString("darName", darName);
+        query.setString("darURL", searchDar.getDarURL());
+        query.setString("darName", searchDar.getDarName());
 
         return (DataAccessRequest) query.uniqueResult();
     }

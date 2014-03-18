@@ -97,10 +97,10 @@ public class VisibleDataAccessRequests {
         return dataAccessRequest;
     }
 
-    public DataAccessRequest getDataAccessRequest(String monitoringUrl, String darName) {
+    public DataAccessRequest getDataAccessRequest(DataAccessRequest searchDar) {
         Collection<DataAccessRequest> dataAccessRequests = this.dataAccessRequestMap.values();
         for (DataAccessRequest dataAccessRequest : dataAccessRequests) {
-            if((monitoringUrl != null && StringUtils.equals(dataAccessRequest.getDarURL(), monitoringUrl)) || (darName != null && StringUtils.equals(dataAccessRequest.getDarName(), darName))) {
+            if((searchDar.getDarURL() != null && StringUtils.equals(dataAccessRequest.getDarURL(), searchDar.getDarURL())) || (searchDar.getDarName() != null && StringUtils.equals(dataAccessRequest.getDarName(), searchDar.getDarName()))) {
                 return dataAccessRequest;
             }
         }

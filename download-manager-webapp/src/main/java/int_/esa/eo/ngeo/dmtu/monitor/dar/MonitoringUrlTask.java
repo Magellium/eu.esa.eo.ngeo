@@ -5,6 +5,7 @@ import int_.esa.eo.ngeo.dmtu.controller.MonitoringController;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerRequestBuilder;
 import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.dmtu.webserver.service.NgeoWebServerServiceInterface;
+import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.downloadmanager.exception.DownloadOperationException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
@@ -12,6 +13,7 @@ import int_.esa.eo.ngeo.downloadmanager.exception.ParseException;
 import int_.esa.eo.ngeo.downloadmanager.exception.ServiceException;
 import int_.esa.eo.ngeo.downloadmanager.http.ResponseHeaderParser;
 import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpRequestAndResponse;
+import int_.esa.eo.ngeo.downloadmanager.model.DataAccessRequest;
 import int_.esa.eo.ngeo.downloadmanager.settings.NonUserModifiableSetting;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringURLList;
@@ -29,7 +31,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.impl.cookie.DateParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,14 +127,15 @@ public class MonitoringUrlTask implements Runnable {
                     LOGGER.debug(String.format("Monitoring URL has %s new DARs to monitor",monitoringUrlList.size()));
                     for (String darMonitoringUrlString : monitoringUrlList) {
                         try {
-                            String darUuid = null;
+                            boolean darAdded = false;
                             try {
-                                darUuid = darController.addDataAccessRequestWithDarUrl(darMonitoringUrlString, true);
+                                DataAccessRequest newDar = new DataAccessRequestBuilder().buildDAR(darMonitoringUrlString, null, true);
+                                darAdded = darController.addDataAccessRequest(newDar);
                             } catch (DataAccessRequestAlreadyExistsException e) {
                                 LOGGER.warn(String.format("Monitoring URL has %s already been added to the Download Manager.", darMonitoringUrlString));
                             }
     
-                            if(StringUtils.isNotEmpty(darUuid)) {
+                            if(darAdded) {
                                 LOGGER.debug("Starting new dataAccessMonitoringTask from MonitoringUrlTask");
                                 DataAccessMonitoringTask dataAccessMonitoringTask = new DataAccessMonitoringTask(ngeoWebServerRequestBuilder, ngeoWebServerResponseParser, ngeoWebServerService, darController, monitoringController, darMonitorScheduler, downloadManagerId, darMonitoringUrlString, refreshPeriod);
                                 darMonitorScheduler.schedule(dataAccessMonitoringTask, new Date());

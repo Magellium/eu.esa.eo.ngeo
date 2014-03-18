@@ -1,6 +1,5 @@
 package int_.esa.eo.ngeo.downloadmanager.dar;
 
-import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
 import int_.esa.eo.ngeo.downloadmanager.builder.ProductBuilder;
 import int_.esa.eo.ngeo.downloadmanager.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
@@ -14,6 +13,7 @@ import int_.esa.eo.ngeo.downloadmanager.observer.ProductObserver;
 import int_.esa.eo.ngeo.downloadmanager.observer.ProductSubject;
 import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.status.ValidDownloadStatusForUserAction;
+import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccess;
 import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
@@ -102,35 +102,29 @@ public class DataAccessRequestManager implements ProductSubject {
         }
     }
 
-    public String addDataAccessRequest(String monitoringUrl, String darName, boolean monitored) throws DataAccessRequestAlreadyExistsException {
-        DataAccessRequest retrievedDataAccessRequest = getDataAccessRequest(monitoringUrl, darName);
+    public boolean addDataAccessRequest(DataAccessRequest dar) throws DataAccessRequestAlreadyExistsException {
+        DataAccessRequest retrievedDataAccessRequest = getDataAccessRequest(dar);
         if(retrievedDataAccessRequest != null) {
-            if(monitoringUrl != null) {
-                throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request with monitoring url %s already exists.", monitoringUrl));
+            if(dar.getDarURL() != null) {
+                throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request with monitoring url %s already exists.", dar.getDarURL()));
             }else{
-                throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request with DAR Name '%s' already exists.", darName));
+                throw new DataAccessRequestAlreadyExistsException(String.format("Data Access Request with DAR Name '%s' already exists.", dar.getDarName()));
             }
         }else{
-            DataAccessRequest dataAccessRequest;
-            if(monitoringUrl != null) {
-                dataAccessRequest = new DataAccessRequestBuilder().buildDAR(monitoringUrl.toString(), darName, monitored);
-            }else{
-                dataAccessRequest = new DataAccessRequestBuilder().buildDAR(null, darName, monitored);
-            }
-            visibleDataAccessRequests.addDAR(dataAccessRequest);
-            dataAccessRequestDao.updateDataAccessRequest(dataAccessRequest);
-            return dataAccessRequest.getUuid();
+            visibleDataAccessRequests.addDAR(dar);
+            dataAccessRequestDao.updateDataAccessRequest(dar);
+            return true;
         }
     }
 
-    public DataAccessRequest getDataAccessRequest(String monitoringUrl, String darName) {
-        DataAccessRequest dataAccessRequestFromVisibleList = visibleDataAccessRequests.getDataAccessRequest(monitoringUrl, darName);
+    public DataAccessRequest getDataAccessRequest(DataAccessRequest dar) {
+        DataAccessRequest dataAccessRequestFromVisibleList = visibleDataAccessRequests.getDataAccessRequest(dar);
         if(dataAccessRequestFromVisibleList != null) {
             return dataAccessRequestFromVisibleList;
         }
 
         //a DAR with this monitoringUrl is not active, check if it is in the database
-        return dataAccessRequestDao.getDar(monitoringUrl, darName);
+        return dataAccessRequestDao.searchForDar(dar);
     }
 
 
@@ -151,28 +145,30 @@ public class DataAccessRequestManager implements ProductSubject {
         return visibleDataAccessRequests.findDataAccessRequestByProductUuid(product.getUuid());
     }
 
-    public void updateDataAccessRequest(String monitoringUrl, String darName, MonitoringStatus monitoringStatus, Date responseDate, ProductAccessList productAccessListObject, ProductPriority productPriorityForNewProducts) {
-        DataAccessRequest retrievedDataAccessRequest = getDataAccessRequest(monitoringUrl, darName);
+    public void updateDataAccessRequest(DataAccessRequest updateDar, DataAccessMonitoringResp dataAccessMonitoringResponse, Date responseDate, ProductPriority productPriorityForNewProducts) {
+        DataAccessRequest retrievedDataAccessRequest = getDataAccessRequest(updateDar);
         if(retrievedDataAccessRequest == null) {
-            if(StringUtils.isNotEmpty(monitoringUrl)) {
-                throw new NonRecoverableException(String.format("Data Access Request with url %s does not exist.", monitoringUrl));
+            if(StringUtils.isNotEmpty(updateDar.getDarURL())) {
+                throw new NonRecoverableException(String.format("Data Access Request with url %s does not exist.", updateDar.getDarURL()));
             }else{
-                throw new NonRecoverableException(String.format("Data Access Request with name url %s does not exist.", darName));
+                throw new NonRecoverableException(String.format("Data Access Request with name url %s does not exist.", updateDar.getDarName()));
             }
         }
-
+        MonitoringStatus newMonitoringStatus = dataAccessMonitoringResponse.getMonitoringStatus();
+        
         MonitoringStatus previousMonitoringStatus = retrievedDataAccessRequest.getMonitoringStatus();
         retrievedDataAccessRequest.setLastResponseDate(new Timestamp(responseDate.getTime()));
-        retrievedDataAccessRequest.setMonitoringStatus(monitoringStatus);
+        retrievedDataAccessRequest.setMonitoringStatus(newMonitoringStatus);
 
         List<Product> productsWhichCanBeUpdatedToNewStatus;
-        switch (monitoringStatus) {
+        switch (newMonitoringStatus) {
         case IN_PROGRESS:
             if(previousMonitoringStatus != MonitoringStatus.IN_PROGRESS) {
                 productsWhichCanBeUpdatedToNewStatus = searchForProductsWhichCanBeUpdatedToNewStatus(retrievedDataAccessRequest.getProductList(), EDownloadStatus.NOT_STARTED);
                 notifyObserversOfChangeOfDARProductsStatus(productsWhichCanBeUpdatedToNewStatus, EDownloadStatus.NOT_STARTED);
             }
 
+            ProductAccessList productAccessListObject = dataAccessMonitoringResponse.getProductAccessList();
             if(productAccessListObject != null) {
                 List<ProductAccess> productAccessList = productAccessListObject.getProductAccesses();
                 List<Product> newProductsAdded = new ArrayList<>();

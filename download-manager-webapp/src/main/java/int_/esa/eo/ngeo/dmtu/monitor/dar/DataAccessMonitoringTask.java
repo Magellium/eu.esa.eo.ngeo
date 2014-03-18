@@ -15,7 +15,6 @@ import int_.esa.eo.ngeo.downloadmanager.model.ProductPriority;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringRequ;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 import int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus;
-import int_.esa.eo.ngeo.iicd_d_ws._1.ProductAccessList;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -80,9 +79,12 @@ public class DataAccessMonitoringTask implements Runnable {
             //  }
 
             monitoringStatus = dataAccessMonitoringResponse.getMonitoringStatus();
-            ProductAccessList productAccessList = dataAccessMonitoringResponse.getProductAccessList();
 
-            darController.updateDARWithDarUrl(darMonitoringUrl.toString(), monitoringStatus, responseDate, productAccessList, ProductPriority.NORMAL);
+            DataAccessRequest updateDar = new DataAccessRequest();
+            updateDar.setDarURL(darMonitoringUrl.toString());
+            updateDar.setMonitored(true);
+            
+            darController.updateDataAccessRequest(updateDar, dataAccessMonitoringResponse, responseDate, ProductPriority.NORMAL);
         } catch (ParseException | ServiceException | DateParseException e) {
             LOGGER.error(String.format("%s whilst calling DataAccessMonitoring %s: %s", e.getClass().getName(), darMonitoringUrl, e.getLocalizedMessage()));
             LOGGER.debug("DataAccessMonitoring exception Stack trace:", e);
