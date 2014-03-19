@@ -71,7 +71,7 @@ public class DARController {
             return commandResponseBuilder.buildCommandResponseWithDarAndProductUuid(darAndProductUuidPair.getLeft(), darAndProductUuidPair.getRight(), "Unable to add manual product download");
         } catch (ProductAlreadyExistsInDarException e) {
             LOGGER.error(String.format("Product already exists in the DAR: %s", productDownloadUrl), e);
-            return commandResponseBuilder.buildCommandResponseWithDarAndProductUuid(null, e.getLocalizedMessage(), e.getClass().getName());
+            return commandResponseBuilder.buildCommandResponseWithDarAndProductUuid(null, null, e.getLocalizedMessage(), e.getClass().getName());
         }
     }
 
