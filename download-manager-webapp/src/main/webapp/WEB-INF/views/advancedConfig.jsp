@@ -19,7 +19,7 @@
 				<tr><td><spring:message code="label.sso_password" /> </td><td><form:password path="ssoPassword" showPassword="true" /></td></tr>
 				<tr><td><spring:message code="label.dm_instance_name" /> </td><td><form:input path="dmFriendlyName" size="40" /></td></tr>
 				<tr><td><spring:message code="label.download_directory" /> </td><td><form:input path="baseDownloadFolder" size="40" /></td></tr>
-				<tr><td><spring:message code="label.web_interface_port_no" /> </td><td><form:input path="webInterfacePortNo" size="5"/></td></tr>
+<!--  				<tr><td><spring:message code="label.web_interface_port_no" /> </td><td><form:input path="webInterfacePortNo" size="5"/></td></tr> -->
 				<tr><td><spring:message code="label.parallel_download_threads" /> </td><td><form:input path="noOfParallelProductDownloadThreads" /></td></tr>
 				<tr><td><spring:message code="label.product_download_complete_command" /> </td><td><form:input path="productDownloadCompleteCommand" /></td></tr>
 			</table>
