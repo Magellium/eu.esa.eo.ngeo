@@ -25,7 +25,7 @@ var ProductStatusTable = {
         $("#productList"+aData.uuid).dataTable({
     		"aoColumns": [
 			              { "mData": "productAccessUrl" },
-			              { "mData": "priority", 							"sWidth": "60px"  },
+			              { "mData": "priority", 							"sWidth": "90px"  },
 			              { "mData": "totalFileSize", 						"sWidth": "70px"  },
 			              { "mData": "productProgress.downloadedSize", 		"sWidth": "70px" },
 			              { "mData": "productProgress.progressPercentage", 	"sWidth": "120px"  },
@@ -37,6 +37,7 @@ var ProductStatusTable = {
         	 "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
  				$(nRow).attr("data-product-id", aData.uuid);
  				
+ 				ProductStatusTable.formatPriorityCell(nRow, aData);
   				ProductStatusTable.formatProductAccessUrlCell(nRow, aData);
   				ProductStatusTable.formatProductStatusCell(nRow, aData);
   				ProductStatusTable.formatTotalFileSizeCell(nRow, aData);
@@ -80,11 +81,11 @@ var ProductStatusTable = {
 			actionHtml += '<a href=\'javascript:DownloadMonitor.productDownloadCommand("' + productUuid + '","' + actionType + '");\'>';
 		}
 		var actionTooltip = actionType.charAt(0).toUpperCase() + actionType.slice(1)
-		actionHtml += '<span class="ui-icon ' + iconClass + '" title="' + actionTooltip + '">';
+		actionHtml += '<span class="ui-icon ' + iconClass + '" title="' + actionTooltip + '"></span>';
 		if(state === "default") {
 			actionHtml += '</a>';
 		}
-		actionHtml += '</span></li>';
+		actionHtml += '</li>';
 		return actionHtml;
 	},
 	displayProductDetails : function(downloadStatusTable, darUuid, productList) {
@@ -102,10 +103,16 @@ var ProductStatusTable = {
 	},
 	updateProductStatusRow : function(productDataTable, newProductData, productRow) {
 		oldProductData = productDataTable.dataTable().fnGetData(productRow);
+		var priorityUpdated = false;
 		
+		if(newProductData.priority !== oldProductData.priority) {
+			productDataTable.fnUpdate(newProductData.priority, productRow, ProductStatusTable.productPriorityColumnIndex, false, false);
+			ProductStatusTable.formatPriorityCell(productRow, newProductData);
+		}
 		if(newProductData.totalFileSize !== oldProductData.totalFileSize) {
 			productDataTable.fnUpdate(newProductData.totalFileSize, productRow, ProductStatusTable.productTotalFileSizeColumnIndex, false, false);
 			ProductStatusTable.formatTotalFileSizeCell(productRow, newProductData);
+			priorityUpdated = true;
 		}
 		if(newProductData.productProgress.downloadedSize !== oldProductData.productProgress.downloadedSize) {
 			productDataTable.fnUpdate(newProductData.productProgress.downloadedSize, productRow, ProductStatusTable.productProgressDownloadedSizeColumnIndex, false, false);
@@ -115,6 +122,10 @@ var ProductStatusTable = {
 			productDataTable.fnUpdate(newProductData.productProgress.status, productRow, ProductStatusTable.productProgressStatusColumnIndex, false, false);
 			//update product progress message, just in case it is needed to display the error
 			productDataTable.fnUpdate(newProductData.productProgress.message, productRow, ProductStatusTable.productMessageColumnIndex, false, false);
+			if(!priorityUpdated) {
+				productDataTable.fnUpdate(newProductData.priority, productRow, ProductStatusTable.productPriorityColumnIndex, false, false);
+				ProductStatusTable.formatPriorityCell(productRow, newProductData);
+			}
 			ProductStatusTable.formatProductStatusCell(productRow, newProductData);
 			ProductStatusTable.formatProductActionsCell(productRow, newProductData);
 		}
@@ -125,10 +136,55 @@ var ProductStatusTable = {
 		}
 	},
 	formatProductAccessUrlCell : function(nRow, productData) {
-		var fileProductStatus = $(nRow).find("td:eq(" + ProductStatusTable.productAccessURLColumnIndex + ")");
-		fileProductStatus.html(decodeURIComponent(productData.productAccessUrl));
-		fileProductStatus.attr("title", decodeURIComponent(productData.productAccessUrl));
-		fileProductStatus.addClass("productAccessUrlCell");
+		var productAccessUrlCell = $(nRow).find("td:eq(" + ProductStatusTable.productAccessURLColumnIndex + ")");
+		productAccessUrlCell.html(decodeURIComponent(productData.productAccessUrl));
+		productAccessUrlCell.attr("title", decodeURIComponent(productData.productAccessUrl));
+		productAccessUrlCell.addClass("productAccessUrlCell");
+	},
+	formatPriorityCell : function(nRow, productData) {
+		var priorityCell = $(nRow).find("td:eq(" + ProductStatusTable.productPriorityColumnIndex + ")");
+		var productPriority = productData.priority;
+		var productUuid = productData.uuid;
+		var productStatus = productData.productProgress.status;
+		var priorityArray = ["Very Low", "Low", "Normal", "High", "Very High"];
+		
+		if(productStatus != "IN_ERROR" && productStatus != "CANCELLED" && productStatus != "COMPLETED") {
+			//Display change in priority buttons - first work out the priority
+			var currentPriorityIndex = $.inArray(productPriority, priorityArray);
+			
+			var buttonsHtml = "";
+			
+			//since the buttons are floated right, the decrease priority button is rendered first, to be placed on the right
+			if(currentPriorityIndex > 0) {
+				var decreasePriorityName = priorityArray[currentPriorityIndex - 1].toUpperCase().replace(" ", "_");
+				
+				buttonsHtml += "<span class=\"iconPriority ui-state-default ui-corner-all\">";
+				buttonsHtml += '<a href=\'javascript:DownloadMonitor.changePriority("' + productUuid + '","' + decreasePriorityName + '");\'>';
+				buttonsHtml += "<span class=\"ui-icon ui-icon-arrowthick-1-s\" title=\"Decrease priority\" alt=\"Decrease priority\">!</span>";
+				buttonsHtml += "</a>";
+				buttonsHtml += "</span>";
+			}else{
+				buttonsHtml += "<span class=\"iconPriority ui-state-disabled ui-corner-all\">";
+				buttonsHtml += "<span class=\"ui-icon ui-icon-arrowthick-1-n\">!</span>";
+				buttonsHtml += "</span>";
+			}
+
+			if(currentPriorityIndex < priorityArray.length -1) {
+				var increasePriorityName = priorityArray[currentPriorityIndex + 1].toUpperCase().replace(" ", "_");
+
+				buttonsHtml += "<span class=\"iconPriority ui-state-default ui-corner-all\">";
+				buttonsHtml += '<a href=\'javascript:DownloadMonitor.changePriority("' + productUuid + '","' + increasePriorityName + '");\'>';
+				buttonsHtml += "<span class=\"ui-icon ui-icon-arrowthick-1-n\" title=\"Increase priority\" alt=\"Increase priority\">!</span>";
+				buttonsHtml += "</a>";
+				buttonsHtml += "</span>";
+			}else{
+				buttonsHtml += "<span class=\"iconPriority ui-state-disabled ui-corner-all\">";
+				buttonsHtml += "<span class=\"ui-icon ui-icon-arrowthick-1-s\">!</span>";
+				buttonsHtml += "</span>";
+			}
+
+			priorityCell.append(buttonsHtml);
+		}
 	},
 	formatProductStatusCell : function(nRow, productData) {
 		var fileProductStatus = $(nRow).find("td:eq(" + ProductStatusTable.productProgressStatusColumnIndex + ")");

@@ -32,8 +32,9 @@ Release History
                  - DMTU-103 - Hover over IN_ERROR icons in Firefox on does not show the error message
                  - DMTU-155 - Back button on adv. config page does not work in IE
                  - DMTU-149 - Web UI - Update of DAR / product status not working as expected in Internet Explorer
-                 - DMTU-156 - Display of Command Menu is different in IE than Chrome/Firefox
+                 - DMTU-156 - Display of Command Menu has been fixed for IE
                  - DMTU-157 - Memory leak in Web UI
+                 - DMTU-161 - Include display and change of priority in Web UI
                  - Improvements to display the DAR and Product details by only updating the data which has changed.
                    This resolves the issue where the error icon and pause/resume/cancel buttons became unresponsive.
                  - Updated headings of the columns in the DAR and Product tables to reflect the data displayed.

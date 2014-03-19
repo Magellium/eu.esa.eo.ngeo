@@ -129,5 +129,23 @@ var DownloadMonitor = {
 
 			MessageDisplay.displayErrorMessage(sending_product_download_command_error, jqXHR);
 		});
+	},
+	changePriority : function(productUuid, newPriority) {
+		var sending_product_download_command_error = messages['error.sending_product_download_command'];
+		$.getJSON("products/" + productUuid, { action : "changePriority", newPriority : newPriority })
+		.done(function(response) {
+			if(response.success === false) {
+				sending_product_download_command_error = sending_product_download_command_error.replace("*a*", "change priority");
+				sending_product_download_command_error = sending_product_download_command_error.replace("*p*", productUuid);
+				
+				MessageDisplay.displayMessage(sending_product_download_command_error + ": " + response.errorMessage);
+			}
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			sending_product_download_command_error = sending_product_download_command_error.replace("*a*", "change priority");
+			sending_product_download_command_error = sending_product_download_command_error.replace("*p*", productUuid);
+
+			MessageDisplay.displayErrorMessage(sending_product_download_command_error, jqXHR);
+		});
 	}
 };

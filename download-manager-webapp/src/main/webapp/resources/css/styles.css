@@ -137,6 +137,15 @@ ul#actions li {
 	cursor: help;
 	float: right;
 }
+.iconPriority {
+    margin-right: 2px;
+    cursor: pointer;
+    float: right;
+}
+.iconPriority.ui-state-disabled {
+    height: 18px;
+    width: 18px;    
+}
 
 /* styles related to the top bar and its elements */
 #top-bar {
