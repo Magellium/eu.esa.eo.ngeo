@@ -13,8 +13,11 @@ Running the Download Manager:
   * Either, within the file explorer, double-click ngEO-download-manager\start-dm.bat
   * Or, within a command prompt, change directory to ngEO-download-manager then enter the following:    
     start-dm             <return>
-  * Once the application has started (indicated by a message of "Started @0.0.0.0:0:8082", the Download Manager Web UI can
-    be accessed by the following URL: http://localhost:8082/download-manager/
+  * By default, the download manager Web UI binds to port 8082. In order to change this, the port number 
+    can be provided from a command prompt:
+    start-dm 8085        <return>
+  * Once the application has started (indicated by a message of "Started @0.0.0.0:0:<port>", the Download Manager Web UI can
+    be accessed by the following URL: http://localhost:<port>/download-manager/
        
  
 Running the Command Line App: 
@@ -22,3 +25,8 @@ Running the Command Line App:
   * Either, within the file explorer, double-click ngEO-download-manager\start-dm-cli.bat
     Or, within a command prompt, change directory to ngEO-download-manager then enter the following:
     start-dm-cli         <return>
+  * If the port number on which the download manager Web UI binds to has changed, the web application URL must be supplied
+    when starting the CLI. For instance, if the port number is changed to 8085, the CLI would be started by runnning the 
+    following command:
+    start-dm-cli http://localhost:8085/download-manager/       <return>
+  

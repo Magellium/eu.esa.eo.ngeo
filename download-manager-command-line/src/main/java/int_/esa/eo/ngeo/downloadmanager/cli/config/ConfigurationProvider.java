@@ -18,6 +18,11 @@ public class ConfigurationProvider {
             resourceBundle = loadProperties();
         }
 
+        String systemPropertyOverride = System.getProperty(key.name());
+        if(StringUtils.isNotBlank(systemPropertyOverride)) {
+            return systemPropertyOverride;
+        }
+        
         String value = resourceBundle.getString(key.toString());
         if (StringUtils.isEmpty(value)) {
             throw new IllegalArgumentException(String.format("There is no value for %s", key));
