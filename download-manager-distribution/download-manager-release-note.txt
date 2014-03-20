@@ -49,6 +49,7 @@ Release History
                  - Added tooltip for pause and resume and cancel buttons.
                  - Sorting of products within a DAR is now available for all columns except status and actions.
                  - Minor style changes to improve layout.
+                 - Added the ability to modify the Web UI heading and include (encoded) HTML. Added ngEO logo for ngeo profile.
              - Download Manager specific logging entries are no longer shown in the console. Check the logs folder 
                for the files which contain these entries.
              - The user can specify the port number for the Web UI to bind to when starting the application.

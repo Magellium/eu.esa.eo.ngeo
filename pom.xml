@@ -126,7 +126,8 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<DM_TITLE>ngEO Download Manager Test Unit</DM_TITLE>
+                <DM_TITLE>ngEO Download Manager Test Unit</DM_TITLE>
+                <DM_WEB_UI_HEADING>&lt;img src="resources/images/ngeo-logo.png" /&gt;Download Manager Test Unit</DM_WEB_UI_HEADING>
 				<DM_CLI_PROMPT>ngEO-D</DM_CLI_PROMPT>
 				<NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
 			</properties>
@@ -158,7 +159,8 @@
 		<profile>
 			<id>dream</id>
 			<properties>
-				<DM_TITLE>DREAM Download Manager</DM_TITLE>
+                <DM_TITLE>DREAM Download Manager</DM_TITLE>
+                <DM_WEB_UI_HEADING>DREAM Download Manager</DM_WEB_UI_HEADING>
 				<DM_CLI_PROMPT>DREAM-DM</DM_CLI_PROMPT>
 				<NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
 			</properties>

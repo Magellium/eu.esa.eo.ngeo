@@ -168,6 +168,11 @@ ul#actions li {
 	line-height: 65px;
 }
 
+#top-bar #container h1 img {
+    vertical-align:middle;
+    padding-right: 10px;
+}
+
 #top-bar #statusHolder {
 	float: right;
 	line-height: 20px;
