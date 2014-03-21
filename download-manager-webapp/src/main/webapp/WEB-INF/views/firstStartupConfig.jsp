@@ -22,6 +22,7 @@
 				<tr><td><spring:message code="label.download_directory" /> </td><td><form:input path="baseDownloadFolder" size="40" /></td></tr>
 <!--  				<tr><td><spring:message code="label.web_interface_port_no" /> </td><td><form:input path="webInterfacePortNo" size="5"/></td></tr> -->
 			</table>
+            <form:hidden path="webInterfacePortNo" size="5"/>
 		</div>
         <div id="tabs-2">
             <table>

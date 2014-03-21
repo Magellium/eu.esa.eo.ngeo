@@ -22,7 +22,8 @@
 <!--  				<tr><td><spring:message code="label.web_interface_port_no" /> </td><td><form:input path="webInterfacePortNo" size="5"/></td></tr> -->
 				<tr><td><spring:message code="label.parallel_download_threads" /> </td><td><form:input path="noOfParallelProductDownloadThreads" /></td></tr>
 				<tr><td><spring:message code="label.product_download_complete_command" /> </td><td><form:input path="productDownloadCompleteCommand" /></td></tr>
-			</table>
+            </table>
+            <form:hidden path="webInterfacePortNo" size="5"/>
 		</div>
 		<div id="tabs-2">
 			<table>
