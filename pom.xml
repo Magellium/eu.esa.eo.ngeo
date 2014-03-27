@@ -30,6 +30,7 @@
 		<module>download-manager-command-line</module>
 		<module>download-manager-webapp</module>
 		<module>download-manager-distribution</module>
+		<module>download-manager-dar-monitor</module>
 	</modules>
 
 	<developers>
