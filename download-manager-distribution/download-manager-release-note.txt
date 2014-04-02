@@ -55,6 +55,7 @@ Release History
                for the files which contain these entries.
              - The user can specify the port number for the Web UI to bind to when starting the application.
              - The user can specify the DM web app URL when starting the CLI application.
+             - Improved distribution creation process to only create distributions appropriate to the project (profile).
 
 0.6.1
     Release date 11th February 2014

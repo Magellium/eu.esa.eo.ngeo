@@ -71,20 +71,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<descriptors>
-						<descriptor>src/main/assembly/download-manager-win_i586-assembly.xml</descriptor>
-						<descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
-						<descriptor>src/main/assembly/download-manager-linux_i586-assembly.xml</descriptor>
-						<descriptor>src/main/assembly/download-manager-linux_x64-assembly.xml</descriptor>
-						<descriptor>src/main/assembly/download-manager-macosx_x64-assembly.xml</descriptor>
-					</descriptors>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.4.2</version>
 				<configuration>
@@ -132,6 +118,26 @@
 				<DM_CLI_PROMPT>ngEO-D</DM_CLI_PROMPT>
 				<NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
 			</properties>
+			<build>
+                <pluginManagement>
+                    <plugins>
+			            <plugin>
+			                <groupId>org.apache.maven.plugins</groupId>
+			                <artifactId>maven-assembly-plugin</artifactId>
+			                <version>2.4</version>
+			                <configuration>
+			                    <descriptors>
+			                        <descriptor>src/main/assembly/download-manager-win_i586-assembly.xml</descriptor>
+			                        <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
+			                        <descriptor>src/main/assembly/download-manager-linux_i586-assembly.xml</descriptor>
+			                        <descriptor>src/main/assembly/download-manager-linux_x64-assembly.xml</descriptor>
+			                        <descriptor>src/main/assembly/download-manager-macosx_x64-assembly.xml</descriptor>
+			                    </descriptors>
+			                </configuration>
+			            </plugin>
+                    </plugins>
+                </pluginManagement>
+			</build>
 		</profile>
 		<profile>
 			<id>ngeo-task6-tpz</id>
@@ -165,7 +171,43 @@
 				<DM_CLI_PROMPT>DREAM-DM</DM_CLI_PROMPT>
 				<NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
 			</properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>2.4</version>
+                            <configuration>
+                                <descriptors>
+                                    <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
+                                    <descriptor>src/main/assembly/download-manager-linux_x64-assembly.xml</descriptor>
+                                </descriptors>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
 		</profile>
+        <profile>
+            <id>dev</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>2.4</version>
+                            <configuration>
+                                <descriptors>
+                                    <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
+                                </descriptors>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
 		<profile>
 			<id>sonar</id>
 			<properties>
