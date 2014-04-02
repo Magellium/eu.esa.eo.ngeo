@@ -14,6 +14,7 @@
 				<param name="enumClass">int_.esa.eo.ngeo.iicd_d_ws._1.MonitoringStatus</param>
 			</type>
 		</property>
+        <property name="webServerMonitoringURL" column="webServerMonitoringURL" type="string" length="8190" />
 		<list name="productList" cascade="all" lazy="false" fetch="select" table="data_access_request_product">
 			<key column="data_access_request_id" not-null="true"/>
 			<index column="idx" />

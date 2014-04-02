@@ -1,10 +1,10 @@
 package int_.esa.eo.ngeo.dmtu.applicationcontextlisteners;
 
-import int_.esa.eo.ngeo.dmtu.monitor.dar.DARMonitor;
 import int_.esa.eo.ngeo.downloadmanager.configuration.DownloadManagerProperties;
 import int_.esa.eo.ngeo.downloadmanager.dar.DataAccessRequestManager;
 import int_.esa.eo.ngeo.downloadmanager.download.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.http.ConnectionPropertiesSynchronizedUmSsoHttpClient;
+import int_.esa.eo.ngeo.downloadmanager.monitor.DARMonitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 
@@ -57,9 +57,6 @@ public class ApplicationContextRefreshedListener implements ApplicationListener<
         // Loads DARs from the DB
         dataAccessRequestManager.loadDARs();
 
-        darMonitor.monitorForProductsFromLoadedDARs();
-        // We must not start polling for new DARs until we have finished loading DARs from the DB
-        darMonitor.monitorForDARs();
+        darMonitor.init();
     }
-
 }

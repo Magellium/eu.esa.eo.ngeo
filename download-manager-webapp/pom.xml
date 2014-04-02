@@ -9,14 +9,19 @@
 	</parent>
 	
 	<artifactId>download-manager-webapp</artifactId>
-	<name>Download Manager webapp</name>
+	<name>Download Manager Web Application</name>
 	<packaging>war</packaging>
 	<dependencies>
-		<dependency>
-			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-core</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>int_.esa.eo.ngeo</groupId>
+            <artifactId>download-manager-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>int_.esa.eo.ngeo</groupId>
+            <artifactId>download-manager-dar-monitor</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 		<!-- Provides JSP capabilities -->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>

@@ -22,8 +22,6 @@ import com.siemens.pse.umsso.client.UmssoCLInput;
 import com.siemens.pse.umsso.client.UmssoHttpGet;
 import com.siemens.pse.umsso.client.UmssoHttpPost;
 import com.siemens.pse.umsso.client.UmssoHttpResponseStoreInterface;
-import com.siemens.pse.umsso.client.UmssoUserCredentials;
-import com.siemens.pse.umsso.client.UmssoVisualizerCallback;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 
 /**
@@ -106,7 +104,7 @@ public class UmSsoHttpClient {
 
     private UmssoCLInput initializeInput(HttpRequestBase request) {
         request.setHeader("Accept-Encoding", "gzip,deflate,sdch");
-        return new UmssoCLInput(request, new CommandLineCallback());  
+        return new UmssoCLInput(request, new UmSsoUserCredentialsCallback(getUmSsoHttpConnectionSettings().getUmssoUsername(), getUmSsoHttpConnectionSettings().getUmssoPassword()));  
     }
 
     private UmssoCLCore initializeCore() {
@@ -136,17 +134,5 @@ public class UmSsoHttpClient {
         this.umSsoHttpConnectionSettings = umSsoHttpConnectionSettings;
     }
 
-    public class CommandLineCallback implements UmssoVisualizerCallback {
-        private static final int THRESHOLD_FOR_INFINITE_LOOP_DETECTION = 2;
-        private int loginFormRenditionCount = 1;
 
-        public UmssoUserCredentials showLoginForm(String message, String spResourceUrl, String idpUrl) {
-            if (loginFormRenditionCount >= THRESHOLD_FOR_INFINITE_LOOP_DETECTION) {
-                String errorMessage = String.format("Invalid UM-SSO credentials.", loginFormRenditionCount);
-                throw new RuntimeException(errorMessage);
-            }
-            loginFormRenditionCount++;
-            return new UmssoUserCredentials(getUmSsoHttpConnectionSettings().getUmssoUsername(), getUmSsoHttpConnectionSettings().getUmssoPassword().toCharArray());
-        }
-    }
 }

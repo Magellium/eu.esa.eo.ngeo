@@ -1,8 +1,8 @@
 package int_.esa.eo.ngeo.dmtu.applicationcontextlisteners;
 
-import int_.esa.eo.ngeo.dmtu.monitor.dar.DARMonitor;
 import int_.esa.eo.ngeo.downloadmanager.dar.DataAccessRequestManager;
 import int_.esa.eo.ngeo.downloadmanager.download.DownloadMonitor;
+import int_.esa.eo.ngeo.downloadmanager.monitor.DARMonitor;
 import int_.esa.eo.ngeo.downloadmanager.plugin.PluginManager;
 
 import org.slf4j.Logger;

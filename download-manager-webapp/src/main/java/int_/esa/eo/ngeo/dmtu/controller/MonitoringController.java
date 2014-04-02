@@ -1,15 +1,10 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import int_.esa.eo.ngeo.dmtu.model.WebServerMonitoringStatus;
 import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
-import int_.esa.eo.ngeo.downloadmanager.download.DownloadMonitor;
+import int_.esa.eo.ngeo.downloadmanager.controller.DARMonitorController;
 import int_.esa.eo.ngeo.downloadmanager.exception.DownloadOperationException;
-import int_.esa.eo.ngeo.downloadmanager.plugin.EDownloadStatus;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
 import int_.esa.eo.ngeo.iicd_d_ws._1.UserOrder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,30 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class MonitoringController {
     @Autowired
-    private DownloadMonitor downloadMonitor;
-
-    private WebServerMonitoringStatus webServerMonitoringStatus; 
-
-    private MonitoringController() {
-        webServerMonitoringStatus = new WebServerMonitoringStatus();
-    }
-
-    public boolean sendUserOrder(UserOrder userOrder) throws DownloadOperationException {
-        return sendUserOrder(userOrder, false);
-    }
-    private boolean sendUserOrder(UserOrder userOrder, boolean includeManualDownloads) throws DownloadOperationException {
-        webServerMonitoringStatus.setDarMonitoringRunning(false);
-
-        List<EDownloadStatus> statusesToCancel = new ArrayList<>();
-        statusesToCancel.add(EDownloadStatus.NOT_STARTED);
-        statusesToCancel.add(EDownloadStatus.IDLE);
-        statusesToCancel.add(EDownloadStatus.PAUSED);
-
-        if(userOrder == UserOrder.STOP_IMMEDIATELY) {
-            statusesToCancel.add(EDownloadStatus.RUNNING);
-        }
-        return downloadMonitor.cancelDownloadsWithStatuses(statusesToCancel, includeManualDownloads);
-    }
+    private DARMonitorController darMonitorController;
 
     @RequestMapping(value="/monitoring/stop", method = RequestMethod.GET)
     @ResponseBody
@@ -68,7 +40,7 @@ public class MonitoringController {
                 throw new DownloadOperationException("No stop type provided.");
             }
 
-            return commandResponseBuilder.buildCommandResponse(sendUserOrder(userOrder, includeManualDownloads), String.format("Unable to execute stop command %s.", type));
+            return commandResponseBuilder.buildCommandResponse(darMonitorController.sendUserOrder(userOrder, includeManualDownloads), String.format("Unable to execute stop command %s.", type));
         } catch (DownloadOperationException e) {
             return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());
         }
@@ -78,9 +50,5 @@ public class MonitoringController {
     @ResponseBody
     public CommandResponse stopAllProducts() {
         return stopMonitoringForDARs("all");
-    }
-
-    public boolean isDarMonitoringRunning() {
-        return webServerMonitoringStatus.isDarMonitoringRunning();
     }
 }

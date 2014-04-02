@@ -60,6 +60,4 @@
 	</beans:bean>
 
 	<context:component-scan base-package="int_.esa.eo.ngeo.dmtu" />
-	
-	<task:scheduler id="darMonitorScheduler" />
 </beans:beans>

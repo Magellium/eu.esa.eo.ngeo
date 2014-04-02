@@ -76,4 +76,62 @@
             <ref bean="downloadManagerProperties" />
         </constructor-arg>
     </bean>
+    
+    <bean id="darMonitorController" class="int_.esa.eo.ngeo.downloadmanager.controller.DARMonitorController">
+        <constructor-arg index="0">
+            <ref bean="dataAccessRequestManager" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="downloadMonitor" />
+        </constructor-arg>
+    </bean>
+    
+    <bean id="darMonitor" class="int_.esa.eo.ngeo.downloadmanager.monitor.DARMonitor">
+        <constructor-arg index="0">
+            <ref bean="settingsManager" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="darMonitorController" />
+        </constructor-arg>
+        <constructor-arg index="2" >
+            <ref bean="darMonitorScheduler" />
+        </constructor-arg>
+        <constructor-arg index="3">
+            <ref bean="ngeoWebServerServiceHelper" />
+        </constructor-arg>
+    </bean>
+
+    <bean id="ngeoWebServerServiceHelper" class="int_.esa.eo.ngeo.downloadmanager.webserver.NgeoWebServerServiceHelper">
+        <constructor-arg index="0">
+            <ref bean="ngeoWebServerRequestBuilder" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="ngeoWebServerService" />
+        </constructor-arg>
+        <constructor-arg index="2" >
+            <ref bean="ngeoWebServerResponseParser" />
+        </constructor-arg>
+    </bean>
+
+    <bean id="ngeoWebServerRequestBuilder" class="int_.esa.eo.ngeo.downloadmanager.webserver.builder.NgeoWebServerRequestBuilder" />
+
+    <bean id="ngeoWebServerService" class="int_.esa.eo.ngeo.downloadmanager.webserver.service.NgeoWebServerService">
+        <constructor-arg index="0">
+            <ref bean="xmlWithSchemaTransformer" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="settingsManager" />
+        </constructor-arg>
+        <constructor-arg index="2" >
+            <ref bean="connectionPropertiesSynchronizedUmSsoHttpClient" />
+        </constructor-arg>
+    </bean>
+
+    <bean id="ngeoWebServerResponseParser" class="int_.esa.eo.ngeo.downloadmanager.webserver.builder.NgeoWebServerResponseParser">
+        <constructor-arg index="0">
+            <ref bean="xmlWithSchemaTransformer" />
+        </constructor-arg>
+    </bean>
+
+    <task:scheduler id="darMonitorScheduler" />
 </beans>

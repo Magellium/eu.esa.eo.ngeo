@@ -28,8 +28,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DARControllerTest {
@@ -66,18 +64,6 @@ public class DARControllerTest {
 		return dataAccessRequestList;
 	}
 	
-	@Test
-	public void testGetDataAccessRequests() {
-		List<DataAccessRequest> dataAccessRequestList = setupDataAccessRequestList();
-		
-		when(dataAccessRequestManager.getVisibleDARList(true)).thenReturn(dataAccessRequestList);
-		
-		List<DataAccessRequest> dataAccessRequests = darController.getDataAccessRequestStatus(true).getDataAccessRequests();
-		assertEquals(1,dataAccessRequests.size());
-		DataAccessRequest dataAccessRequest = dataAccessRequests.get(0);
-		assertEquals(MONITORING_URL, dataAccessRequest.getDarURL());
-	}
-
 	@Test
 	public void testGetProducts() {
 		List<DataAccessRequest> dataAccessRequestList = setupDataAccessRequestList();

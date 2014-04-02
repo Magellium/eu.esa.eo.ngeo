@@ -85,7 +85,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
         this.umSsoHttpClient = new UmSsoHttpClient(umSsoHttpConnectionSettings);
     }
 
-    public EDownloadStatus startDownload() throws DMPluginException {
+    public synchronized EDownloadStatus startDownload() throws DMPluginException {
         if(this.productMetadata == null) {
             retrieveDownloadDetails();
         }
@@ -209,9 +209,17 @@ public class HTTPDownloadProcess implements IDownloadProcess {
                 productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, String.format("Unexpected response, HTTP response code %s (%s)",responseCode, reasonPhrase));
                 break;
             }
-        } catch (UmssoCLException | IOException | DMPluginException | ParseException | SchemaNotFoundException ex) {
+        } catch (IOException | DMPluginException | ParseException | SchemaNotFoundException ex) {
             LOGGER.error("Exception occurred whilst retrieving download details.", ex);
             productDownloadProgressMonitor.setError(ex);
+        } catch (UmssoCLException ex) {
+            LOGGER.error("UMSSO exception occurred whilst retrieving download details.", ex);
+            Throwable cause = ex.getCause();
+            if(cause != null) {
+                productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, cause.getLocalizedMessage());;
+            }else{
+                productDownloadProgressMonitor.setError(ex);
+            }
         } finally {
             if (productDownloadRequestAndResponse != null) {
                 productDownloadRequestAndResponse.cleanupHttpResources();
@@ -317,7 +325,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
      *  If the number of files has been determined, then pause each file download
      *  Otherwise, pause the product download
      */
-    public EDownloadStatus pauseDownload() throws DMPluginException {
+    public synchronized EDownloadStatus pauseDownload() throws DMPluginException {
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
         if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecutePauseAction().contains(getStatus())) {
             throw new DMPluginException(String.format("Unable to pause download, status is %s", getStatus()));
@@ -334,7 +342,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
         return getStatus();
     }
 
-    public EDownloadStatus resumeDownload() throws DMPluginException {
+    public synchronized EDownloadStatus resumeDownload() throws DMPluginException {
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
         if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteResumeAction().contains(getStatus())) {
             throw new DMPluginException(String.format("Unable to resume download, status is %s", getStatus()));
@@ -344,7 +352,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
         return getStatus();
     }
 
-    public EDownloadStatus cancelDownload() throws DMPluginException {
+    public synchronized EDownloadStatus cancelDownload() throws DMPluginException {
         EDownloadStatus previousDownloadStatus = getStatus();
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
         if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteCancelAction().contains(previousDownloadStatus)) {

@@ -1,14 +1,11 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
 import int_.esa.eo.ngeo.downloadmanager.configuration.DownloadManagerProperties;
 import int_.esa.eo.ngeo.downloadmanager.exception.NotificationException;
-import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationLevel;
 import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationManager;
-import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationOutput;
 import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting;
 
@@ -26,7 +23,7 @@ public class ConfigControllerTest {
     @Mock DownloadManagerProperties downloadManagerProperties;
     
     @Test
-    public void testSendOfEmailWhenCredentialsHaveChanged() throws NotificationException {
+    public void testWhenCredentialsHaveChanged() throws NotificationException {
         when(notificationManager.getDownloadManagerProperties()).thenReturn(downloadManagerProperties);
         when(downloadManagerProperties.getDownloadManagerTitle()).thenReturn("DM Test");
         when(downloadManagerProperties.getDownloadManagerVersion()).thenReturn("1.0.0");
@@ -34,13 +31,11 @@ public class ConfigControllerTest {
         when(settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME)).thenReturn("username2");
         when(settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD)).thenReturn("password2");
         
-        configController.sendNotificationOfUserCredentialsChange("username1", "password1");
-        
-        verify(notificationManager).sendNotification(any(NotificationLevel.class), any(String.class), any(String.class), any(NotificationOutput.class));
+        assertTrue(configController.haveUserCredentialsChanged("username1", "password1"));
     }
 
     @Test
-    public void testSendOfEmailWhenCredentialsHaveNotChanged() throws NotificationException {
+    public void testWhenCredentialsHaveNotChanged() throws NotificationException {
         when(notificationManager.getDownloadManagerProperties()).thenReturn(downloadManagerProperties);
         when(downloadManagerProperties.getDownloadManagerTitle()).thenReturn("DM Test");
         when(downloadManagerProperties.getDownloadManagerVersion()).thenReturn("1.0.0");
@@ -48,8 +43,6 @@ public class ConfigControllerTest {
         when(settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME)).thenReturn("username1");
         when(settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD)).thenReturn("password1");
         
-        configController.sendNotificationOfUserCredentialsChange("username1", "password1");
-        
-        verify(notificationManager, times(0)).sendNotification(any(NotificationLevel.class), any(String.class), any(String.class), any(NotificationOutput.class));
+        assertFalse(configController.haveUserCredentialsChanged("username1", "password1"));
     }
 }

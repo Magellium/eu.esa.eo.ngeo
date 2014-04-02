@@ -1,8 +1,8 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import int_.esa.eo.ngeo.dmtu.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.builder.DataAccessRequestBuilder;
+import int_.esa.eo.ngeo.downloadmanager.controller.DARMonitorController;
 import int_.esa.eo.ngeo.downloadmanager.dar.DataAccessRequestManager;
 import int_.esa.eo.ngeo.downloadmanager.exception.DataAccessRequestAlreadyExistsException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NonRecoverableException;
@@ -18,6 +18,8 @@ import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponse;
 import int_.esa.eo.ngeo.downloadmanager.rest.CommandResponseWithDarDetails;
 import int_.esa.eo.ngeo.downloadmanager.rest.StatusResponse;
 import int_.esa.eo.ngeo.downloadmanager.service.StaticDarService;
+import int_.esa.eo.ngeo.downloadmanager.transform.XMLWithSchemaTransformer;
+import int_.esa.eo.ngeo.downloadmanager.webserver.builder.NgeoWebServerResponseParser;
 import int_.esa.eo.ngeo.iicd_d_ws._1.DataAccessMonitoringResp;
 
 import java.io.IOException;
@@ -47,21 +49,16 @@ public class DARController {
     private DataAccessRequestManager dataAccessRequestManager;
 
     @Autowired
-    private NgeoWebServerResponseParser ngeoWebServerResponseParser;
+    private DARMonitorController darMonitorController;
 
+    @Autowired
+    XMLWithSchemaTransformer xmlWithSchemaTransformer;
+    
     @Autowired
     private StaticDarService staticDarService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DARController.class);
 
-    public boolean addDataAccessRequest(DataAccessRequest dar) throws DataAccessRequestAlreadyExistsException {
-        return dataAccessRequestManager.addDataAccessRequest(dar);
-    }
-    
-    public void updateDataAccessRequest(DataAccessRequest dar, DataAccessMonitoringResp dataAccessMonitoringResponse, Date responseDate, ProductPriority priority) {
-        dataAccessRequestManager.updateDataAccessRequest(dar, dataAccessMonitoringResponse, responseDate, priority);
-    }
-    
     @RequestMapping(value="/download", method = RequestMethod.POST, params = {"productDownloadUrl"})
     @ResponseBody
     public CommandResponseWithDarDetails addManualProductDownload(@RequestParam String productDownloadUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
@@ -86,13 +83,14 @@ public class DARController {
             staticDarRequestAndResponse = staticDarService.getStaticDar(dataAccessRequestUrl);
             UmssoHttpResponse response = staticDarRequestAndResponse.getResponse();
 
+            NgeoWebServerResponseParser ngeoWebServerResponseParser = new NgeoWebServerResponseParser(xmlWithSchemaTransformer);
             DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(dataAccessRequestUrl, response);
             Date responseDate = new ResponseHeaderParser().searchForResponseDate(response.getHeaders());
 
             DataAccessRequest newDar = new DataAccessRequestBuilder().buildDAR(darUrl, null, false);
-            addDataAccessRequest(newDar);
+            darMonitorController.addDataAccessRequest(newDar);
 
-            updateDataAccessRequest(newDar, dataAccessMonitoringResponse, responseDate, priority);
+            darMonitorController.updateDataAccessRequest(newDar, dataAccessMonitoringResponse, responseDate, priority);
             return commandResponseBuilder.buildCommandResponseWithDarUuid(newDar.getUuid(), "Unable to add manual dar.");
         } catch (ParseException | ServiceException | DateParseException | IOException | DataAccessRequestAlreadyExistsException e) {
             LOGGER.error(String.format("%s whilst adding DAR %s: %s", e.getClass().getName(), darUrl, e.getLocalizedMessage()));
@@ -110,13 +108,14 @@ public class DARController {
     public CommandResponseWithDarDetails addManualDar(@RequestParam String dar, String darName, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         try {
+            NgeoWebServerResponseParser ngeoWebServerResponseParser = new NgeoWebServerResponseParser(xmlWithSchemaTransformer);
             DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.handleDarResponse(dar, DataAccessMonitoringResp.class);
             Date responseDate = new Date();
     
             DataAccessRequest newDar = new DataAccessRequestBuilder().buildDAR(null, darName, false);
-            addDataAccessRequest(newDar);
+            darMonitorController.addDataAccessRequest(newDar);
             
-            updateDataAccessRequest(newDar, dataAccessMonitoringResponse, responseDate, priority);
+            darMonitorController.updateDataAccessRequest(newDar, dataAccessMonitoringResponse, responseDate, priority);
             return commandResponseBuilder.buildCommandResponseWithDarUuid(newDar.getUuid(), "Unable to add manual dar.");
         } catch (ParseException | ServiceException | DataAccessRequestAlreadyExistsException e) {
             LOGGER.error(String.format("%s whilst adding DAR %s: %s", e.getClass().getName(), darName, e.getLocalizedMessage()));
@@ -136,20 +135,9 @@ public class DARController {
     @ResponseBody
     public StatusResponse getDataAccessRequestStatus(HttpServletResponse response) {
         setNoCacheHeader(response);
-        return getDataAccessRequestStatus(true);
-    }
-
-    public StatusResponse getDataAccessRequestStatus(boolean includeManualProductDar) {
         StatusResponse statusResponse = new StatusResponse();
-        statusResponse.setDataAccessRequests(dataAccessRequestManager.getVisibleDARList(includeManualProductDar));
+        statusResponse.setDataAccessRequests(dataAccessRequestManager.getVisibleDARList(true));
         return statusResponse;
-    }
-
-    public DataAccessRequest getDataAccessRequestByMonitoringUrl(String monitoringUrl) {
-        DataAccessRequest searchDar = new DataAccessRequest();
-        searchDar.setDarURL(monitoringUrl);
-
-        return dataAccessRequestManager.getDataAccessRequest(searchDar);
     }
 
     @RequestMapping(value = "/dataAccessRequests/{darUuid}", method = RequestMethod.GET)

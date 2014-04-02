@@ -55,6 +55,7 @@ Release History
                for the files which contain these entries.
              - The user can specify the port number for the Web UI to bind to when starting the application.
              - The user can specify the DM web app URL when starting the CLI application.
+             - Improved process when monitoring with Web Server, in particular when communicating with a UM-SSO protected Web Server.
              - Improved distribution creation process to only create distributions appropriate to the project (profile).
 
 0.6.1

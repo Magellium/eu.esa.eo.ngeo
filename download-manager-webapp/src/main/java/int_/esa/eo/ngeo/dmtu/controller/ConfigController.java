@@ -1,12 +1,14 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
-import int_.esa.eo.ngeo.dmtu.exception.WebServerServiceException;
-import int_.esa.eo.ngeo.dmtu.monitor.dar.DARMonitor;
 import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.configuration.AdvancedConfigSettings;
 import int_.esa.eo.ngeo.downloadmanager.configuration.ConfigSettings;
+import int_.esa.eo.ngeo.downloadmanager.controller.DARMonitorController;
 import int_.esa.eo.ngeo.downloadmanager.exception.InvalidSettingValueException;
 import int_.esa.eo.ngeo.downloadmanager.exception.NotificationException;
+import int_.esa.eo.ngeo.downloadmanager.exception.WebServerServiceException;
+import int_.esa.eo.ngeo.downloadmanager.http.UmssoIdpAuthenticationCheck;
+import int_.esa.eo.ngeo.downloadmanager.monitor.DARMonitor;
 import int_.esa.eo.ngeo.downloadmanager.notifications.EmailSecurity;
 import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationLevel;
 import int_.esa.eo.ngeo.downloadmanager.notifications.NotificationManager;
@@ -55,6 +57,9 @@ public class ConfigController {
     private DARMonitor darMonitor;
     
     @Autowired
+    private DARMonitorController darMonitorController;
+
+    @Autowired
     private NotificationManager notificationManager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigController.class);
@@ -91,15 +96,16 @@ public class ConfigController {
             return FIRST_STARTUP_CONFIG_VIEW_NAME;
         }
 
-        // XXX: Would be preferable for this class not to be *directly* responsible for doing the following:
         try {
+            //reset IDP authentication check on first startup, just in case the user enters their credentials incorrectly the first time
+            resetIdpAuthenticationCheck();
             darMonitor.registerDownloadManager();
+            darMonitor.startWebServerMonitoring();
         } catch (WebServerServiceException e) {
             FieldError fieldError = new FieldError("ConfigSettings", "ssoUserName", e.getLocalizedMessage());
             result.addError(fieldError);
             return FIRST_STARTUP_CONFIG_VIEW_NAME;
         }
-        darMonitor.monitorForDARs();
 
         return "redirect:/";
     }
@@ -142,10 +148,16 @@ public class ConfigController {
         userModifiableSettings.put(UserModifiableSetting.WEB_INTERFACE_REMOTE_ACCESS_ENABLED, Boolean.toString(advancedConfigSettings.isWebInterfaceRemoteAccessEnabled()));
 
         settingsManager.setUserModifiableSettings(userModifiableSettings);
-        try {
-            sendNotificationOfUserCredentialsChange(previousUmssoUsername, previousUmssoPassword);
-        }catch(NotificationException ex) {
-            LOGGER.error("Unable to send email", ex);
+        if(haveUserCredentialsChanged(previousUmssoUsername, previousUmssoPassword)) {
+            try {
+                sendNotificationOfUserCredentialsChange();
+                resetIdpAuthenticationCheck();
+                
+                darMonitorController.setDarMonitoringRunning(true);
+                darMonitor.restartMonitoringAfterChangeOfCredentials();
+            }catch(NotificationException ex) {
+                LOGGER.error("Unable to send email", ex);
+            }
         }
 
         
@@ -160,38 +172,42 @@ public class ConfigController {
         return "redirect:/";
     }
     
-    protected void sendNotificationOfUserCredentialsChange(String previousUmssoUsername, String previousUmssoPassword) throws NotificationException {
+    public boolean haveUserCredentialsChanged(String previousUmssoUsername, String previousUmssoPassword) {
         String currentUmssoUsername = settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME);
         String currentUmssoPassword = settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD);
         
         //check if user's credentials have changed
-        if(!StringUtils.equals(previousUmssoUsername, currentUmssoUsername) || !StringUtils.equals(previousUmssoPassword, currentUmssoPassword)) {
-            
-            StringBuilder emailTitle = new StringBuilder();
-            
-            emailTitle.append("[");
-            emailTitle.append(notificationManager.getDownloadManagerProperties().getDownloadManagerTitle());
-            emailTitle.append(" ");
-            emailTitle.append(notificationManager.getDownloadManagerProperties().getDownloadManagerVersion());
-            emailTitle.append("] ");
-            emailTitle.append(NotificationLevel.INFO);
-            emailTitle.append(" - UM-SSO credentials changed");
-            
-            StringBuilder emailMessage = new StringBuilder();
+        return (!StringUtils.equals(previousUmssoUsername, currentUmssoUsername) || !StringUtils.equals(previousUmssoPassword, currentUmssoPassword));
+    }
     
-            emailMessage.append("The UM-SSO credentials for Download Manager \"");
-            emailMessage.append(settingsManager.getSetting(UserModifiableSetting.DM_FRIENDLY_NAME));
-            emailMessage.append("\" have changed.");
-            emailMessage.append("\n\n");
-            emailMessage.append("UM-SSO username in use: ");
-            emailMessage.append(settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME));
-            emailMessage.append("\n\n");
-            emailMessage.append("This is an automated message, please do not reply.");
-            
-            notificationManager.sendNotification(NotificationLevel.INFO, emailTitle.toString(), emailMessage.toString(), NotificationOutput.EMAIL);
-        }
+    protected void sendNotificationOfUserCredentialsChange() throws NotificationException {
+        StringBuilder emailTitle = new StringBuilder();
+        
+        emailTitle.append("[");
+        emailTitle.append(notificationManager.getDownloadManagerProperties().getDownloadManagerTitle());
+        emailTitle.append(" ");
+        emailTitle.append(notificationManager.getDownloadManagerProperties().getDownloadManagerVersion());
+        emailTitle.append("] ");
+        emailTitle.append(NotificationLevel.INFO);
+        emailTitle.append(" - UM-SSO credentials changed");
+        
+        StringBuilder emailMessage = new StringBuilder();
+
+        emailMessage.append("The UM-SSO credentials for Download Manager \"");
+        emailMessage.append(settingsManager.getSetting(UserModifiableSetting.DM_FRIENDLY_NAME));
+        emailMessage.append("\" have changed.");
+        emailMessage.append("\n\n");
+        emailMessage.append("UM-SSO username in use: ");
+        emailMessage.append(settingsManager.getSetting(UserModifiableSetting.SSO_USERNAME));
+        emailMessage.append("\n\n");
+        emailMessage.append("This is an automated message, please do not reply.");
+        
+        notificationManager.sendNotification(NotificationLevel.INFO, emailTitle.toString(), emailMessage.toString(), NotificationOutput.EMAIL);
     }
 
+    protected void resetIdpAuthenticationCheck() {
+        UmssoIdpAuthenticationCheck.getInstance().resetAuthenticationCheck();
+    }
 
     private void getConfigSettingsFromManager(ConfigSettings configSettings) {
         configSettings.setSsoPassword(settingsManager.getSetting(UserModifiableSetting.SSO_PASSWORD));

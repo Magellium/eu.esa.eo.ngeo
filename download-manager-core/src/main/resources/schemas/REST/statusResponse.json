@@ -38,6 +38,11 @@
 						"description":"The monitoring status for this DAR. Used by the Web Server to issue pause / resume / cancel commands to the Download Manager, and to indicate when the DAR is completed and therefore does not need to be monitored anymore.",
 						"required":true
 					},
+                    "webServerMonitoringURL":{
+                        "type":"string",
+                        "description":"The web server monitoring URL for this DAR. Used to monitor for new DARs.",
+                        "required":true
+                    },
 					"monitored":{
 						"type":"boolean",
 						"description":"Whether the DAR has been received by a Web Server and therefore needs to be monitored for new products.",

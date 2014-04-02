@@ -28,6 +28,7 @@ import org.xml.sax.SAXException;
 
 public class XMLWithSchemaTransformer {
     private final Logger LOGGER = LoggerFactory.getLogger(XMLWithSchemaTransformer.class);
+    private static final int BYTE_ARRAY_SIZE = 2000;
 
     private SchemaRepository schemaRepository;
 
@@ -35,12 +36,14 @@ public class XMLWithSchemaTransformer {
         this.schemaRepository = schemaRepository;
     }
 
-    public void serializeAndInferSchema(Object inputObject, OutputStream out) throws ParseException, SchemaNotFoundException {
+    public ByteArrayOutputStream serializeAndInferSchema(Object inputObject) throws ParseException, SchemaNotFoundException {
         LOGGER.debug(String.format("attempting to parse %s object into xml ", inputObject.getClass().getName()));
+        ByteArrayOutputStream out = new ByteArrayOutputStream(BYTE_ARRAY_SIZE);
         try {
             String schemaPath = schemaRepository.getSchema(inputObject.getClass());
 
             serialize(inputObject, out, schemaPath);
+            return out;
         } finally {
             IOUtils.closeQuietly(out);
         }
