@@ -55,32 +55,37 @@ var ProductStatusTable = {
 		var productProgress = product.productProgress.status;
 		var actionsHtml = '<ul id="actions" class="ui-widget ui-helper-clearfix">';
 		if(productProgress == "NOT_STARTED" || productProgress == "IDLE" || productProgress == "RUNNING") {
-			actionsHtml += ProductStatusTable.displayAction("default", "pause", product.uuid);
-			actionsHtml += ProductStatusTable.displayAction("default", "cancel", product.uuid);
+			actionsHtml += ProductStatusTable.displayAction("default", "pause", product.uuid, productProgress);
+			actionsHtml += ProductStatusTable.displayAction("default", "cancel", product.uuid, productProgress);
 		} else if(productProgress == "PAUSED") {
-			actionsHtml += ProductStatusTable.displayAction("default", "resume", product.uuid);
-			actionsHtml += ProductStatusTable.displayAction("default", "cancel", product.uuid);
+			actionsHtml += ProductStatusTable.displayAction("default", "resume", product.uuid, productProgress);
+			actionsHtml += ProductStatusTable.displayAction("default", "cancel", product.uuid, productProgress);
 		} else if(productProgress == "IN_ERROR") {
-			actionsHtml += ProductStatusTable.displayAction("default", "resume", product.uuid);
+			actionsHtml += ProductStatusTable.displayAction("default", "resume", product.uuid, productProgress);
 		}
 		actionsHtml += '</ul>';
 
 		return actionsHtml;
 	},
-	displayAction: function(state, actionType, productUuid) {
+	displayAction: function(state, actionType, productUuid, productProgress) {
+		var actionTooltip = actionType.charAt(0).toUpperCase() + actionType.slice(1);
 		var iconClass = "ui-icon-";
-		if(actionType == "pause") {
+		if(actionType === "pause") {
 			iconClass += "pause";
-		}else if(actionType == "resume") {
-			iconClass += "play";
-		}else if(actionType == "cancel") {
+		}else if(actionType === "resume") {
+			if(productProgress === "IN_ERROR") {
+				iconClass += "arrowrefresh-1-e";
+				var actionTooltip = "Retry";
+			}else{
+				iconClass += "play";
+			}
+		}else if(actionType === "cancel") {
 			iconClass += "stop";
 		}
 		var actionHtml = '<li class="ui-state-' + state + ' ui-corner-all">';
 		if(state === "default") {
 			actionHtml += '<a href=\'javascript:DownloadMonitor.productDownloadCommand("' + productUuid + '","' + actionType + '");\'>';
 		}
-		var actionTooltip = actionType.charAt(0).toUpperCase() + actionType.slice(1)
 		actionHtml += '<span class="ui-icon ' + iconClass + '" title="' + actionTooltip + '"></span>';
 		if(state === "default") {
 			actionHtml += '</a>';
@@ -108,11 +113,11 @@ var ProductStatusTable = {
 		if(newProductData.priority !== oldProductData.priority) {
 			productDataTable.fnUpdate(newProductData.priority, productRow, ProductStatusTable.productPriorityColumnIndex, false, false);
 			ProductStatusTable.formatPriorityCell(productRow, newProductData);
+			priorityUpdated = true;
 		}
 		if(newProductData.totalFileSize !== oldProductData.totalFileSize) {
 			productDataTable.fnUpdate(newProductData.totalFileSize, productRow, ProductStatusTable.productTotalFileSizeColumnIndex, false, false);
 			ProductStatusTable.formatTotalFileSizeCell(productRow, newProductData);
-			priorityUpdated = true;
 		}
 		if(newProductData.productProgress.downloadedSize !== oldProductData.productProgress.downloadedSize) {
 			productDataTable.fnUpdate(newProductData.productProgress.downloadedSize, productRow, ProductStatusTable.productProgressDownloadedSizeColumnIndex, false, false);
@@ -148,6 +153,9 @@ var ProductStatusTable = {
 		var productStatus = productData.productProgress.status;
 		var priorityArray = ["Very Low", "Low", "Normal", "High", "Very High"];
 		
+		var iconPrioritySpan = priorityCell.find(".iconPriority");
+		iconPrioritySpan.remove();
+
 		if(productStatus != "IN_ERROR" && productStatus != "CANCELLED" && productStatus != "COMPLETED") {
 			//Display change in priority buttons - first work out the priority
 			var currentPriorityIndex = $.inArray(productPriority, priorityArray);
