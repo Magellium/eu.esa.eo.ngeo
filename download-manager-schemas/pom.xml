@@ -82,8 +82,6 @@
 					</schemaIncludes>
 					<bindingDirectory>src/main/resources/jaxb</bindingDirectory>
 					<cleanPackageDirectories>true</cleanPackageDirectories>
-					<removeOldOutput>true</removeOldOutput>
-					<forceRegenerate>true</forceRegenerate>
 					<verbose>false</verbose>
 					<args>
 						<!-- removes jaxb header which contains a timestamp - makes comparing 
