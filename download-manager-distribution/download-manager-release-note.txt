@@ -9,7 +9,7 @@ Features
 * Uses standard cross-platform build tools (Maven) to create the installation package.
 * Can be installed anywhere on a user's machine and does not require root / administrator access.
 * Fully autonomous download of products notified by a server which supports the ngEO interface IICD-D-WS v1.7.
-* Integration with Product Facilities through ngEO interface DAGICD v1.5.
+* Integration with Product Facilities through ngEO interface DAGICD v1.6.
 * Plugin system which allows users to add support for download protocols.
 * Includes generic HTTP and mock Sentinel-2 plugins.
 * Web interface provided to allow monitoring and managing of download activities, as well as editing of configuration data.
@@ -57,6 +57,7 @@ Release History
              - The user can specify the DM web app URL when starting the CLI application.
              - Improved process when monitoring with Web Server, in particular when communicating with a UM-SSO protected Web Server.
              - Improved distribution creation process to only create distributions appropriate to the project (profile).
+             - Updated to use plugin interface 1.6, however no additional functionality is provided.
 
 0.6.1
     Release date 11th February 2014
