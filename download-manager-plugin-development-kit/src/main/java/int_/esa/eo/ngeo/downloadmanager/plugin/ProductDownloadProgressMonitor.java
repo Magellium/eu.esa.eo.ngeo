@@ -38,7 +38,12 @@ public class ProductDownloadProgressMonitor implements FilesDownloadListener {
     public void notifyOfProductDetails(String productName, List<FileDownloadMetadata> fileDownloadMetadataList) {
         totalFileSize = 0;
         for (FileDownloadMetadata fileDownloadMetadata : fileDownloadMetadataList) {
-            totalFileSize += fileDownloadMetadata.getDownloadSize();
+            if(fileDownloadMetadata.getDownloadSize() == -1) {
+                totalFileSize = -1;
+                break;
+            }else{
+                totalFileSize += fileDownloadMetadata.getDownloadSize();
+            }
         }
 
         productDownloadListener.productDetails(productName, fileDownloadMetadataList.size(), totalFileSize);
