@@ -56,6 +56,9 @@ Release History
              - The user can specify the port number for the Web UI to bind to when starting the application.
              - The user can specify the DM web app URL when starting the CLI application.
              - Improved process when monitoring with Web Server, in particular when communicating with a UM-SSO protected Web Server.
+             - Added non user-modifiable property to ignore SSL certificates when communicating via HTTPS. Default is set to false
+               i.e. the certificates will not be ignored.
+               ************ THIS IS TO BE USED AT THE USER'S OWN RISK ************
              - Improved distribution creation process to only create distributions appropriate to the project (profile).
              - Updated to use plugin interface 1.6, however no additional functionality is provided.
 

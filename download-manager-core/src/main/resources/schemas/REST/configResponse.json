@@ -72,7 +72,8 @@
                      "NGEO_WEB_SERVER_NON_UMSSO_LOGIN_URL",
                      "NGEO_MONITORING_SERVICE_SET_TIME",
                      "IICD_D_WS_REFRESH_PERIOD",
-                     "DIR_PLUGINS"
+                     "DIR_PLUGINS",
+                     "IGNORE_SSL_CERTIFICATES"
                   ],
                   "description":"",
                   "required":true

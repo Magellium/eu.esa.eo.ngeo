@@ -24,6 +24,7 @@ import com.siemens.pse.umsso.client.UmssoCLEnvironment;
 public class UmSsoHttpConnectionSettings {
     private final String umSsoUsername, umSsoPassword, proxyHost, proxyUser, proxyPassword;
     private final int proxyPort;
+    private boolean ignoreCertificates;
 
     public UmSsoHttpConnectionSettings(String umssoUsername, String umssoPassword) {
         this(umssoUsername, umssoPassword, "", -1, "", "");
@@ -80,5 +81,13 @@ public class UmSsoHttpConnectionSettings {
 
     public String toString() {
         return String.format("umSsoUserName %s%n umSsoPassword %s%n proxyHost %s%n proxyPort %s%n proxyUser %s%n proxyPassword %s", umSsoUsername, umSsoPassword, proxyHost, proxyPort, proxyUser, proxyPassword);
+    }
+
+    public boolean isIgnoreCertificates() {
+        return ignoreCertificates;
+    }
+
+    public void setIgnoreCertificates(boolean ignoreCertificates) {
+        this.ignoreCertificates = ignoreCertificates;
     }
 }

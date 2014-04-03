@@ -72,6 +72,9 @@ public class ConnectionPropertiesSynchronizedUmSsoHttpClient implements Settings
             umSsoHttpConnectionSettings = new UmSsoHttpConnectionSettings(umSsoUsername, umSsoPassword);
         }
 
+        Boolean ignoreCertificates = Boolean.parseBoolean(settingsManager.getSetting(NonUserModifiableSetting.IGNORE_SSL_CERTIFICATES));
+        umSsoHttpConnectionSettings.setIgnoreCertificates(ignoreCertificates);
+        
         LOGGER.debug(String.format("New connection details:%n%s", umSsoHttpConnectionSettings.toString()));
         if(umSsoHttpClient == null) {
             umSsoHttpClient = new UmSsoHttpClient(umSsoHttpConnectionSettings);

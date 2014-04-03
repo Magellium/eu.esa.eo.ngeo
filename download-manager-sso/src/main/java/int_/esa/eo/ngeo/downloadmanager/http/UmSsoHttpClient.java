@@ -3,10 +3,20 @@ package int_.esa.eo.ngeo.downloadmanager.http;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.HttpConnectionParams;
@@ -46,9 +56,21 @@ public class UmSsoHttpClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UmSsoHttpClient.class);
     private UmSsoHttpConnectionSettings umSsoHttpConnectionSettings;
+    private SSLSocketFactory sslIgnoreCertificatesSocketFactory;
 
     public UmSsoHttpClient(UmSsoHttpConnectionSettings umSsoHttpConnectionSettings) {
         this.umSsoHttpConnectionSettings = umSsoHttpConnectionSettings;
+        
+        try {
+            sslIgnoreCertificatesSocketFactory = new SSLSocketFactory(new TrustStrategy() {
+                public boolean isTrusted(
+                        final X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            }, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        } catch (KeyManagementException | UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public UmSsoHttpRequestAndResponse executeGetRequest(URL requestUrl) throws UmssoCLException, IOException {
@@ -114,10 +136,14 @@ public class UmSsoHttpClient {
         PoolingClientConnectionManager cm = clCore.getConnectionManager();
         cm.setMaxTotal(HTTP_MAX_TOTAL_CONNECTIONS);
         cm.setDefaultMaxPerRoute(HTTP_DEFAULT_MAX_CONNECTIONS_PER_ROUTE);
-
+        
         UmssoCLEnvironment umssoCLEnvironment = umSsoHttpConnectionSettings.getUmSsoCLEnvironmentFromProxySettings();
         if(umssoCLEnvironment != null) {
             clCore.init(umssoCLEnvironment);
+        }
+        
+        if(umSsoHttpConnectionSettings.isIgnoreCertificates()) {
+            ignoreCertificates(clCore.getUmssoHttpClient());
         }
         return clCore;
     }
@@ -134,5 +160,7 @@ public class UmSsoHttpClient {
         this.umSsoHttpConnectionSettings = umSsoHttpConnectionSettings;
     }
 
-
+    private void ignoreCertificates(HttpClient httpclient) {
+        httpclient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", 443, sslIgnoreCertificatesSocketFactory));
+    }
 }
