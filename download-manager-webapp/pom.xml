@@ -136,19 +136,9 @@
 	            </executions>
 	
 	            <configuration>
-	            	<backgroundImage>${basedir}/src/main/jettyconsole/magellium.png</backgroundImage>
 	                <additionalDependencies>
-<!-- 						<additionalDependency> -->
-<!-- 							<artifactId>jetty-console-log4j-plugin</artifactId> -->
-<!-- 						</additionalDependency> -->
-	                    <additionalDependency>
-	                        <artifactId>jetty-console-requestlog-plugin</artifactId>
-	                    </additionalDependency>
 	                    <additionalDependency>
 	                        <artifactId>jetty-console-gzip-plugin</artifactId>
-	                    </additionalDependency>
-	                    <additionalDependency>
-	                        <artifactId>jetty-console-ajp-plugin</artifactId>
 	                    </additionalDependency>
 	                    <additionalDependency>
 	                        <artifactId>jetty-console-startstop-plugin</artifactId>
@@ -156,11 +146,6 @@
 	                </additionalDependencies>
 	            </configuration>
 	        </plugin>
-<!--         	<plugin> -->
-<!-- 				<groupId>org.mortbay.jetty</groupId> -->
-<!-- 				<artifactId>maven-jetty-plugin</artifactId> -->
-<!-- 				<version>6.1.26</version> -->
-<!-- 			</plugin> -->
 		</plugins>
 		<resources>
 			<resource>
