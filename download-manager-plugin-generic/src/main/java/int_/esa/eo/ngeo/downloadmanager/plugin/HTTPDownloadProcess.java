@@ -85,7 +85,15 @@ public class HTTPDownloadProcess implements IDownloadProcess {
         this.umSsoHttpClient = new UmSsoHttpClient(umSsoHttpConnectionSettings);
     }
 
-    public synchronized EDownloadStatus startDownload() throws DMPluginException {
+    public EDownloadStatus startDownload() throws DMPluginException {
+        /* 
+         * If the download has been cancelled do not continue with the download process.
+         * This situation can occur when a waiting product is started after a STOP_IMMEDIATELY command is sent.
+         */
+        if(productDownloadProgressMonitor.getStatusWhenDownloadWasAborted() == EDownloadStatus.CANCELLED) {
+            return EDownloadStatus.CANCELLED;
+        }
+
         if(this.productMetadata == null) {
             retrieveDownloadDetails();
         }
@@ -325,7 +333,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
      *  If the number of files has been determined, then pause each file download
      *  Otherwise, pause the product download
      */
-    public synchronized EDownloadStatus pauseDownload() throws DMPluginException {
+    public EDownloadStatus pauseDownload() throws DMPluginException {
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
         if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecutePauseAction().contains(getStatus())) {
             throw new DMPluginException(String.format("Unable to pause download, status is %s", getStatus()));
@@ -342,7 +350,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
         return getStatus();
     }
 
-    public synchronized EDownloadStatus resumeDownload() throws DMPluginException {
+    public EDownloadStatus resumeDownload() throws DMPluginException {
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
         if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteResumeAction().contains(getStatus())) {
             throw new DMPluginException(String.format("Unable to resume download, status is %s", getStatus()));
@@ -352,7 +360,7 @@ public class HTTPDownloadProcess implements IDownloadProcess {
         return getStatus();
     }
 
-    public synchronized EDownloadStatus cancelDownload() throws DMPluginException {
+    public EDownloadStatus cancelDownload() throws DMPluginException {
         EDownloadStatus previousDownloadStatus = getStatus();
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
         if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteCancelAction().contains(previousDownloadStatus)) {
@@ -364,7 +372,12 @@ public class HTTPDownloadProcess implements IDownloadProcess {
         switch (previousDownloadStatus) {
         case RUNNING:
         case NOT_STARTED:
-            productDownloadProgressMonitor.abortFileDownloads(EDownloadStatus.CANCELLED);
+            if(productDownloadProgressMonitor.getFileDownloadList().size() > 0) {
+                productDownloadProgressMonitor.abortFileDownloads(EDownloadStatus.CANCELLED);
+            }else{
+                //no products are currently being downloaded, so start tidy-up
+                tidyUpAfterCancelledDownload();
+            }
             break;
         case PAUSED:
         case IDLE:
