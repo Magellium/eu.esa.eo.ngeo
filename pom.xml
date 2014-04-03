@@ -116,53 +116,44 @@
                 <DM_TITLE>ngEO Download Manager Test Unit</DM_TITLE>
                 <DM_WEB_UI_HEADING>&lt;img src="resources/images/ngeo-logo.png" /&gt;Download Manager Test Unit</DM_WEB_UI_HEADING>
 				<DM_CLI_PROMPT>ngEO-D</DM_CLI_PROMPT>
-				<NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
-			</properties>
-			<build>
-                <pluginManagement>
-                    <plugins>
-			            <plugin>
-			                <groupId>org.apache.maven.plugins</groupId>
-			                <artifactId>maven-assembly-plugin</artifactId>
-			                <version>2.4</version>
-			                <configuration>
-			                    <descriptors>
-			                        <descriptor>src/main/assembly/download-manager-win_i586-assembly.xml</descriptor>
-			                        <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
-			                        <descriptor>src/main/assembly/download-manager-linux_i586-assembly.xml</descriptor>
-			                        <descriptor>src/main/assembly/download-manager-linux_x64-assembly.xml</descriptor>
-			                        <descriptor>src/main/assembly/download-manager-macosx_x64-assembly.xml</descriptor>
-			                    </descriptors>
-			                </configuration>
-			            </plugin>
-                    </plugins>
-                </pluginManagement>
-			</build>
-		</profile>
-		<profile>
-			<id>ngeo-task6-tpz</id>
-			<activation>
-				<property>
-					<name>environment</name>
-					<value>ngeo-task6-tpz</value>
-				</property>
-			</activation>
-			<properties>
-				<NGEO_WEB_SERVER_REGISTRATION_URLS>https://ngEO-S2-Gate.int.oivv.org/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
 			</properties>
 		</profile>
-		<profile>
-			<id>ngeo-task6-esa</id>
-			<activation>
-				<property>
-					<name>environment</name>
-					<value>ngeo-task6-esa</value>
-				</property>
-			</activation>
-			<properties>
-				<NGEO_WEB_SERVER_REGISTRATION_URLS>https://ngrefpros1.ngeo.esa.int/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
-			</properties>
-		</profile>
+        <profile>
+            <id>ngeo-task6-s1</id>
+            <activation>
+                <property>
+                    <name>environment</name>
+                    <value>ngeo-task6-s1</value>
+                </property>
+            </activation>
+            <properties>
+                <NGEO_WEB_SERVER_REGISTRATION_URLS>https://ngrefpros1.ngeo.esa.int/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
+            </properties>
+        </profile>
+        <profile>
+            <id>ngeo-task6-s2</id>
+            <activation>
+                <property>
+                    <name>environment</name>
+                    <value>ngeo-task6-s2</value>
+                </property>
+            </activation>
+            <properties>
+                <NGEO_WEB_SERVER_REGISTRATION_URLS>https://ngrefpros2.ngeo.esa.int/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
+            </properties>
+        </profile>
+        <profile>
+            <id>ngeo-task6-s3</id>
+            <activation>
+                <property>
+                    <name>environment</name>
+                    <value>ngeo-task6-s3</value>
+                </property>
+            </activation>
+            <properties>
+                <NGEO_WEB_SERVER_REGISTRATION_URLS>https://ngrefpros3.ngeo.esa.int/ngeo/DMRegistrationMgmnt</NGEO_WEB_SERVER_REGISTRATION_URLS>
+            </properties>
+        </profile>
 		<profile>
 			<id>dream</id>
 			<properties>
@@ -171,42 +162,15 @@
 				<DM_CLI_PROMPT>DREAM-DM</DM_CLI_PROMPT>
 				<NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
 			</properties>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-assembly-plugin</artifactId>
-                            <version>2.4</version>
-                            <configuration>
-                                <descriptors>
-                                    <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
-                                    <descriptor>src/main/assembly/download-manager-linux_x64-assembly.xml</descriptor>
-                                </descriptors>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
 		</profile>
         <profile>
             <id>dev</id>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-assembly-plugin</artifactId>
-                            <version>2.4</version>
-                            <configuration>
-                                <descriptors>
-                                    <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
-                                </descriptors>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
+            <properties>
+                <DM_TITLE>ngEO Download Manager Test Unit</DM_TITLE>
+                <DM_WEB_UI_HEADING>&lt;img src="resources/images/ngeo-logo.png" /&gt;Download Manager Test Unit</DM_WEB_UI_HEADING>
+                <DM_CLI_PROMPT>ngEO-D</DM_CLI_PROMPT>
+                <NGEO_WEB_SERVER_REGISTRATION_URLS>http://localhost:8080/download-manager-mock-web-server/register</NGEO_WEB_SERVER_REGISTRATION_URLS>
+            </properties>
         </profile>
 		<profile>
 			<id>sonar</id>
@@ -232,7 +196,6 @@
                         <artifactId>maven-graph-plugin</artifactId>
                         <version>1.10</version>
                         <configuration>
-<!--                            <hideExternal>true</hideExternal> -->
                             <hideGroupId>true</hideGroupId>
                             <hideExternal>true</hideExternal>
                             <hideType>true</hideType>

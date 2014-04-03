@@ -28,8 +28,9 @@ Projects
 
 Environments
 
-  ngeo-task6-tpz
-  ngeo-task6-esa
+  ngeo-task6-s1
+  ngeo-task6-s2
+  ngeo-task6-s3
 
 If none of the above profiles are specified, the ngeo profile is used.
 

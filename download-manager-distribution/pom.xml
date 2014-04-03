@@ -57,79 +57,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
-                <version>2.5.1</version>
-				<executions>
-<!-- 					<execution> -->
-<!-- 						<id>install-jre-win-i586-locally</id> -->
-<!-- 						<phase>initialize</phase> -->
-<!-- 						<goals> -->
-<!-- 							<goal>install-file</goal> -->
-<!-- 						</goals> -->
-<!-- 						<configuration> -->
-<!-- 							<file>${basedir}/jre/jre-7u21-windows-i586.tar.gz</file> -->
-<!-- 							<groupId>oracle</groupId> -->
-<!-- 							<artifactId>jre-win-i586</artifactId> -->
-<!-- 							<version>${jre.version}</version> -->
-<!-- 							<packaging>tar.gz</packaging> -->
-<!-- 						</configuration> -->
-<!-- 					</execution> -->
-					<execution>
-						<id>install-jre-win-x64-locally</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${basedir}/jre/jre-7u21-windows-x64.tar.gz</file>
-							<groupId>oracle</groupId>
-							<artifactId>jre-win-x64</artifactId>
-							<version>${jre.version}</version>
-							<packaging>tar.gz</packaging>
-						</configuration>
-					</execution>
-<!-- 					<execution> -->
-<!-- 						<id>install-jre-linux-i586-locally</id> -->
-<!-- 						<phase>initialize</phase> -->
-<!-- 						<goals> -->
-<!-- 							<goal>install-file</goal> -->
-<!-- 						</goals> -->
-<!-- 						<configuration> -->
-<!-- 							<file>${basedir}/jre/jre-7u21-linux-i586.tar.gz</file> -->
-<!-- 							<groupId>oracle</groupId> -->
-<!-- 							<artifactId>jre-linux-i586</artifactId> -->
-<!-- 							<version>${jre.version}</version> -->
-<!-- 							<packaging>tar.gz</packaging> -->
-<!-- 						</configuration> -->
-<!-- 					</execution> -->
-					<execution>
-						<id>install-jre-linux-x64-locally</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${basedir}/jre/jre-7u21-linux-x64.tar.gz</file>
-							<groupId>oracle</groupId>
-							<artifactId>jre-linux-x64</artifactId>
-							<version>${jre.version}</version>
-							<packaging>tar.gz</packaging>
-						</configuration>
-					</execution>
-					<execution>
-						<id>install-jre-macosx-x64-locally</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${basedir}/jre/jre-7u21-macosx-x64.tar.gz</file>
-							<groupId>oracle</groupId>
-							<artifactId>jre-macosx-x64</artifactId>
-							<version>${jre.version}</version>
-							<packaging>tar.gz</packaging>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -175,4 +102,204 @@
 			</resource>
 		</resources>
 	</build>
+    <profiles>
+        <profile>
+            <id>ngeo</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+			            <plugin>
+			                <groupId>org.apache.maven.plugins</groupId>
+			                <artifactId>maven-install-plugin</artifactId>
+			                <version>2.5.1</version>
+			                <executions>
+			                    <execution>
+			                        <id>install-jre-win-i586-locally</id>
+			                        <phase>initialize</phase>
+			                        <goals>
+			                            <goal>install-file</goal>
+			                        </goals>
+			                        <configuration>
+			                            <file>${basedir}/jre/jre-7u21-windows-i586.tar.gz</file>
+			                            <groupId>oracle</groupId>
+			                            <artifactId>jre-win-i586</artifactId>
+			                            <version>${jre.version}</version>
+			                            <packaging>tar.gz</packaging>
+			                        </configuration>
+			                    </execution>
+			                    <execution>
+			                        <id>install-jre-win-x64-locally</id>
+			                        <phase>initialize</phase>
+			                        <goals>
+			                            <goal>install-file</goal>
+			                        </goals>
+			                        <configuration>
+			                            <file>${basedir}/jre/jre-7u21-windows-x64.tar.gz</file>
+			                            <groupId>oracle</groupId>
+			                            <artifactId>jre-win-x64</artifactId>
+			                            <version>${jre.version}</version>
+			                            <packaging>tar.gz</packaging>
+			                        </configuration>
+			                    </execution>
+			                    <execution>
+			                        <id>install-jre-linux-i586-locally</id>
+			                        <phase>initialize</phase>
+			                        <goals>
+			                            <goal>install-file</goal>
+			                        </goals>
+			                        <configuration>
+			                            <file>${basedir}/jre/jre-7u21-linux-i586.tar.gz</file>
+			                            <groupId>oracle</groupId>
+			                            <artifactId>jre-linux-i586</artifactId>
+			                            <version>${jre.version}</version>
+			                            <packaging>tar.gz</packaging>
+			                        </configuration>
+			                    </execution>
+			                    <execution>
+			                        <id>install-jre-linux-x64-locally</id>
+			                        <phase>initialize</phase>
+			                        <goals>
+			                            <goal>install-file</goal>
+			                        </goals>
+			                        <configuration>
+			                            <file>${basedir}/jre/jre-7u21-linux-x64.tar.gz</file>
+			                            <groupId>oracle</groupId>
+			                            <artifactId>jre-linux-x64</artifactId>
+			                            <version>${jre.version}</version>
+			                            <packaging>tar.gz</packaging>
+			                        </configuration>
+			                    </execution>
+			                    <execution>
+			                        <id>install-jre-macosx-x64-locally</id>
+			                        <phase>initialize</phase>
+			                        <goals>
+			                            <goal>install-file</goal>
+			                        </goals>
+			                        <configuration>
+			                            <file>${basedir}/jre/jre-7u21-macosx-x64.tar.gz</file>
+			                            <groupId>oracle</groupId>
+			                            <artifactId>jre-macosx-x64</artifactId>
+			                            <version>${jre.version}</version>
+			                            <packaging>tar.gz</packaging>
+			                        </configuration>
+			                    </execution>
+			                </executions>
+			            </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>2.4</version>
+                            <configuration>
+                                <descriptors>
+                                    <descriptor>src/main/assembly/download-manager-win_i586-assembly.xml</descriptor>
+                                    <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
+                                    <descriptor>src/main/assembly/download-manager-linux_i586-assembly.xml</descriptor>
+                                    <descriptor>src/main/assembly/download-manager-linux_x64-assembly.xml</descriptor>
+                                    <descriptor>src/main/assembly/download-manager-macosx_x64-assembly.xml</descriptor>
+                                </descriptors>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>dream</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-install-plugin</artifactId>
+                            <version>2.5.1</version>
+                            <executions>
+                                <execution>
+                                    <id>install-jre-win-x64-locally</id>
+                                    <phase>initialize</phase>
+                                    <goals>
+                                        <goal>install-file</goal>
+                                    </goals>
+                                    <configuration>
+                                        <file>${basedir}/jre/jre-7u21-windows-x64.tar.gz</file>
+                                        <groupId>oracle</groupId>
+                                        <artifactId>jre-win-x64</artifactId>
+                                        <version>${jre.version}</version>
+                                        <packaging>tar.gz</packaging>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>install-jre-linux-x64-locally</id>
+                                    <phase>initialize</phase>
+                                    <goals>
+                                        <goal>install-file</goal>
+                                    </goals>
+                                    <configuration>
+                                        <file>${basedir}/jre/jre-7u21-linux-x64.tar.gz</file>
+                                        <groupId>oracle</groupId>
+                                        <artifactId>jre-linux-x64</artifactId>
+                                        <version>${jre.version}</version>
+                                        <packaging>tar.gz</packaging>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>2.4</version>
+                            <configuration>
+                                <descriptors>
+                                    <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
+                                    <descriptor>src/main/assembly/download-manager-linux_x64-assembly.xml</descriptor>
+                                </descriptors>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-install-plugin</artifactId>
+                            <version>2.5.1</version>
+                            <executions>
+                                <execution>
+                                    <id>install-jre-win-x64-locally</id>
+                                    <phase>initialize</phase>
+                                    <goals>
+                                        <goal>install-file</goal>
+                                    </goals>
+                                    <configuration>
+                                        <file>${basedir}/jre/jre-7u21-windows-x64.tar.gz</file>
+                                        <groupId>oracle</groupId>
+                                        <artifactId>jre-win-x64</artifactId>
+                                        <version>${jre.version}</version>
+                                        <packaging>tar.gz</packaging>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>2.4</version>
+                            <configuration>
+                                <descriptors>
+                                    <descriptor>src/main/assembly/download-manager-win_x64-assembly.xml</descriptor>
+                                </descriptors>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 </project>
