@@ -23,11 +23,11 @@ Features
 Release History
 ========================================================
 0.6.2 - DREAM CDR Feedback
-    Release date TBD
+    Release date 3rd April 2014
              - DMTU-159 - REST interface - Send DAR directly to DMTU
              - DMTU-158 - REST interface - Set priority when adding DAR/product
              - DMTU-164 - REST interface - Include DAR UUID into response of "Add Product" operation.
-             - DMTU-45  - Changes to the number of concurrent download threads no longer require an application restart.
+             - DMTU-45  - A change to the number of concurrent download threads no longer requires an application restart.
              - Web UI improvements:
                  - DMTU-103 - Hover over IN_ERROR icons in Firefox on does not show the error message
                  - DMTU-155 - Back button on adv. config page does not work in IE
