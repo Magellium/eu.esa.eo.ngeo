@@ -1,5 +1,7 @@
 package int_.esa.eo.ngeo.dmtu.controller;
 
+import javax.servlet.http.HttpServletResponse;
+
 import int_.esa.eo.ngeo.downloadmanager.builder.CommandResponseBuilder;
 import int_.esa.eo.ngeo.downloadmanager.download.DownloadMonitor;
 import int_.esa.eo.ngeo.downloadmanager.exception.DownloadOperationException;
@@ -28,7 +30,8 @@ public class ProductController {
 
     @RequestMapping(value="/products/{productUuid}", method = RequestMethod.GET, params="action=pause")
     @ResponseBody
-    public CommandResponse pauseProductDownload(@PathVariable String productUuid) {
+    public CommandResponse pauseProductDownload(HttpServletResponse response, @PathVariable String productUuid) {
+        setNoCacheHeader(response);
         try {
             return commandResponseBuilder.buildCommandResponse(downloadMonitor.pauseProductDownload(productUuid), "Unable to pause product");
         } catch (DownloadOperationException | ProductNotFoundException e) {
@@ -38,7 +41,8 @@ public class ProductController {
 
     @RequestMapping(value="/products/{productUuid}", method = RequestMethod.GET, params="action=resume")
     @ResponseBody
-    public CommandResponse resumeProductDownload(@PathVariable String productUuid) {
+    public CommandResponse resumeProductDownload(HttpServletResponse response, @PathVariable String productUuid) {
+        setNoCacheHeader(response);
         try {
             return commandResponseBuilder.buildCommandResponse(downloadMonitor.resumeProductDownload(productUuid), "Unable to resume product");
         } catch (DownloadOperationException | ProductNotFoundException e) {
@@ -48,7 +52,8 @@ public class ProductController {
 
     @RequestMapping(value="/products/{productUuid}", method = RequestMethod.GET, params="action=cancel")
     @ResponseBody
-    public CommandResponse cancelProductDownload(@PathVariable String productUuid) {
+    public CommandResponse cancelProductDownload(HttpServletResponse response, @PathVariable String productUuid) {
+        setNoCacheHeader(response);
         try {
             return commandResponseBuilder.buildCommandResponse(downloadMonitor.cancelProductDownload(productUuid), "Unable to cancel product");
         } catch (DownloadOperationException | ProductNotFoundException e) {
@@ -58,11 +63,16 @@ public class ProductController {
 
     @RequestMapping(value="/products/{productUuid}", method = RequestMethod.GET, params="action=changePriority")
     @ResponseBody
-    public CommandResponse changeProductPriority(@PathVariable String productUuid, @RequestParam ProductPriority newPriority) {
+    public CommandResponse changeProductPriority(HttpServletResponse response, @PathVariable String productUuid, @RequestParam ProductPriority newPriority) {
+        setNoCacheHeader(response);
         try {
             return commandResponseBuilder.buildCommandResponse(downloadMonitor.changeProductPriority(productUuid, newPriority), "Unable to change priority of product.");
         } catch (ProductNotFoundException e) {
             return commandResponseBuilder.buildCommandResponse(false, e.getLocalizedMessage(), e.getClass().getName());
         }
+    }
+    
+    private void setNoCacheHeader(HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-cache");
     }
 }

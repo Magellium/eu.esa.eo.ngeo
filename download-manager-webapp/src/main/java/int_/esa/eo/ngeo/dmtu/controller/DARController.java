@@ -61,7 +61,8 @@ public class DARController {
 
     @RequestMapping(value="/download", method = RequestMethod.POST, params = {"productDownloadUrl"})
     @ResponseBody
-    public CommandResponseWithDarDetails addManualProductDownload(@RequestParam String productDownloadUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+    public CommandResponseWithDarDetails addManualProductDownload(HttpServletResponse response, @RequestParam String productDownloadUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+        setNoCacheHeader(response);
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         try {
             Pair<String, String> darAndProductUuidPair = dataAccessRequestManager.addManualProductDownload(productDownloadUrl, priority);
@@ -74,18 +75,19 @@ public class DARController {
 
     @RequestMapping(value="/download", method = RequestMethod.POST, params = {"darUrl"})
     @ResponseBody
-    public CommandResponseWithDarDetails addManualDarByUrl(@RequestParam String darUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+    public CommandResponseWithDarDetails addManualDarByUrl(HttpServletResponse response, @RequestParam String darUrl, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+        setNoCacheHeader(response);
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         UmSsoHttpRequestAndResponse staticDarRequestAndResponse = null;
         try {
             URL dataAccessRequestUrl = new URL(darUrl);
 
             staticDarRequestAndResponse = staticDarService.getStaticDar(dataAccessRequestUrl);
-            UmssoHttpResponse response = staticDarRequestAndResponse.getResponse();
+            UmssoHttpResponse darResponse = staticDarRequestAndResponse.getResponse();
 
             NgeoWebServerResponseParser ngeoWebServerResponseParser = new NgeoWebServerResponseParser(xmlWithSchemaTransformer);
-            DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(dataAccessRequestUrl, response);
-            Date responseDate = new ResponseHeaderParser().searchForResponseDate(response.getHeaders());
+            DataAccessMonitoringResp dataAccessMonitoringResponse = ngeoWebServerResponseParser.parseDataAccessMonitoringResponse(dataAccessRequestUrl, darResponse);
+            Date responseDate = new ResponseHeaderParser().searchForResponseDate(darResponse.getHeaders());
 
             DataAccessRequest newDar = new DataAccessRequestBuilder().buildDAR(darUrl, null, false);
             darMonitorController.addDataAccessRequest(newDar);
@@ -105,7 +107,8 @@ public class DARController {
 
     @RequestMapping(value="/download", method = RequestMethod.POST, params = {"dar", "darName"})
     @ResponseBody
-    public CommandResponseWithDarDetails addManualDar(@RequestParam String dar, String darName, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+    public CommandResponseWithDarDetails addManualDar(HttpServletResponse response, @RequestParam String dar, String darName, @RequestParam(value = "priority", defaultValue = "NORMAL") ProductPriority priority) {
+        setNoCacheHeader(response);
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         try {
             NgeoWebServerResponseParser ngeoWebServerResponseParser = new NgeoWebServerResponseParser(xmlWithSchemaTransformer);
@@ -126,7 +129,8 @@ public class DARController {
 
     @RequestMapping(value="/clearActivityHistory", method = RequestMethod.GET)
     @ResponseBody
-    public CommandResponse clearActivityHistory() {
+    public CommandResponse clearActivityHistory(HttpServletResponse response) {
+        setNoCacheHeader(response);
         CommandResponseBuilder commandResponseBuilder = new CommandResponseBuilder();
         return commandResponseBuilder.buildCommandResponse(dataAccessRequestManager.clearActivityHistory(), "Unable to clear activity history.");
     }

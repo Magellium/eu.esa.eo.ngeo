@@ -47,7 +47,7 @@ public class DARControllerTest {
         Pair<String, String> darAndProductUuidPair = new ImmutablePair<>(darUuid, productUuid);
 		when(dataAccessRequestManager.addManualProductDownload(downloadUrl, ProductPriority.NORMAL)).thenReturn(darAndProductUuidPair);
 		
-		CommandResponseWithDarDetails commandResponse = darController.addManualProductDownload(downloadUrl, ProductPriority.NORMAL);
+		CommandResponseWithDarDetails commandResponse = darController.addManualProductDownload(mock(HttpServletResponse.class), downloadUrl, ProductPriority.NORMAL);
 		assertTrue(commandResponse.isSuccess());
         assertEquals(darUuid, commandResponse.getDarUuid());
         assertEquals(productUuid, commandResponse.getProductUuid());
