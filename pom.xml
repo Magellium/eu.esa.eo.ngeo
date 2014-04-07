@@ -31,6 +31,7 @@
 		<module>download-manager-webapp</module>
 		<module>download-manager-distribution</module>
 		<module>download-manager-dar-monitor</module>
+		<module>download-manager-plugin-csn</module>
 	</modules>
 
 	<developers>
