@@ -34,4 +34,4 @@ Environments
 
 If none of the above profiles are specified, the ngeo profile is used.
 
-Multiple profiles can be included as a comma-seperated list e.g. -P ngeo,ngeo-task6-tpz
+Multiple profiles can be included as a comma-seperated list e.g. -P ngeo,ngeo-task6-s1
