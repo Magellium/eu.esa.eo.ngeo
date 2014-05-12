@@ -35,6 +35,8 @@ public class ProductDownloadThreadPoolExecutor extends ThreadPoolExecutor {
     @SuppressWarnings("unchecked")
     @Override
     protected synchronized void beforeExecute(Thread t, Runnable r) {
+        super.beforeExecute(t, r);
+        
         LOGGER.debug("Perform beforeExecute() logic");
         ComparableFutureTask<Long> task = (ComparableFutureTask<Long>) r;
         if(task.getProductDownloadThread().getProduct().isPausedByDownloadManager()) {
@@ -46,8 +48,11 @@ public class ProductDownloadThreadPoolExecutor extends ThreadPoolExecutor {
     @SuppressWarnings("unchecked")
     @Override
     protected synchronized void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        
         LOGGER.debug("Perform afterExecute() logic");
         ComparableFutureTask<Long> task = (ComparableFutureTask<Long>) r;
+
         if(task.getProductDownloadThread().getProduct().isPausedByDownloadManager()) {
             LOGGER.debug("Paused by Download Manager, adding to queue");
             this.submit(task.getProductDownloadThread());

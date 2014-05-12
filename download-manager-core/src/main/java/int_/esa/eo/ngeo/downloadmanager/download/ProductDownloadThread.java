@@ -28,6 +28,8 @@ public class ProductDownloadThread implements Runnable {
             getDownloadProcess().startDownload();
         } catch (DMPluginException e) {
             throw new NonRecoverableException(ERR_UNABLE_TO_START_DOWNLOAD, e);
+        } catch (Throwable t) {
+            LOGGER.error(String.format("Exception when running download process for product %s: %s - %s", product.getProductAccessUrl(), t.getClass().getName(), t.getMessage(), t));
         }
     }
 

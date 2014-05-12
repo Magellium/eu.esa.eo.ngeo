@@ -8,7 +8,12 @@ import int_.esa.eo.ngeo.downloadmanager.observer.DownloadSubject;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ProductDownloadListener implements IProductDownloadListener, DownloadSubject {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductDownloadListener.class);
+
     private List<DownloadObserver> observers;
 
     public static final String MANUAL_DATA_REQUEST = "Manual Data Request";
@@ -40,14 +45,22 @@ public class ProductDownloadListener implements IProductDownloadListener, Downlo
     @Override
     public void notifyObserversOfProgress(String productUuid, ProductProgress productProgress) {
         for (DownloadObserver o : observers) {
-            o.updateProgress(productUuid, productProgress);
+            try {
+                o.updateProgress(productUuid, productProgress);
+            }catch (Throwable t) {
+                LOGGER.error(String.format("Exception whilst notifying product progress to download subject: %s - %s", t.getClass().getName(), t.getMessage(), t));
+            }
         }
     }
 
     @Override
     public void notifyObserversOfProductDetails(String productUuid, String productName, Integer numberOfFiles, Long overallSize) {
         for (DownloadObserver o : observers) {
-            o.updateProductDetails(productUuid, productName, numberOfFiles, overallSize);
+            try {
+                o.updateProductDetails(productUuid, productName, numberOfFiles, overallSize);
+            }catch (Throwable t) {
+                LOGGER.error(String.format("Exception whilst updating product details to download subject: %s - %s", t.getClass().getName(), t.getMessage(), t));
+            }
         }
     }
 
