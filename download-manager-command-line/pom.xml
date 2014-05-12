@@ -34,6 +34,11 @@
 			<artifactId>log4j</artifactId>
 		</dependency>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
@@ -115,24 +120,6 @@
 					</archive>
 				</configuration>
 			</plugin>
-<!-- 			<plugin> -->
-<!-- 				<groupId>org.codehaus.mojo</groupId> -->
-<!-- 				<artifactId>osxappbundle-maven-plugin</artifactId> -->
-<!-- 				<version>1.0-alpha-2</version> -->
-<!-- 				<configuration> -->
-<!-- 					<bundleName>ngEO Download Manager CLI</bundleName> -->
-<!-- 					<mainClass>${jar.mainclass}</mainClass> -->
-<!-- 					<javaApplicationStub>${basedir}/src/main/JavaApplicationStub</javaApplicationStub> -->
-<!-- 				</configuration> -->
-<!-- 				<executions> -->
-<!-- 					<execution> -->
-<!-- 						<phase>package</phase> -->
-<!-- 						<goals> -->
-<!-- 							<goal>bundle</goal> -->
-<!-- 						</goals> -->
-<!-- 					</execution> -->
-<!-- 				</executions> -->
-<!-- 			</plugin> -->
 		</plugins>
 	</build>
 	<repositories>
