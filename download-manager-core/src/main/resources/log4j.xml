@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-	<appender name="DownloadManagerLog" class="org.apache.log4j.RollingFileAppender">
+    <appender name="DownloadManagerLog" class="org.apache.log4j.RollingFileAppender">
         <param name="file" value="${DM_HOME}/logs/download-manager.log" />
-		<param name="MaxBackupIndex" value="5" />
-	    <param name="MaxFileSize" value="20MB" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value=" %d{HH:mm:ss} %-5p: %c{1} - %m%n" />
+        <param name="MaxBackupIndex" value="5" />
+        <param name="MaxFileSize" value="20MB" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value=" %d{HH:mm:ss} %-5p: %c{1} - %m%n" />
         </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="levelMin" value="TRACE" />
+            <param name="levelMax" value="WARN" />
+        </filter>
+    </appender>
+
+    <appender name="DownloadManagerErrorLog" class="org.apache.log4j.RollingFileAppender">
+        <param name="file" value="${DM_HOME}/logs/download-manager-error.log" />
+        <param name="MaxBackupIndex" value="5" />
+        <param name="MaxFileSize" value="20MB" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value=" %d{HH:mm:ss} %-5p: %c{1} - %m%n" />
+        </layout>
+	    <filter class="org.apache.log4j.varia.LevelRangeFilter">
+	        <param name="levelMin" value="ERROR" />
+	        <param name="levelMax" value="ERROR" />
+	    </filter>
     </appender>
 
 	<appender name="productDownloadTerminationLog" class="org.apache.log4j.RollingFileAppender">
@@ -60,6 +77,7 @@
 		<level value="info" />
 	</logger>
 
+    <!-- Set to "debug" to view details of plugin actions, including HTTP communications -->
 	<logger name="int_.esa.eo.ngeo.downloadmanager.plugin">
 		<level value="info" />
 	</logger>
@@ -121,6 +139,7 @@
 	<!-- Root Logger -->
 	<root>
 		<priority value="warn" />
-		<appender-ref ref="DownloadManagerLog" />
+        <appender-ref ref="DownloadManagerLog" />
+        <appender-ref ref="DownloadManagerErrorLog" />
 	</root>
 </log4j:configuration>
