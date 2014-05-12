@@ -61,14 +61,17 @@ public class NotificationManager {
     private void sendEmail(String title, String message)
             throws NotificationException {
         SMTPServerDetails smtpServerDetails = smtpServerDetailsBuilder.createSMTPDetailsFromSettings(settingsManager);
-        String recipientsAsString = settingsManager.getSetting(UserModifiableSetting.EMAIL_RECIPIENTS);
-        if(smtpServerDetails == null || StringUtils.isNotEmpty(recipientsAsString)) {
-            String[] recipients = recipientsAsString.split(",");
+        //SMTP Details may not be filled in completely by the user, in which case do not attempt to send an email
+        if(smtpServerDetails != null) {
+            String recipientsAsString = settingsManager.getSetting(UserModifiableSetting.EMAIL_RECIPIENTS);
+            if(smtpServerDetails == null || StringUtils.isNotEmpty(recipientsAsString)) {
+                String[] recipients = recipientsAsString.split(",");
 
-            try {
-                emailSender.postMail(recipients, title, message, smtpServerDetails);
-            }catch(MessagingException ex) {
-                throw new NotificationException("Unable to send email.", ex);
+                try {
+                    emailSender.postMail(recipients, title, message, smtpServerDetails);
+                }catch(MessagingException ex) {
+                    throw new NotificationException("Unable to send email.", ex);
+                }
             }
         }
     }
