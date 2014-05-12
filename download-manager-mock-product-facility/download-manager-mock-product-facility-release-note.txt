@@ -31,7 +31,9 @@ In order to reset this feature i.e. the product is idle, the web server applicat
 
 Release History
 ======================================================================
-
+0.7.0
+    Release date TBD
+    - Updated idle product metalink example to a file which is available - the previous file had been removed for the URL specified.
 0.5.7
     Release date 12th December 2013
     - Updated metalink to provide a more comprehensive and realistic example. Covers the scenario where the file name may contain folders.
