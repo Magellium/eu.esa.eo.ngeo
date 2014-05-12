@@ -23,7 +23,15 @@ public abstract class CsnPackageReader {
         ArchiveEntry entry;
         while (null != (entry = packageReaderInputStream.getNextEntry())) {
             if(!entry.isDirectory()) {
-                entryList.add(entry.getName());
+                String entryName = entry.getName();
+                /* 
+                 * entryName may contain a folder in its path - we do not need to send this to the CSN DC service.
+                 * e.g. Inventory_1397557679.7047/133654_RS2_20140414_162717_0076_SCWA_HH_SGF_320223_9019_9563180_PV.tif
+                 * should be sent as 133654_RS2_20140414_162717_0076_SCWA_HH_SGF_320223_9019_9563180_PV.tif
+                 */
+                String[] entryNameArray = entryName.split("[/\\\\]");
+                
+                entryList.add(entryNameArray[entryNameArray.length - 1]);
             }
         }
         

@@ -33,11 +33,11 @@ public class ReadCSNPackageTest {
         List<String> csnPackageEntries = csnPackageReader.readPackageEntries();
 
         assertEquals(5, csnPackageEntries.size());
-        assertEquals("Inventory_1397557679.7047/133654_RS2_20140414_162717_0076_SCWA_HH_SGF_320223_9019_9563180_OSN.zip", csnPackageEntries.get(0));
-        assertEquals("Inventory_1397557679.7047/copernicus.jpg", csnPackageEntries.get(1));
-        assertEquals("Inventory_1397557679.7047/img_colorlogo_negative.gif", csnPackageEntries.get(2));
-        assertEquals("Inventory_1397557679.7047/Sentinel1_images/Brussels_from_Sentinel-1A_node_full_image.jpg", csnPackageEntries.get(3));
-        assertEquals("Inventory_1397557679.7047/Sentinel1_images/Sentinel-1_radar_modes_node_full_image.jpg", csnPackageEntries.get(4));
+        assertEquals("133654_RS2_20140414_162717_0076_SCWA_HH_SGF_320223_9019_9563180_OSN.zip", csnPackageEntries.get(0));
+        assertEquals("copernicus.jpg", csnPackageEntries.get(1));
+        assertEquals("img_colorlogo_negative.gif", csnPackageEntries.get(2));
+        assertEquals("Brussels_from_Sentinel-1A_node_full_image.jpg", csnPackageEntries.get(3));
+        assertEquals("Sentinel-1_radar_modes_node_full_image.jpg", csnPackageEntries.get(4));
 
         assertEquals("40fcb5d6622f8305fee653e4b16563a9", csnPackageReader.getMd5Checksum());
         csnPackageReader.closePackageInputStreams();
@@ -54,9 +54,9 @@ public class ReadCSNPackageTest {
         List<String> csnPackageEntries = csnPackageReader.readPackageEntries();
 
         assertEquals(3, csnPackageEntries.size());
-        assertEquals("Inventory_1397557679.7047/133654_RS2_20140414_162717_0076_SCWA_HH_SGF_320223_9019_9563180_QNO.zip", csnPackageEntries.get(0));
-        assertEquals("Inventory_1397557679.7047/img_colorlogo_darkblue.gif", csnPackageEntries.get(1));
-        assertEquals("Inventory_1397557679.7047/Unpacking_Sentinel-3A_radiometer_medium.jpg", csnPackageEntries.get(2));
+        assertEquals("133654_RS2_20140414_162717_0076_SCWA_HH_SGF_320223_9019_9563180_QNO.zip", csnPackageEntries.get(0));
+        assertEquals("img_colorlogo_darkblue.gif", csnPackageEntries.get(1));
+        assertEquals("Unpacking_Sentinel-3A_radiometer_medium.jpg", csnPackageEntries.get(2));
 
         assertEquals("f11d998808ad6bfbe330ecf3671b0c9f", csnPackageReader.getMd5Checksum());
         csnPackageReader.closePackageInputStreams();
