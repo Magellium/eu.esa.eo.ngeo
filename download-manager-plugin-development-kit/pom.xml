@@ -54,11 +54,14 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<plugins>
+ 		<plugins>
+<!-- 
+    Each Download Manager plugin requires a copy of this serviceloader maven plugin in order to be loaded correctly
+    when the Download Manager starts.
 			<plugin>
 				<groupId>eu.somatik.serviceloader-maven-plugin</groupId>
 				<artifactId>serviceloader-maven-plugin</artifactId>
-				<version>1.0.2</version>
+				<version>1.0.3</version>
 				<configuration>
 					<services>
 						<param>int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin</param>
@@ -72,6 +75,7 @@
 					</execution>
 				</executions>
 			</plugin>
+ -->
 		</plugins>
 	</build>
 </project>

@@ -1,0 +1,1 @@
+This is not a valid csn package file format, therefore an exception should be thrown.

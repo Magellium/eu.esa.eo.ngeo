@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="CSNDC" targetNamespace="http://localhost/Emsa/Emsa.wsdl"
+	xmlns:tns="http://localhost/Emsa/Emsa.wsdl" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csn="http://localhost/csn.xsd"
+	xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/"
+	xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/"
+	xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+	<types>
+
+		<schema targetNamespace="http://localhost/csn.xsd"
+			xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+			xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csn="http://localhost/csn.xsd"
+			xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+			attributeFormDefault="unqualified">
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+			<complexType name="VectorOfStrings">
+				<sequence>
+					<element ref="csn:PackageName" minOccurs="0" maxOccurs="unbounded" />
+				</sequence>
+			</complexType>
+			<complexType name="Package">
+				<sequence>
+					<element ref="csn:Filename" minOccurs="1" maxOccurs="1" />
+					<element ref="csn:MD5" minOccurs="1" maxOccurs="1" />
+					<element ref="csn:orderID" minOccurs="1" maxOccurs="1" />
+					<element ref="csn:PackageList" minOccurs="1" maxOccurs="1" />
+				</sequence>
+			</complexType>
+			<complexType name="TransmitRequest">
+				<sequence>
+					<element ref="csn:PackageData" minOccurs="0" maxOccurs="1" />
+				</sequence>
+			</complexType>
+			<element name="PackageName" type="xsd:string" />
+			<element name="Filename" type="xsd:string" />
+			<element name="MD5" type="xsd:string" />
+			<element name="orderID" type="xsd:int" />
+			<element name="PackageList" type="csn:VectorOfStrings" />
+			<element name="PackageData" type="csn:Package" />
+			<element name="Response" type="xsd:string" />
+			<element name="OutOfOrderList" type="csn:VectorOfStrings" />
+			<element name="UnnotifiedPackages" type="csn:VectorOfStrings" />
+			<element name="InputPackage" type="csn:TransmitRequest" />
+			<!-- operation request element -->
+			<element name="TransmitPackage">
+				<complexType>
+					<sequence>
+						<element ref="csn:InputPackage" minOccurs="0" maxOccurs="1" />
+					</sequence>
+				</complexType>
+			</element>
+			<!-- operation response element -->
+			<element name="TransmitResponse">
+				<complexType>
+					<sequence>
+						<element ref="csn:Response" minOccurs="1" maxOccurs="1" />
+						<element ref="csn:OutOfOrderList" minOccurs="1" maxOccurs="1" />
+						<element ref="csn:UnnotifiedPackages" minOccurs="1"
+							maxOccurs="1" />
+					</sequence>
+				</complexType>
+			</element>
+		</schema>
+
+	</types>
+
+	<message name="TransmitPackage">
+		<part name="parameters" element="csn:TransmitPackage" />
+	</message>
+
+	<message name="TransmitResponse">
+		<part name="parameters" element="csn:TransmitResponse" />
+	</message>
+
+	<portType name="EmsaPortType">
+		<operation name="TransmitPackage">
+			<documentation>Service definition of function csn__TransmitPackage
+			</documentation>
+			<input message="tns:TransmitPackage" />
+			<output message="tns:TransmitResponse" />
+		</operation>
+	</portType>
+
+	<binding name="Emsa" type="tns:EmsaPortType">
+		<SOAP:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<operation name="TransmitPackage">
+			<SOAP:operation soapAction="" />
+			<input>
+				<SOAP:body parts="parameters" use="literal" />
+			</input>
+			<output>
+				<SOAP:body parts="parameters" use="literal" />
+			</output>
+		</operation>
+	</binding>
+
+	<service name="Emsa">
+		<documentation>MD5 Service</documentation>
+		<port name="Emsa" binding="tns:Emsa">
+			<SOAP:address location="https://csndc-pp.emsa.europa.eu:444/javabridge/acs/csn_hash_server.php" />
+		</port>
+	</service>
+
+</definitions>

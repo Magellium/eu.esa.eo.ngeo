@@ -99,7 +99,6 @@ public class ProductDownloadProgressMonitor implements FilesDownloadListener {
         }else{
             setPercentageComplete(-1);
         }
-        LOGGER.debug(String.format("Percentage complete: %s", Integer.toString(getPercentageComplete())));
         notifyProgressListener();
     }
 

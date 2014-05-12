@@ -1,4 +1,4 @@
-package int_.esa.eo.ngeo.downloadmanager.plugin;
+package int_.esa.eo.ngeo.downloadmanager.plugin.http;
 
 import int_.esa.eo.ngeo.downloadmanager.http.ResponseHeaderParser;
 import int_.esa.eo.ngeo.downloadmanager.http.UmSsoHttpClient;
@@ -79,6 +79,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
                 long currentFileSize = destination.size();
 
                 URL fileUrl = fileDownloadMetadata.getFileURL();
+                LOGGER.debug(String.format("Executing HTTP request for file download: %s", fileUrl.toString()));
                 //file has been partially downloaded
                 if (currentFileSize > 0) {
                     List<Header> headers = new ArrayList<>();
@@ -90,6 +91,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
                 UmssoHttpResponse response = fileDownloadRequestAndResponse.getResponse();
 
                 int responseCode = response.getStatusLine().getStatusCode();
+                LOGGER.debug(String.format("HTTP response code for file download: %s", responseCode));
                 switch (responseCode) {
                 case HttpStatus.SC_OK:
                 case HttpStatus.SC_PARTIAL_CONTENT:

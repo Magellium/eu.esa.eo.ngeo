@@ -14,12 +14,6 @@
 		<dependency>
 			<groupId>int_.esa.eo.ngeo</groupId>
 			<artifactId>download-manager-plugin-interface</artifactId>
-			<version>${plugin-interface-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-plugin-development-kit</artifactId>
-			<version>${project.parent.version}</version>
 		</dependency>
 
 		<!-- Logging -->
@@ -63,10 +57,27 @@
 	</dependencies>
 	<build>
 		<plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>eu.somatik.serviceloader-maven-plugin</groupId>
 				<artifactId>serviceloader-maven-plugin</artifactId>
-				<version>1.0.2</version>
+				<version>1.0.3</version>
 				<configuration>
 					<services>
 						<param>int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin</param>
