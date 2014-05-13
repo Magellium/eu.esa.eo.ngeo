@@ -22,6 +22,13 @@ Features
 
 Release History
 ========================================================
+0.7.0 - SS-FAT Release
+    Release date 13th May 2014
+             - CSN Plugin included
+             - Improvements to debug and error handling of all plugins which use the Plugin Development Kit (generic and CSN).
+             - Updated logging process to provide a separate file which contains errors.
+             - Resolved NullPointerException when sending attempting to send emails with incomplete email details.
+             - Improved error handling with download threads within the Download Manager Core.
 0.6.2 - DREAM CDR Feedback
     Release date 3rd April 2014
              - DMTU-159 - REST interface - Send DAR directly to DMTU
@@ -263,9 +270,6 @@ Assumptions
 Known Issues
 ========================================================
 
-DMTU-4   - Pause and resume buttons sometimes do not respond in the Web UI.
 DMTU-70  - Limitation: notification of product download from WEBS not handled correctly
 DMTU-80  - DAGICD: No requirement for handling HTTP 301/302 status codes
-DMTU-8   - Double clicking the FirstStartupConfig page's "Save and Register" button causes an error
 DMTU-62  - Name of downloaded file may be poor in absence of Content-Disposition HTTP response header
-DMTU-149 - Web UI - Update of DAR / product status not working as expected in Internet Explorer

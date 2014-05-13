@@ -22,30 +22,13 @@
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
 				<include>${project.groupId}:download-manager-command-line</include>
+                <include>${project.groupId}:download-manager-webapp</include>
 			</includes>
 			<binaries>
 				<outputDirectory>bin</outputDirectory>
 				<outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>
 				<unpack>false</unpack>
 			</binaries>
-		</moduleSet>
-		<moduleSet>
-			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>${project.groupId}:download-manager-webapp</include>
-			</includes>
-			<sources>
-				<fileSets>
-					<fileSet>
-		    	        <directory>${project.build.directory}</directory>
-		    	        <outputDirectory>bin</outputDirectory>
-		    	        <includes>
-		    	            <include>download-manager-webapp-jetty-console.war</include>
-		    	        </includes>
-	    		    </fileSet>
-				</fileSets>
-				<includeModuleDirectory>false</includeModuleDirectory>
-			</sources>
 		</moduleSet>
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
@@ -76,10 +59,13 @@
 		</moduleSet>
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>${project.groupId}:download-manager-plugin-generic</include>
-				<include>${project.groupId}:download-manager-plugin-mock-sentinel2</include>
-			</includes>
+            <includes>
+                <include>${project.groupId}:download-manager-plugin-*</include>
+            </includes>
+            <excludes>
+                <exclude>${project.groupId}:download-manager-plugin-interface</exclude>
+                <exclude>${project.groupId}:download-manager-plugin-development-kit</exclude>
+            </excludes>
 			<sources>
 				<fileSets>
 					<fileSet>
@@ -90,10 +76,12 @@
 				<includeModuleDirectory>false</includeModuleDirectory>
 			</sources>
 			<binaries>
+    			<attachmentClassifier>jar-with-dependencies</attachmentClassifier>
 				<outputDirectory>plugins</outputDirectory>
+				<outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}</outputFileNameMapping>
 				<unpack>false</unpack>
 			</binaries>
-		</moduleSet>
+        </moduleSet>
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
@@ -113,7 +101,6 @@
 			</sources>
 		</moduleSet>
 	</moduleSets>
-	
 	<fileSets>
 		<fileSet>
 			<outputDirectory></outputDirectory>
