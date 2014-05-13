@@ -10,7 +10,7 @@ public class CsnDownloadPluginInfo implements IDownloadPluginInfo {
     }
 
     public int[] getPluginVersion() {
-        return new int[] { 0, 6, 1};
+        return new int[] { 0, 7, 0};
     }
 
     public String[] getMatchingPatterns() {
@@ -18,7 +18,7 @@ public class CsnDownloadPluginInfo implements IDownloadPluginInfo {
     }
 
     public int[] getDMMinVersion() {
-        return new int[] { 0, 6, 1};
+        return new int[] { 0, 7, 0};
     }
 
     public boolean handlePause() {

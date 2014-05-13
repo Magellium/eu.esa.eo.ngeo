@@ -9,6 +9,7 @@ public class Sentinel2DownloadPluginInfo implements IDownloadPluginInfo {
 	}
 
 	public int[] getPluginVersion() {
+	    //Version number is not changed as this is a mock plugin
 		return new int[] { 0, 0, 1};
 	}
 
@@ -17,7 +18,7 @@ public class Sentinel2DownloadPluginInfo implements IDownloadPluginInfo {
 	}
 
 	public int[] getDMMinVersion() {
-		return new int[] { 0, 6, 1};
+		return new int[] { 0, 7, 0};
 	}
 
 	public boolean handlePause() {
