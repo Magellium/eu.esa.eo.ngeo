@@ -1,52 +1,52 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>int_.esa.eo.ngeo</groupId>
-		<artifactId>download-manager</artifactId>
-		<version>0.7.0-SNAPSHOT</version>
-	</parent>
-	<artifactId>download-manager-schemas</artifactId>
-	<name>Download Manager Schemas</name>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>int_.esa.eo.ngeo</groupId>
+        <artifactId>download-manager</artifactId>
+        <version>0.7.4</version>
+    </parent>
+    <artifactId>download-manager-schemas</artifactId>
+    <name>Download Manager Schemas</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-plugin-interface</artifactId>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>int_.esa.eo.ngeo</groupId>
+            <artifactId>download-manager-plugin-interface</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
-		<!--
-		     The following three dependencies are required for the generation of objects from JSON.
-		     see https://github.com/joelittlejohn/jsonschema2pojo/wiki/Getting-Started#the-maven-plugin
-		-->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <!--
+             The following three dependencies are required for the generation of objects from JSON.
+             see https://github.com/joelittlejohn/jsonschema2pojo/wiki/Getting-Started#the-maven-plugin
+        -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
 
-		<!-- Logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -57,50 +57,50 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
-	</dependencies>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.jvnet.jaxb2.maven2</groupId>
-				<artifactId>maven-jaxb2-plugin</artifactId>
-				<version>0.8.3</version>
-				<configuration>
-					<schemaDirectory>src/main/resources/schemas</schemaDirectory>
-					<schemaIncludes>
-						<include>metalink/3.0/metalink.xsd</include>
-						<include>DAGICD/ngEOBadRequestResponse.xsd</include>
-						<include>DAGICD/ngEOMissingProductResponse.xsd</include>
-						<include>DAGICD/ngEOProductDownloadResponse.xsd</include>
-						<include>IICD-D-WS/IF-ngEO-D-WS_common.xsd</include>
-						<include>IICD-D-WS/IF-ngEO-DMRegistrationMgmnt_Requ.xsd</include>
-						<include>IICD-D-WS/IF-ngEO-DMRegistrationMgmnt_Resp.xsd</include>
-						<include>IICD-D-WS/IF-ngEO-MonitoringURL-Requ.xsd</include>
-						<include>IICD-D-WS/IF-ngEO-MonitoringURL-Resp.xsd</include>
-						<include>IICD-D-WS/IF-ngEO-DataAccessMonitoring-Requ.xsd</include>
-						<include>IICD-D-WS/IF-ngEO-DataAccessMonitoring-Resp.xsd</include>
-					</schemaIncludes>
-					<bindingDirectory>src/main/resources/jaxb</bindingDirectory>
-					<cleanPackageDirectories>true</cleanPackageDirectories>
-					<verbose>false</verbose>
-					<args>
-						<!-- removes jaxb header which contains a timestamp - makes comparing 
-							generation after a change of xsd very difficult -->
-						<arg>-no-header</arg>
-						<!-- treat input as XML schema -->
-						<arg>-xmlschema</arg>
-					</args>
-				</configuration>
-				<executions>
-					<execution>
-						<id>jaxb-generate</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<phase>generate-sources</phase>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <version>0.8.3</version>
+                <configuration>
+                    <schemaDirectory>src/main/resources/schemas</schemaDirectory>
+                    <schemaIncludes>
+                        <include>metalink/3.0/metalink.xsd</include>
+                        <include>DAGICD/ngEOBadRequestResponse.xsd</include>
+                        <include>DAGICD/ngEOMissingProductResponse.xsd</include>
+                        <include>DAGICD/ngEOProductDownloadResponse.xsd</include>
+                        <include>IICD-D-WS/IF-ngEO-D-WS_common.xsd</include>
+                        <include>IICD-D-WS/IF-ngEO-DMRegistrationMgmnt_Requ.xsd</include>
+                        <include>IICD-D-WS/IF-ngEO-DMRegistrationMgmnt_Resp.xsd</include>
+                        <include>IICD-D-WS/IF-ngEO-MonitoringURL-Requ.xsd</include>
+                        <include>IICD-D-WS/IF-ngEO-MonitoringURL-Resp.xsd</include>
+                        <include>IICD-D-WS/IF-ngEO-DataAccessMonitoring-Requ.xsd</include>
+                        <include>IICD-D-WS/IF-ngEO-DataAccessMonitoring-Resp.xsd</include>
+                    </schemaIncludes>
+                    <bindingDirectory>src/main/resources/jaxb</bindingDirectory>
+                    <cleanPackageDirectories>true</cleanPackageDirectories>
+                    <verbose>false</verbose>
+                    <args>
+                        <!-- removes jaxb header which contains a timestamp - makes comparing 
+                        generation after a change of xsd very difficult -->
+                        <arg>-no-header</arg>
+                        <!-- treat input as XML schema -->
+                        <arg>-xmlschema</arg>
+                    </args>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jaxb-generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

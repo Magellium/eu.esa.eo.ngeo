@@ -1,81 +1,81 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 	
-	<parent>
-		<groupId>int_.esa.eo.ngeo</groupId>
-		<artifactId>download-manager</artifactId>
-		<version>0.7.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>int_.esa.eo.ngeo</groupId>
+        <artifactId>download-manager</artifactId>
+        <version>0.7.4</version>
+    </parent>
 	
-	<artifactId>download-manager-plugin-development-kit</artifactId>
-	<name>Download Manager Plugin Development Kit</name>
+    <artifactId>download-manager-plugin-development-kit</artifactId>
+    <name>Download Manager Plugin Development Kit</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>int_.esa.eo.ngeo</groupId>
-			<artifactId>download-manager-schemas</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>int_.esa.eo.ngeo</groupId>
+            <artifactId>download-manager-schemas</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <dependency>
             <groupId>int_.esa.eo.ngeo</groupId>
             <artifactId>download-manager-sso</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
-		<!-- Logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
- 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-	<build>
- 		<plugins>
-<!-- 
-    Each Download Manager plugin requires a copy of this serviceloader maven plugin in order to be loaded correctly
-    when the Download Manager starts.
-			<plugin>
-				<groupId>eu.somatik.serviceloader-maven-plugin</groupId>
-				<artifactId>serviceloader-maven-plugin</artifactId>
-				<version>1.0.3</version>
-				<configuration>
-					<services>
-						<param>int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin</param>
-					</services>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
- -->
-		</plugins>
-	</build>
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <!-- 
+               Each Download Manager plugin requires a copy of this serviceloader maven plugin in order to be loaded correctly
+               when the Download Manager starts.
+                                   <plugin>
+                                           <groupId>eu.somatik.serviceloader-maven-plugin</groupId>
+                                           <artifactId>serviceloader-maven-plugin</artifactId>
+                                           <version>1.0.3</version>
+                                           <configuration>
+                                                   <services>
+                                                           <param>int_.esa.eo.ngeo.downloadmanager.plugin.IDownloadPlugin</param>
+                                                   </services>
+                                           </configuration>
+                                           <executions>
+                                                   <execution>
+                                                           <goals>
+                                                                   <goal>generate</goal>
+                                                           </goals>
+                                                   </execution>
+                                           </executions>
+                                   </plugin>
+            -->
+        </plugins>
+    </build>
 </project>
