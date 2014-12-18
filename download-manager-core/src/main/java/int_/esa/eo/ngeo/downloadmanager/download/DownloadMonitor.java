@@ -31,8 +31,10 @@ import int_.esa.eo.ngeo.downloadmanager.settings.SettingsManager;
 import int_.esa.eo.ngeo.downloadmanager.settings.UserModifiableSetting;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -40,6 +42,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import org.apache.http.client.utils.URIBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +144,15 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
     private IDownloadProcess createDownloadProcess(Product product) throws DownloadProcessCreationException {
         IDownloadPlugin downloadPlugin;
         try {
-            URI uri = new URI(product.getProductAccessUrl());
+            URL url = new URL(product.getProductAccessUrl());
+            URIBuilder builder = new URIBuilder();
+            builder.setHost(url.getHost())
+                    .setPort(url.getPort())
+                    .setPath(url.getPath())
+                    .setQuery(url.getQuery())
+                    .setScheme(url.getProtocol());
+            
+            URI uri = builder.build();
             
             downloadPlugin = pluginManager.determinePlugin(product.getProductAccessUrl());
 
@@ -160,7 +172,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
             UmSsoHttpConnectionSettings httpConnectionSettings = connectionPropertiesSynchronizedUmSsoHttpClient.getUmSsoHttpClient().getUmSsoHttpConnectionSettings();
 
             return downloadPlugin.createDownloadProcess(uri, downloadPath, httpConnectionSettings.getUmssoUsername(), httpConnectionSettings.getUmssoPassword(), productDownloadListener, httpConnectionSettings.getProxyHost(), httpConnectionSettings.getProxyPort(), httpConnectionSettings.getProxyUser(), httpConnectionSettings.getProxyPassword());
-        } catch (NoPluginAvailableException | URISyntaxException | DMPluginException ex) {
+        } catch (NoPluginAvailableException | URISyntaxException | DMPluginException | MalformedURLException ex) {
             LOGGER.error(String.format("Error whilst creating download process of product %s: %s", product.getProductAccessUrl(), ex.getLocalizedMessage()));
             product.getProductProgress().setStatus(EDownloadStatus.IN_ERROR);
             product.getProductProgress().setMessage(ex.getLocalizedMessage());
