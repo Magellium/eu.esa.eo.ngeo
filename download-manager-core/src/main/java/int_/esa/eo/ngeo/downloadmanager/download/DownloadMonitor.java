@@ -42,27 +42,27 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import org.apache.http.client.utils.URIBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DownloadMonitor implements ProductObserver, DownloadObserver, SettingsObserver {
-    private PluginManager pluginManager;
-    private SettingsManager settingsManager;
-    private ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
-    private DataAccessRequestManager dataAccessRequestManager;
-    private NotificationManager notificationManager;
+
+    private final PluginManager pluginManager;
+    private final SettingsManager settingsManager;
+    private final ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient;
+    private final DataAccessRequestManager dataAccessRequestManager;
+    private final NotificationManager notificationManager;
 
     private DownloadScheduler downloadScheduler;
 
-    private ActiveProducts activeProducts;
+    private final ActiveProducts activeProducts;
 
-    private ProductTerminationLog productTerminationLog;
+    private final ProductTerminationLog productTerminationLog;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadMonitor.class);
-    private List<UserModifiableSetting> userModifiableSettingsToObserve;
+    private final List<UserModifiableSetting> userModifiableSettingsToObserve;
 
     public DownloadMonitor(PluginManager pluginManager, SettingsManager settingsManager, ConnectionPropertiesSynchronizedUmSsoHttpClient connectionPropertiesSynchronizedUmSsoHttpClient, DataAccessRequestManager dataAccessRequestManager, NotificationManager notificationManager) {
         this.pluginManager = pluginManager;
@@ -70,7 +70,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
         this.connectionPropertiesSynchronizedUmSsoHttpClient = connectionPropertiesSynchronizedUmSsoHttpClient;
         this.dataAccessRequestManager = dataAccessRequestManager;
         this.notificationManager = notificationManager;
-        
+
         dataAccessRequestManager.registerObserver(this);
         this.productTerminationLog = new ProductTerminationLog();
         activeProducts = new ActiveProducts();
@@ -81,7 +81,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
 
     @Override
     public void updateToUserModifiableSettings(List<UserModifiableSetting> userModifiableSetting) {
-        if(userModifiableSetting != null && !Collections.disjoint(userModifiableSettingsToObserve, userModifiableSetting)) {
+        if (userModifiableSetting != null && !Collections.disjoint(userModifiableSettingsToObserve, userModifiableSetting)) {
             LOGGER.debug("Number of concurrent download threads have changed, so update the number of concurrent threads in the Download Scheduler.");
             int numberOfConcurrentDownloads = Integer.parseInt(settingsManager.getSetting(UserModifiableSetting.NO_OF_PARALLEL_PRODUCT_DOWNLOAD_THREADS));
             downloadScheduler.setConcurrentDownloads(numberOfConcurrentDownloads);
@@ -104,17 +104,17 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
             IDownloadProcess downloadProcess = createDownloadProcess(product);
 
             switch (product.getProductProgress().getStatus()) {
-            case NOT_STARTED:
-            case IDLE:
-            case RUNNING:
-                downloadScheduler.scheduleProductDownload(downloadProcess, product);
-                break;
-            default:
-                break;
+                case NOT_STARTED:
+                case IDLE:
+                case RUNNING:
+                    downloadScheduler.scheduleProductDownload(downloadProcess, product);
+                    break;
+                default:
+                    break;
             }
 
             activeProducts.addProduct(product, downloadProcess);
-        }catch(DownloadProcessCreationException e) {
+        } catch (DownloadProcessCreationException e) {
             //This exception does not need to be rethrown, as the product has already been set in error.
         }
     }
@@ -124,17 +124,17 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
         String productUuid = product.getUuid();
         try {
             switch (downloadStatus) {
-            case NOT_STARTED:
-                resumeProductDownload(productUuid);
-                break;
-            case PAUSED:
-                pauseProductDownload(productUuid);
-                break;
-            case CANCELLED:
-                cancelProductDownload(productUuid);
-                break;
-            default:
-                break;
+                case NOT_STARTED:
+                    resumeProductDownload(productUuid);
+                    break;
+                case PAUSED:
+                    pauseProductDownload(productUuid);
+                    break;
+                case CANCELLED:
+                    cancelProductDownload(productUuid);
+                    break;
+                default:
+                    break;
             }
         } catch (DownloadOperationException | ProductNotFoundException e) {
             LOGGER.error(String.format("Unable to change status of product %s to %s", product.getProductAccessUrl(), downloadStatus));
@@ -151,9 +151,9 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
                     .setPath(url.getPath())
                     .setQuery(url.getQuery())
                     .setScheme(url.getProtocol());
-            
+
             URI uri = builder.build();
-            
+
             downloadPlugin = pluginManager.determinePlugin(product.getProductAccessUrl());
 
             LOGGER.debug("Plugin determined to use: " + downloadPlugin);
@@ -163,9 +163,9 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
 
             File downloadPath;
             String downloadDirectory = product.getDownloadDirectory();
-            if(downloadDirectory != null) {
+            if (downloadDirectory != null) {
                 downloadPath = Paths.get(settingsManager.getSetting(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE), downloadDirectory).toFile();
-            }else{
+            } else {
                 downloadPath = Paths.get(settingsManager.getSetting(UserModifiableSetting.BASE_DOWNLOAD_FOLDER_ABSOLUTE)).toFile();
             }
 
@@ -216,67 +216,69 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
             LOGGER.error("Unable to retrieve download process for product.", e);
         }
 
-        if(previouslyKnownStatus != newStatus) {
+        if (previouslyKnownStatus != newStatus) {
             LOGGER.debug(String.format("Status has changed from %s to %s, updating to database", previouslyKnownStatus, newStatus));
-            if(newStatus == EDownloadStatus.RUNNING) {
+            if (newStatus == EDownloadStatus.RUNNING) {
                 product.setStartOfActualDownload(new Timestamp(new Date().getTime()));
             }
 
             dataAccessRequestManager.persistProduct(product);
         }
 
-        if(previouslyKnownStatus == EDownloadStatus.IDLE && newStatus == EDownloadStatus.NOT_STARTED) {
+        if (previouslyKnownStatus == EDownloadStatus.IDLE && newStatus == EDownloadStatus.NOT_STARTED) {
             downloadScheduler.scheduleProductDownload(downloadProcess, product);
         }
 
         //perform actions based on terminal statuses
         switch (newStatus) {
-        case IN_ERROR:
-            setTerminalStateOfProduct(product);
-            break;
-        case CANCELLED:
-            setTerminalStateOfProduct(product);
-            disconnectAndRemoveProcess(downloadProcess, product);
-            break;
-        case COMPLETED:
-            getCompletedDownloadPathFromProcess(downloadProcess, product);
-            setTerminalStateOfProduct(product);
+            case IN_ERROR:
+                setTerminalStateOfProduct(product);
+                break;
+            case CANCELLED:
+                setTerminalStateOfProduct(product);
+                disconnectAndRemoveProcess(downloadProcess, product);
+                break;
+            case COMPLETED:
+                getCompletedDownloadPathFromProcess(downloadProcess, product);
+                setTerminalStateOfProduct(product);
 
-            executeCallbackMechanism(product);
-            disconnectAndRemoveProcess(downloadProcess, product);
-            break;
-        default:
-            break;
+                executeCallbackMechanism(product);
+                disconnectAndRemoveProcess(downloadProcess, product);
+                break;
+            default:
+                break;
         }
     }
 
     /**
      * Disconnect and remove the process for a completed or cancelled product.
-     * The disconnect ensures that we tidy up any left over threads / resources, any failure of the disconnect does not matter
-     *  
+     * The disconnect ensures that we tidy up any left over threads / resources,
+     * any failure of the disconnect does not matter
+     *
      * @param downloadProcess
      * @param product
      */
     private void disconnectAndRemoveProcess(IDownloadProcess downloadProcess, Product product) {
         try {
             downloadProcess.disconnect();
-        } catch (DMPluginException e) { }
+        } catch (DMPluginException e) {
+        }
 
         activeProducts.removeProduct(product);
     }
 
     /**
-     * Set the completed download path for the product before we lose the list of downloaded files
-     * i.e. when the process is removed.
-     * 
+     * Set the completed download path for the product before we lose the list
+     * of downloaded files i.e. when the process is removed.
+     *
      * @param downloadProcess
      * @param product
      */
     private void getCompletedDownloadPathFromProcess(IDownloadProcess downloadProcess, Product product) {
         File[] downloadedFiles = downloadProcess.getDownloadedFiles();
-        if(downloadedFiles != null && downloadedFiles.length > 0) {
+        if (downloadedFiles != null && downloadedFiles.length > 0) {
             product.setCompletedDownloadPath(downloadedFiles[0].getAbsolutePath());
-        }else{
+        } else {
             LOGGER.error("Product has been completed, but the completed download path cannot be retrieved.");
         }
     }
@@ -292,15 +294,13 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
         dataAccessRequestManager.persistProduct(product);
         DataAccessRequest dataAccessRequest = dataAccessRequestManager.findDataAccessRequestByProduct(product);
         productTerminationLog.notifyProductDownloadTermination(product, dataAccessRequest);
-        
+
         try {
             notificationManager.sendProductTerminationNotification(product);
-        }catch(NotificationException ex) {
+        } catch (NotificationException ex) {
             LOGGER.error("Unable to send email", ex);
         }
     }
-
-
 
     public boolean pauseProductDownload(String productUuid) throws DownloadOperationException, ProductNotFoundException {
         IDownloadProcess downloadProcess = activeProducts.getDownloadProcess(productUuid);
@@ -361,10 +361,10 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
 
     public boolean cancelDownloadsWithStatuses(List<EDownloadStatus> statusesToCancel, boolean includeManualDownloads) throws DownloadOperationException {
         boolean downloadsCancelledCompletely = true;
-        for (Entry<String, IDownloadProcess> downloadProcessEntry: activeProducts.getDownloadProcessList().entrySet()) {
+        for (Entry<String, IDownloadProcess> downloadProcessEntry : activeProducts.getDownloadProcessList().entrySet()) {
             String productUuid = downloadProcessEntry.getKey();
             IDownloadProcess downloadProcess = downloadProcessEntry.getValue();
-            if((includeManualDownloads || !dataAccessRequestManager.isProductDownloadManual(productUuid)) && statusesToCancel.contains(downloadProcess.getStatus())) {
+            if ((includeManualDownloads || !dataAccessRequestManager.isProductDownloadManual(productUuid)) && statusesToCancel.contains(downloadProcess.getStatus())) {
                 try {
                     downloadProcess.cancelDownload();
                 } catch (DMPluginException e) {
@@ -373,7 +373,7 @@ public class DownloadMonitor implements ProductObserver, DownloadObserver, Setti
                 }
             }
         }
-        if(!downloadsCancelledCompletely) {
+        if (!downloadsCancelledCompletely) {
             throw new DownloadOperationException("Unable to send cancel request to all applicable downloads. Note that some products may be cancelled.");
         }
         return downloadsCancelledCompletely;
