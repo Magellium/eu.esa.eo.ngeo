@@ -79,7 +79,7 @@ public abstract class DownloadProcess implements IDownloadProcess {
     protected ProductDownloadMetadata productMetadata;
     protected ProductDownloadProgressMonitor productDownloadProgressMonitor;
     
-    private IProductDownloadListener productDownloadListener;
+    private final IProductDownloadListener productDownloadListener;
 
     public DownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener, UmSsoHttpConnectionSettings umSsoHttpConnectionSettings, Properties pluginConfig, SchemaRepository schemaRepository) {
         this.productURI = productURI;
@@ -359,7 +359,7 @@ public abstract class DownloadProcess implements IDownloadProcess {
             LOGGER.error("UMSSO exception occurred whilst retrieving download details.", ex);
             Throwable cause = ex.getCause();
             if(cause != null) {
-                getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, cause.getLocalizedMessage());;
+                getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, cause.getLocalizedMessage());
             }else{
                 getProductDownloadProgressMonitor().setError(ex);
             }
@@ -503,11 +503,10 @@ public abstract class DownloadProcess implements IDownloadProcess {
     
     
     /**
-     */
-    /**
      * This method allows for further processing after the download has been completed.
      * 
      * @return whether the post download processing has completed successfully.
+     * @throws int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException     
      */
     public abstract boolean postDownloadProcess() throws DMPluginException;
 
