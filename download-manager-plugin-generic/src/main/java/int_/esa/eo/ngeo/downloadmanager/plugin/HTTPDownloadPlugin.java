@@ -23,6 +23,7 @@ public class HTTPDownloadPlugin implements IDownloadPlugin {
     private Properties pluginConfig;
     private SchemaRepository schemaRepository;
 
+    @Override
     public IDownloadPluginInfo initialize(File tmpRootDir, File pluginCfgRootDir) throws DMPluginException {
         pluginConfig = pluginConfigurationLoader.loadPluginConfiguration(HTTPDownloadPlugin.class.getName(), pluginCfgRootDir);
         createSchemaRepository();
@@ -32,10 +33,12 @@ public class HTTPDownloadPlugin implements IDownloadPlugin {
         return pluginInfo;
     }
 
+    @Override
     public void terminate() throws DMPluginException {
         //since this plugin does not create the directories in the initialize command, no further action is required.
     }
 
+    @Override
     public IDownloadProcess createDownloadProcess(URI productURI,
             File downloadDir, String umssoUsername, String umssoPassword,
             IProductDownloadListener downloadListener, String proxyLocation,
