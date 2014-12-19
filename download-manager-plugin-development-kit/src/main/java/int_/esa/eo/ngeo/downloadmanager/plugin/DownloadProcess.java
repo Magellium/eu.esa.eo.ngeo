@@ -48,15 +48,19 @@ import org.slf4j.LoggerFactory;
 
 import com.siemens.pse.umsso.client.UmssoCLException;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
 
 /**
- * This class is a generic HTTP Download Process, which can be used by any plugin which downloads from an HTTP source.
+ * This class is a generic HTTP Download Process, which can be used by any
+ * plugin which downloads from an HTTP source.
  */
 /**
  * @author lkn
  *
  */
 public abstract class DownloadProcess implements IDownloadProcess {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadProcess.class);
 
     private static final String UNABLE_TO_CANCEL_DOWNLOAD_STATUS = "Unable to cancel download, status is %s";
@@ -75,10 +79,10 @@ public abstract class DownloadProcess implements IDownloadProcess {
     protected URI productURI;
     protected ExecutorService fileDownloadExecutor;
     protected ScheduledExecutorService idleCheckExecutor;
-    
+
     protected ProductDownloadMetadata productMetadata;
     protected ProductDownloadProgressMonitor productDownloadProgressMonitor;
-    
+
     private final IProductDownloadListener productDownloadListener;
 
     public DownloadProcess(URI productURI, File downloadDir, IProductDownloadListener productDownloadListener, UmSsoHttpConnectionSettings umSsoHttpConnectionSettings, Properties pluginConfig, SchemaRepository schemaRepository) {
@@ -91,32 +95,32 @@ public abstract class DownloadProcess implements IDownloadProcess {
         this.umSsoHttpClient = new UmSsoHttpClient(umSsoHttpConnectionSettings);
         this.productDownloadListener = productDownloadListener;
     }
-    
+
     @Override
     public EDownloadStatus startDownload() throws DMPluginException {
-       try {
-             /* 
+        try {
+            /* 
              * If the download has been cancelled do not continue with the download process.
              * This situation can occur when a waiting product is started after a STOP_IMMEDIATELY command is sent.
              */
-            if(getProductDownloadProgressMonitor().getStatusWhenDownloadWasAborted() == EDownloadStatus.CANCELLED) {
+            if (getProductDownloadProgressMonitor().getStatusWhenDownloadWasAborted() == EDownloadStatus.CANCELLED) {
                 return EDownloadStatus.CANCELLED;
             }
-    
-            if(this.productMetadata == null) {
+
+            if (this.productMetadata == null) {
                 retrieveDownloadDetails();
             }
-            if(getStatus() == EDownloadStatus.NOT_STARTED) {
+            if (getStatus() == EDownloadStatus.NOT_STARTED) {
                 downloadProduct();
             }
-            if(getStatus() == EDownloadStatus.RUNNING && postDownloadProcess()) {
+            if (getStatus() == EDownloadStatus.RUNNING && postDownloadProcess()) {
                 getProductDownloadProgressMonitor().setStatus(EDownloadStatus.COMPLETED);
             }
-        }catch(DMPluginException dmPluginException) {
+        } catch (DMPluginException dmPluginException) {
             String errorMessage = String.format("Plugin Exception: %s", dmPluginException.getMessage());
             productDownloadProgressMonitor.setStatus(EDownloadStatus.IN_ERROR, errorMessage);
             throw dmPluginException;
-        }catch(Throwable t) {
+        } catch (Throwable t) {
             LOGGER.error(String.format("Plugin Exception: %s - %s", productURI.toString(), t.getClass().getName(), t.getMessage(), t));
             productDownloadProgressMonitor.setError(new DMPluginException(String.format("CSN Plugin Exception: %s", t.getMessage()), t));
         }
@@ -130,15 +134,15 @@ public abstract class DownloadProcess implements IDownloadProcess {
     @Override
     public EDownloadStatus pauseDownload() throws DMPluginException {
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
-        if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecutePauseAction().contains(getStatus())) {
+        if (!validDownloadStatusForUserAction.getValidDownloadStatusesToExecutePauseAction().contains(getStatus())) {
             throw new DMPluginException(String.format("Unable to pause download, status is %s", getStatus()));
         }
 
         stopIdleCheckIfActive();
 
-        if(getProductDownloadProgressMonitor().getFileDownloadList().size() > 0) {
+        if (getProductDownloadProgressMonitor().getFileDownloadList().size() > 0) {
             getProductDownloadProgressMonitor().abortFileDownloads(EDownloadStatus.PAUSED);
-        }else{
+        } else {
             getProductDownloadProgressMonitor().setStatus(EDownloadStatus.PAUSED);
         }
 
@@ -148,7 +152,7 @@ public abstract class DownloadProcess implements IDownloadProcess {
     @Override
     public EDownloadStatus resumeDownload() throws DMPluginException {
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
-        if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteResumeAction().contains(getStatus())) {
+        if (!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteResumeAction().contains(getStatus())) {
             throw new DMPluginException(String.format("Unable to resume download, status is %s", getStatus()));
         }
         getProductDownloadProgressMonitor().setStatus(EDownloadStatus.NOT_STARTED);
@@ -160,28 +164,28 @@ public abstract class DownloadProcess implements IDownloadProcess {
     public EDownloadStatus cancelDownload() throws DMPluginException {
         EDownloadStatus previousDownloadStatus = getStatus();
         ValidDownloadStatusForUserAction validDownloadStatusForUserAction = new ValidDownloadStatusForUserAction();
-        if(!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteCancelAction().contains(previousDownloadStatus)) {
+        if (!validDownloadStatusForUserAction.getValidDownloadStatusesToExecuteCancelAction().contains(previousDownloadStatus)) {
             throw new DMPluginException(String.format(UNABLE_TO_CANCEL_DOWNLOAD_STATUS, getStatus()));
         }
 
         stopIdleCheckIfActive();
 
         switch (previousDownloadStatus) {
-        case RUNNING:
-        case NOT_STARTED:
-            if(getProductDownloadProgressMonitor().getFileDownloadList().size() > 0) {
-                getProductDownloadProgressMonitor().abortFileDownloads(EDownloadStatus.CANCELLED);
-            }else{
-                //no products are currently being downloaded, so start tidy-up
+            case RUNNING:
+            case NOT_STARTED:
+                if (getProductDownloadProgressMonitor().getFileDownloadList().size() > 0) {
+                    getProductDownloadProgressMonitor().abortFileDownloads(EDownloadStatus.CANCELLED);
+                } else {
+                    //no products are currently being downloaded, so start tidy-up
+                    tidyUpAfterCancelledDownload();
+                }
+                break;
+            case PAUSED:
+            case IDLE:
                 tidyUpAfterCancelledDownload();
-            }
-            break;
-        case PAUSED:
-        case IDLE:
-            tidyUpAfterCancelledDownload();
-            break;
-        default:
-            throw new DMPluginException(String.format(UNABLE_TO_CANCEL_DOWNLOAD_STATUS, previousDownloadStatus));
+                break;
+            default:
+                throw new DMPluginException(String.format(UNABLE_TO_CANCEL_DOWNLOAD_STATUS, previousDownloadStatus));
         }
 
         return getStatus();
@@ -196,10 +200,10 @@ public abstract class DownloadProcess implements IDownloadProcess {
     public File[] getDownloadedFiles() {
         //check if the number of completed files equals the number of files identified as to be downloaded
         int numberOfFilesInProduct = productMetadata.getFileMetadataList().size();
-        if(getProductDownloadProgressMonitor().getNumberOfCompletedFiles() == numberOfFilesInProduct) {
-            if(productMetadata.getMetalinkDownloadDirectory() != null) {
+        if (getProductDownloadProgressMonitor().getNumberOfCompletedFiles() == numberOfFilesInProduct) {
+            if (productMetadata.getMetalinkDownloadDirectory() != null) {
                 return new File[]{productMetadata.getMetalinkDownloadDirectory().toFile()};
-            }else{
+            } else {
                 return new File[]{productMetadata.getFileMetadataList().get(0).getCompletelyDownloadedPath().toFile()};
             }
         }
@@ -217,16 +221,16 @@ public abstract class DownloadProcess implements IDownloadProcess {
     @Override
     public void disconnect() throws DMPluginException {
         LOGGER.debug(String.format("Disconnecting download process for %s, status %s", productURI, getStatus()));
-        if(idleCheckExecutor != null) {
+        if (idleCheckExecutor != null) {
             //no elegant shutdown needs to be performed on the idle checker
             idleCheckExecutor.shutdownNow();
         }
-        if(getStatus() == EDownloadStatus.RUNNING) {
+        if (getStatus() == EDownloadStatus.RUNNING) {
             getProductDownloadProgressMonitor().abortFileDownloads(EDownloadStatus.NOT_STARTED);
             getProductDownloadProgressMonitor().setStatus(EDownloadStatus.NOT_STARTED);
         }
         try {
-            if(fileDownloadExecutor != null) {
+            if (fileDownloadExecutor != null) {
                 fileDownloadExecutor.shutdown();
                 fileDownloadExecutor.awaitTermination(10, TimeUnit.SECONDS);
             }
@@ -234,7 +238,7 @@ public abstract class DownloadProcess implements IDownloadProcess {
             LOGGER.error("Timeout occurred when attempting to shutdown download file threads");
         }
     }
-    
+
     public void retrieveDownloadDetails() {
         UmSsoHttpRequestAndResponse productDownloadRequestAndResponse = null;
 
@@ -251,116 +255,129 @@ public abstract class DownloadProcess implements IDownloadProcess {
             String reasonPhrase = statusLine.getReasonPhrase();
             LOGGER.debug(String.format("HTTP response: %s %s", responseCode, reasonPhrase));
             switch (responseCode) {
-            case HttpStatus.SC_OK:
-                productMetadata = new ProductDownloadMetadata();
-                String contentType = responseHeaderParser.searchForResponseHeaderValue(productDownloadResponseHeaders, HttpHeaders.CONTENT_TYPE);
-                String productName = "", resolvedProductName = "";
 
-                LOGGER.debug(String.format("Content type: %s", contentType));
-
-                if(contentType != null && contentType.contains(MIME_TYPE_METALINK)) {
-                    Metalink metalink = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), Metalink.class);
-                    LOGGER.debug(String.format("metalink: %s", metalink));
-
-                    Path metalinkFolderPath = pathResolver.determineFolderPath(productURI, baseProductDownloadDir);
-                    productMetadata.setMetalinkDownloadDirectory(metalinkFolderPath);
-
-                    List<FileType> fileList = metalink.getFiles().getFiles();
-                    for (FileType fileType : fileList) {
-                        List<Url> urlList = fileType.getResources().getUrls();
-                        //Assumption: We are not handling parallel downloading at this point
-                        if(urlList.size() > 0) {
-                            Url firstUrlForFile = urlList.get(0);
-
-                            productName = URLDecoder.decode(fileType.getName(), "UTF-8");
-                            resolvedProductName = pathResolver.resolveDuplicateFilePath(productName, productMetadata.getTempMetalinkDownloadDirectory().toFile());
-                            FileDownloadMetadata fileMetadata = getFileMetadataForMetalinkEntry(firstUrlForFile.getValue(), resolvedProductName, productMetadata.getTempMetalinkDownloadDirectory());
-                            FileUtils.touch(fileMetadata.getPartiallyDownloadedPath().toFile());
-                            LOGGER.debug(String.format("metalink file download size %s", fileMetadata.getDownloadSize()));
-                            productMetadata.getFileMetadataList().add(fileMetadata);
+                case HttpStatus.SC_MOVED_PERMANENTLY:
+                case HttpStatus.SC_MOVED_TEMPORARILY:
+                    Header[] newHeaders = productDownloadResponse.getHeaders();
+                    for (Header header : newHeaders) {
+                        if (header.getName().equalsIgnoreCase("Location")) {
+                            this.productURI = new URI(header.getValue());
+                            break;
                         }
                     }
-                    LOGGER.debug(String.format("Product contains %s files", fileList.size()));
-                    getProductDownloadProgressMonitor().notifyOfProductDetails(productMetadata.getMetalinkDownloadDirectory().getFileName().toString(), productMetadata.getFileMetadataList());
-                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.NOT_STARTED);
-                }else{
-                    //download is a single file
-                    String filenameFromResponseHeader = responseHeaderParser.searchForFilename(productDownloadResponseHeaders);
-                    long fileSize = responseHeaderParser.searchForContentLength(productDownloadResponseHeaders);
-                    resolvedProductName = pathResolver.determineFileName(filenameFromResponseHeader, productURI, baseProductDownloadDir);
+                    retrieveDownloadDetails();
+                    break;
+                case HttpStatus.SC_OK:
+                    productMetadata = new ProductDownloadMetadata();
+                    String contentType = responseHeaderParser.searchForResponseHeaderValue(productDownloadResponseHeaders, HttpHeaders.CONTENT_TYPE);
+                    String productName = "",
+                     resolvedProductName = "";
 
-                    LOGGER.debug("Content-Disposition = " + filenameFromResponseHeader);
-                    LOGGER.debug("Content-Length = " + fileSize);
-                    LOGGER.debug("fileName = " + resolvedProductName);
+                    LOGGER.debug(String.format("Content type: %s", contentType));
 
-                    FileDownloadMetadata fileMetadata = new FileDownloadMetadata(productURI.toURL(), resolvedProductName, fileSize, baseProductDownloadDir.toPath());
-                    FileUtils.touch(fileMetadata.getPartiallyDownloadedPath().toFile());
-                    productMetadata.getFileMetadataList().add(fileMetadata);
+                    if (contentType != null && contentType.contains(MIME_TYPE_METALINK)) {
+                        Metalink metalink = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), Metalink.class);
+                        LOGGER.debug(String.format("metalink: %s", metalink));
 
-                    getProductDownloadProgressMonitor().notifyOfProductDetails(fileMetadata.getCompletelyDownloadedPath().getFileName().toString(), productMetadata.getFileMetadataList());
-                }
-                break;
-            case HttpStatus.SC_ACCEPTED:
-                ProductDownloadResponse parsedProductDownloadResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), ProductDownloadResponse.class);
-                ProductDownloadResponseType productDownloadResponseCode = parsedProductDownloadResponse.getResponseCode();
-                if(productDownloadResponseCode == ProductDownloadResponseType.ACCEPTED || productDownloadResponseCode == ProductDownloadResponseType.IN_PROGRESS) {
-                    long retryAfter = parsedProductDownloadResponse.getRetryAfter().longValue();
-                    LOGGER.info(String.format("Product %s not available at this time, retry after %s seconds", productURI.toString(), retryAfter));
+                        Path metalinkFolderPath = pathResolver.determineFolderPath(productURI, baseProductDownloadDir);
+                        productMetadata.setMetalinkDownloadDirectory(metalinkFolderPath);
 
-                    idleCheckExecutor = Executors.newSingleThreadScheduledExecutor();
-                    IdleCheckThread idleCheckThread = new IdleCheckThread(this);
-                    idleCheckExecutor.schedule(idleCheckThread, retryAfter, TimeUnit.SECONDS);
+                        List<FileType> fileList = metalink.getFiles().getFiles();
+                        for (FileType fileType : fileList) {
+                            List<Url> urlList = fileType.getResources().getUrls();
+                            //Assumption: We are not handling parallel downloading at this point
+                            if (urlList.size() > 0) {
+                                Url firstUrlForFile = urlList.get(0);
 
-                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IDLE);
-                }else{
-                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, String.format("Product download was accepted, but response code is %s", productDownloadResponseCode));
-                }
-                break;
-            case HttpStatus.SC_PARTIAL_CONTENT:
-                //Partial download is not relevant at this stage
-                break;
-            case HttpStatus.SC_SEE_OTHER:
-                //TODO handle forwarded download
-                break;
-            case HttpStatus.SC_BAD_REQUEST:
-                try {
-                    BadRequestResponse badRequestResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), BadRequestResponse.class);
-                    LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
-                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
-                }catch(ParseException | SchemaNotFoundException ex) {
-                    String errorMessage = String.format(UNABLE_TO_PARSE_RESPONSE_DETAILS, responseCode, reasonPhrase);
-                    LOGGER.error(errorMessage, ex);
-                }
-                break;
-            case HttpStatus.SC_FORBIDDEN:
-                getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, "Forbidden access.");
-                break;
-            case HttpStatus.SC_NOT_FOUND:
-                try {
-                    MissingProductResponse missingProductResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), MissingProductResponse.class);
-                    LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
-                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, missingProductResponse.getResponseMessage());
-                }catch(ParseException | SchemaNotFoundException ex) {
-                    String errorMessage = String.format(UNABLE_TO_PARSE_RESPONSE_DETAILS, responseCode, reasonPhrase);
-                    LOGGER.error(errorMessage, ex);
-                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, errorMessage);
-                }
-                break;
-            default:
-                String unexpectedResponseCodeMessage = String.format("Unexpected response when retrieving product details, HTTP response code %s (%s)",responseCode, reasonPhrase);
-                LOGGER.error(unexpectedResponseCodeMessage);
-                getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, unexpectedResponseCodeMessage);
-                break;
+                                productName = URLDecoder.decode(fileType.getName(), "UTF-8");
+                                resolvedProductName = pathResolver.resolveDuplicateFilePath(productName, productMetadata.getTempMetalinkDownloadDirectory().toFile());
+                                FileDownloadMetadata fileMetadata = getFileMetadataForMetalinkEntry(firstUrlForFile.getValue(), resolvedProductName, productMetadata.getTempMetalinkDownloadDirectory());
+                                FileUtils.touch(fileMetadata.getPartiallyDownloadedPath().toFile());
+                                LOGGER.debug(String.format("metalink file download size %s", fileMetadata.getDownloadSize()));
+                                productMetadata.getFileMetadataList().add(fileMetadata);
+                            }
+                        }
+                        LOGGER.debug(String.format("Product contains %s files", fileList.size()));
+                        getProductDownloadProgressMonitor().notifyOfProductDetails(productMetadata.getMetalinkDownloadDirectory().getFileName().toString(), productMetadata.getFileMetadataList());
+                        getProductDownloadProgressMonitor().setStatus(EDownloadStatus.NOT_STARTED);
+                    } else {
+                        //download is a single file
+                        String filenameFromResponseHeader = responseHeaderParser.searchForFilename(productDownloadResponseHeaders);
+                        long fileSize = responseHeaderParser.searchForContentLength(productDownloadResponseHeaders);
+                        resolvedProductName = pathResolver.determineFileName(filenameFromResponseHeader, productURI, baseProductDownloadDir);
+
+                        LOGGER.debug("Content-Disposition = " + filenameFromResponseHeader);
+                        LOGGER.debug("Content-Length = " + fileSize);
+                        LOGGER.debug("fileName = " + resolvedProductName);
+
+                        FileDownloadMetadata fileMetadata = new FileDownloadMetadata(productURI.toURL(), resolvedProductName, fileSize, baseProductDownloadDir.toPath());
+                        FileUtils.touch(fileMetadata.getPartiallyDownloadedPath().toFile());
+                        productMetadata.getFileMetadataList().add(fileMetadata);
+
+                        getProductDownloadProgressMonitor().notifyOfProductDetails(fileMetadata.getCompletelyDownloadedPath().getFileName().toString(), productMetadata.getFileMetadataList());
+                    }
+                    break;
+                case HttpStatus.SC_ACCEPTED:
+                    ProductDownloadResponse parsedProductDownloadResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), ProductDownloadResponse.class);
+                    ProductDownloadResponseType productDownloadResponseCode = parsedProductDownloadResponse.getResponseCode();
+                    if (productDownloadResponseCode == ProductDownloadResponseType.ACCEPTED || productDownloadResponseCode == ProductDownloadResponseType.IN_PROGRESS) {
+                        long retryAfter = parsedProductDownloadResponse.getRetryAfter().longValue();
+                        LOGGER.info(String.format("Product %s not available at this time, retry after %s seconds", productURI.toString(), retryAfter));
+
+                        idleCheckExecutor = Executors.newSingleThreadScheduledExecutor();
+                        IdleCheckThread idleCheckThread = new IdleCheckThread(this);
+                        idleCheckExecutor.schedule(idleCheckThread, retryAfter, TimeUnit.SECONDS);
+
+                        getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IDLE);
+                    } else {
+                        getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, String.format("Product download was accepted, but response code is %s", productDownloadResponseCode));
+                    }
+                    break;
+                case HttpStatus.SC_PARTIAL_CONTENT:
+                    //Partial download is not relevant at this stage
+                    break;
+                case HttpStatus.SC_SEE_OTHER:
+                    //TODO handle forwarded download
+                    break;
+                case HttpStatus.SC_BAD_REQUEST:
+                    try {
+                        BadRequestResponse badRequestResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), BadRequestResponse.class);
+                        LOGGER.error(String.format("badRequestResponse: %s", badRequestResponse));
+                        getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, badRequestResponse.getResponseMessage());
+                    } catch (ParseException | SchemaNotFoundException ex) {
+                        String errorMessage = String.format(UNABLE_TO_PARSE_RESPONSE_DETAILS, responseCode, reasonPhrase);
+                        LOGGER.error(errorMessage, ex);
+                    }
+                    break;
+                case HttpStatus.SC_FORBIDDEN:
+                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, "Forbidden access.");
+                    break;
+                case HttpStatus.SC_NOT_FOUND:
+                    try {
+                        MissingProductResponse missingProductResponse = xmlWithSchemaTransformer.deserializeAndInferSchema(productDownloadResponse.getBodyAsStream(), MissingProductResponse.class);
+                        LOGGER.error(String.format("missingProductResponse: %s", missingProductResponse));
+                        getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, missingProductResponse.getResponseMessage());
+                    } catch (ParseException | SchemaNotFoundException ex) {
+                        String errorMessage = String.format(UNABLE_TO_PARSE_RESPONSE_DETAILS, responseCode, reasonPhrase);
+                        LOGGER.error(errorMessage, ex);
+                        getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, errorMessage);
+                    }
+                    break;
+                default:
+                    String unexpectedResponseCodeMessage = String.format("Unexpected response when retrieving product details, HTTP response code %s (%s)", responseCode, reasonPhrase);
+                    LOGGER.error(unexpectedResponseCodeMessage);
+                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, unexpectedResponseCodeMessage);
+                    break;
             }
-        } catch (IOException | DMPluginException | ParseException | SchemaNotFoundException ex) {
+        } catch (IOException | DMPluginException | ParseException | SchemaNotFoundException | URISyntaxException ex) {
             LOGGER.error("Exception occurred whilst retrieving download details.", ex);
             getProductDownloadProgressMonitor().setError(ex);
         } catch (UmssoCLException ex) {
             LOGGER.error("UMSSO exception occurred whilst retrieving download details.", ex);
             Throwable cause = ex.getCause();
-            if(cause != null) {
+            if (cause != null) {
                 getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, cause.getLocalizedMessage());
-            }else{
+            } else {
                 getProductDownloadProgressMonitor().setError(ex);
             }
         } finally {
@@ -369,23 +386,23 @@ public abstract class DownloadProcess implements IDownloadProcess {
             }
         }
     }
-    
+
     private FileDownloadMetadata getFileMetadataForMetalinkEntry(String fileDownloadLink, String fileName, Path metalinkDownloadDirectory) throws DMPluginException, IOException, UmssoCLException {
         ResponseHeaderParser responseHeaderParser = new ResponseHeaderParser();
         long fileSize;
 
         URL fileDownloadLinkURL = new URL(fileDownloadLink);
 
-        UmSsoHttpRequestAndResponse metalinkRequestAndResponse = null; 
+        UmSsoHttpRequestAndResponse metalinkRequestAndResponse = null;
         try {
             metalinkRequestAndResponse = umSsoHttpClient.executeHeadRequest(fileDownloadLinkURL);
             UmssoHttpResponse response = metalinkRequestAndResponse.getResponse();
 
             int metalinkFileResponseCode = response.getStatusLine().getStatusCode();
-            if(metalinkFileResponseCode == HttpStatus.SC_OK) {
+            if (metalinkFileResponseCode == HttpStatus.SC_OK) {
                 fileSize = responseHeaderParser.searchForContentLength(response.getHeaders());
                 LOGGER.debug(String.format("metalink file content length = %s", fileSize));
-            }else{
+            } else {
                 throw new DMPluginException(String.format("Unable to retrieve metalink file details from file URL %s", fileDownloadLink));
             }
         } finally {
@@ -401,18 +418,18 @@ public abstract class DownloadProcess implements IDownloadProcess {
         LOGGER.debug("Start of download product");
         List<FileDownloadMetadata> fileMetadataList = productMetadata.getFileMetadataList();
         int numberOfFilesInProduct = fileMetadataList.size();
-        if(numberOfFilesInProduct > 0) {
+        if (numberOfFilesInProduct > 0) {
             try {
                 getProductDownloadProgressMonitor().setStatus(EDownloadStatus.RUNNING);
                 String transferrerReadLengthProperty = pluginConfig.getProperty(KEY_TRANSFERRER_READ_LENGTH_IN_BYTES);
                 int transferrerReadLength = Integer.parseInt(transferrerReadLengthProperty);
 
-                if(fileDownloadExecutor != null && !fileDownloadExecutor.isShutdown() && !fileDownloadExecutor.isTerminated()) {
+                if (fileDownloadExecutor != null && !fileDownloadExecutor.isShutdown() && !fileDownloadExecutor.isTerminated()) {
                     getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, String.format("Internal Error with downloading products, unable to assign product %s to download threads.", productURI.toString()));
-                }else{
+                } else {
                     fileDownloadExecutor = Executors.newSingleThreadExecutor();
                     for (FileDownloadMetadata fileDownloadMetadata : fileMetadataList) {
-                        if(!getProductDownloadProgressMonitor().isDownloadComplete(fileDownloadMetadata.getUuid())) {
+                        if (!getProductDownloadProgressMonitor().isDownloadComplete(fileDownloadMetadata.getUuid())) {
                             HttpFileDownloadRunnable httpFileDownloadRunnable = new HttpFileDownloadRunnable(fileDownloadMetadata, getProductDownloadProgressMonitor(), umSsoHttpClient, transferrerReadLength);
                             getProductDownloadProgressMonitor().getFileDownloadList().add(httpFileDownloadRunnable);
                             fileDownloadExecutor.execute(httpFileDownloadRunnable);
@@ -424,14 +441,14 @@ public abstract class DownloadProcess implements IDownloadProcess {
                     String downloadThreadTimeoutLengthInHoursProperty = pluginConfig.getProperty(KEY_DOWNLOAD_THREAD_TIMEOUT_LENGTH_IN_HOURS);
                     Long downloadThreadTimeoutLengthInHours = Long.parseLong(downloadThreadTimeoutLengthInHoursProperty);
                     boolean threadCompleted = fileDownloadExecutor.awaitTermination(downloadThreadTimeoutLengthInHours, TimeUnit.HOURS);
-                    if(!threadCompleted) {
+                    if (!threadCompleted) {
                         getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, String.format("Download for product %s timed out.", productURI.toString()));
                         fileDownloadExecutor.shutdownNow();
-                    }else{
+                    } else {
                         LOGGER.debug(String.format("Threads completed for download %s", productURI.toString()));
-                        if(getProductDownloadProgressMonitor().getNumberOfCompletedFiles() == numberOfFilesInProduct) {
+                        if (getProductDownloadProgressMonitor().getNumberOfCompletedFiles() == numberOfFilesInProduct) {
                             tidyUpAfterCompletedDownload(numberOfFilesInProduct);
-                        }else{
+                        } else {
                             // The number of completed files does not equal the number of files in the product, therefore one of the following has happened:
                             // * A pause or cancel command has been sent by the core, which has caused a termination of all product download threads.
                             // * An error has occurred when downloading the products, which has caused a termination of all product download threads.
@@ -439,17 +456,17 @@ public abstract class DownloadProcess implements IDownloadProcess {
                             // * A programmatic error has occurred, where the status is not PAUSED, CANCELLED or IN_ERROR
                             EDownloadStatus statusWhenDownloadWasAborted = getProductDownloadProgressMonitor().getStatusWhenDownloadWasAborted();
                             switch (statusWhenDownloadWasAborted) {
-                            case PAUSED:
-                            case IN_ERROR:
-                            case NOT_STARTED:
-                                getProductDownloadProgressMonitor().setStatus(statusWhenDownloadWasAborted);
-                                break;
-                            case CANCELLED:
-                                tidyUpAfterCancelledDownload();
-                                break;
-                            default:
-                                getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, "Product download threads have terminated unexpectedly, please contact support.");
-                                break;
+                                case PAUSED:
+                                case IN_ERROR:
+                                case NOT_STARTED:
+                                    getProductDownloadProgressMonitor().setStatus(statusWhenDownloadWasAborted);
+                                    break;
+                                case CANCELLED:
+                                    tidyUpAfterCancelledDownload();
+                                    break;
+                                default:
+                                    getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, "Product download threads have terminated unexpectedly, please contact support.");
+                                    break;
                             }
                         }
 
@@ -459,13 +476,13 @@ public abstract class DownloadProcess implements IDownloadProcess {
             } catch (InterruptedException e) {
                 getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, String.format("Download for product %s was interrupted.", productURI.toString()));
             }
-        }else{
+        } else {
             getProductDownloadProgressMonitor().setStatus(EDownloadStatus.IN_ERROR, String.format("No files found for download of product %s.", productURI.toString()));
         }
     }
-    
+
     private void stopIdleCheckIfActive() {
-        if(idleCheckExecutor != null) {
+        if (idleCheckExecutor != null) {
             idleCheckExecutor.shutdownNow();
         }
     }
@@ -473,13 +490,13 @@ public abstract class DownloadProcess implements IDownloadProcess {
     private void tidyUpAfterCancelledDownload() {
         LOGGER.debug(String.format("Tidying up cancelled download %s", productURI.toString()));
         //delete files, both partial and complete
-        if(productMetadata != null) {
+        if (productMetadata != null) {
             List<FileDownloadMetadata> fileMetadataList = productMetadata.getFileMetadataList();
             for (FileDownloadMetadata fileDownloadMetadata : fileMetadataList) {
                 try {
-                    if(getProductDownloadProgressMonitor().isDownloadComplete(fileDownloadMetadata.getUuid())) {
+                    if (getProductDownloadProgressMonitor().isDownloadComplete(fileDownloadMetadata.getUuid())) {
                         Files.deleteIfExists(fileDownloadMetadata.getCompletelyDownloadedPath());
-                    }else{
+                    } else {
                         Files.deleteIfExists(fileDownloadMetadata.getPartiallyDownloadedPath());
                     }
                 } catch (IOException e) {
@@ -492,7 +509,7 @@ public abstract class DownloadProcess implements IDownloadProcess {
 
     private void tidyUpAfterCompletedDownload(int numberOfFilesInProduct) {
         //check if a product download is a metalink, regardless of how many products are contained in the metalink
-        if(productMetadata.getMetalinkDownloadDirectory() != null) {
+        if (productMetadata.getMetalinkDownloadDirectory() != null) {
             try {
                 Files.move(productMetadata.getTempMetalinkDownloadDirectory(), productMetadata.getMetalinkDownloadDirectory(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
@@ -500,19 +517,19 @@ public abstract class DownloadProcess implements IDownloadProcess {
             }
         }
     }
-    
-    
+
     /**
-     * This method allows for further processing after the download has been completed.
-     * 
+     * This method allows for further processing after the download has been
+     * completed.
+     *
      * @return whether the post download processing has completed successfully.
-     * @throws int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException     
+     * @throws int_.esa.eo.ngeo.downloadmanager.exception.DMPluginException
      */
     public abstract boolean postDownloadProcess() throws DMPluginException;
 
     public synchronized ProductDownloadProgressMonitor getProductDownloadProgressMonitor() {
-        if(productDownloadProgressMonitor == null) {
-            productDownloadProgressMonitor = new ProductDownloadProgressMonitor(productDownloadListener); 
+        if (productDownloadProgressMonitor == null) {
+            productDownloadProgressMonitor = new ProductDownloadProgressMonitor(productDownloadListener);
         }
         return productDownloadProgressMonitor;
     }
