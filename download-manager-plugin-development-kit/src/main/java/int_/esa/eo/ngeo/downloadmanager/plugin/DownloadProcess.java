@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import com.siemens.pse.umsso.client.UmssoCLException;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
 
 /**
  * This class is a generic HTTP Download Process, which can be used by any
@@ -270,8 +269,7 @@ public abstract class DownloadProcess implements IDownloadProcess {
                 case HttpStatus.SC_OK:
                     productMetadata = new ProductDownloadMetadata();
                     String contentType = responseHeaderParser.searchForResponseHeaderValue(productDownloadResponseHeaders, HttpHeaders.CONTENT_TYPE);
-                    String productName = "",
-                     resolvedProductName = "";
+                    String productName,resolvedProductName;
 
                     LOGGER.debug(String.format("Content type: %s", contentType));
 
