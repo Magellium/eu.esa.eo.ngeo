@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 
 public class ConfigSettings {
     @Size(min=1, max=40, message="SSO username must be 1 - 40 characters long")
-    @Pattern(regexp="^[a-zA-Z0-9]+$", message="SSO username must be alphanumeric with no spaces")
+//    @Pattern(regexp="^[a-zA-Z0-9]+$", message="SSO username must be alphanumeric with no spaces")
     private String ssoUsername;
 
     @Size(min=4, max=40, message="SSO password must be 4 - 40 characters long")

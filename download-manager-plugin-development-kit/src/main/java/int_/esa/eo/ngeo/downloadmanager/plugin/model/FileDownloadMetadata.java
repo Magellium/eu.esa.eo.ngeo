@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileDownloadMetadata {
+
     private final String uuid;
     private final URL fileURL;
     private final String fileName;
@@ -43,27 +44,27 @@ public class FileDownloadMetadata {
     }
 
     /* 
-     * The filename may contain a folder in a metalink scenario. The file at the end of the path is be extracted
+     * The filename may contain a folder in a metalink scenario. The file at the end of the path is extracted
      * from the filename
      * If the file is partially downloaded (i.e. in progress) a dot will be appended to the filename.
      */
     private Path getPathFromFileName(String fileName, boolean isPartiallyDownloaded) {
         Pattern potentialFilePathPattern = Pattern.compile("(.*[\\\\/])([^\\\\/]*)");
         Matcher matcher = potentialFilePathPattern.matcher(fileName);
-        if(matcher.find()) {
+        if (matcher.find()) {
             Path pathFromFileName = Paths.get(downloadPath.toAbsolutePath().toString());
-            for(int i=1; i <= matcher.groupCount(); i++) {
-                if(i == matcher.groupCount() && isPartiallyDownloaded) {
+            for (int i = 1; i <= matcher.groupCount(); i++) {
+                if (i == matcher.groupCount() && isPartiallyDownloaded) {
                     pathFromFileName = Paths.get(pathFromFileName.toString(), String.format(".%s", matcher.group(i)));
-                }else{
+                } else {
                     pathFromFileName = Paths.get(pathFromFileName.toString(), matcher.group(i));
                 }
             }
             return pathFromFileName;
-        }else{
-            if(isPartiallyDownloaded) {
+        } else {
+            if (isPartiallyDownloaded) {
                 return Paths.get(downloadPath.toAbsolutePath().toString(), String.format(".%s", fileName));
-            }else{
+            } else {
                 return Paths.get(downloadPath.toAbsolutePath().toString(), fileName);
             }
         }

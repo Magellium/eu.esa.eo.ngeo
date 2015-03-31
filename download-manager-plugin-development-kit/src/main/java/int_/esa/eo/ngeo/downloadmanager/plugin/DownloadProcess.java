@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import com.siemens.pse.umsso.client.UmssoCLException;
 import com.siemens.pse.umsso.client.util.UmssoHttpResponse;
 import java.net.URISyntaxException;
+import org.apache.http.client.utils.URIBuilder;
 
 /**
  * This class is a generic HTTP Download Process, which can be used by any
@@ -121,7 +122,7 @@ public abstract class DownloadProcess implements IDownloadProcess {
             throw dmPluginException;
         } catch (Throwable t) {
             LOGGER.error(String.format("Plugin Exception: %s - %s", productURI.toString(), t.getClass().getName(), t.getMessage(), t));
-            productDownloadProgressMonitor.setError(new DMPluginException(String.format("CSN Plugin Exception: %s", t.getMessage()), t));
+            productDownloadProgressMonitor.setError(new DMPluginException(String.format("Plugin Exception: %s", t.getMessage()), t));
         }
         return getStatus();
     }
@@ -257,11 +258,19 @@ public abstract class DownloadProcess implements IDownloadProcess {
 
                 case HttpStatus.SC_MOVED_PERMANENTLY:
                 case HttpStatus.SC_MOVED_TEMPORARILY:
+                case HttpStatus.SC_SEE_OTHER:
                     Header[] newHeaders = productDownloadResponse.getHeaders();
                     for (Header header : newHeaders) {
                         if (header.getName().equalsIgnoreCase("Location")) {
-                            this.productURI = new URI(header.getValue());
-                            break;
+                            URL url = new URL(header.getValue());
+                            URIBuilder builder = new URIBuilder();
+                            builder.setHost(url.getHost())
+                                    .setPort(url.getPort())
+                                    .setPath(url.getPath())
+                                    .setQuery(url.getQuery())
+                                    .setScheme(url.getProtocol());
+
+                            this.productURI = builder.build();
                         }
                     }
                     retrieveDownloadDetails();
@@ -269,7 +278,8 @@ public abstract class DownloadProcess implements IDownloadProcess {
                 case HttpStatus.SC_OK:
                     productMetadata = new ProductDownloadMetadata();
                     String contentType = responseHeaderParser.searchForResponseHeaderValue(productDownloadResponseHeaders, HttpHeaders.CONTENT_TYPE);
-                    String productName,resolvedProductName;
+                    String productName,
+                     resolvedProductName;
 
                     LOGGER.debug(String.format("Content type: %s", contentType));
 
@@ -333,9 +343,6 @@ public abstract class DownloadProcess implements IDownloadProcess {
                     break;
                 case HttpStatus.SC_PARTIAL_CONTENT:
                     //Partial download is not relevant at this stage
-                    break;
-                case HttpStatus.SC_SEE_OTHER:
-                    //TODO handle forwarded download
                     break;
                 case HttpStatus.SC_BAD_REQUEST:
                     try {

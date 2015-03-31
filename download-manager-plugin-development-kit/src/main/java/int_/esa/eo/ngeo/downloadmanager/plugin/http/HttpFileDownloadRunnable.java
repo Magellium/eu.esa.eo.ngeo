@@ -47,10 +47,10 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpFileDownloadRunnable.class);
 
-    private FileDownloadMetadata fileDownloadMetadata;
-    private ProductDownloadProgressMonitor productDownloadProgressMonitor;
-    private UmSsoHttpClient umSsoHttpClient;
-    private int transferrerReadLength;
+    private final FileDownloadMetadata fileDownloadMetadata;
+    private final ProductDownloadProgressMonitor productDownloadProgressMonitor;
+    private final UmSsoHttpClient umSsoHttpClient;
+    private final int transferrerReadLength;
     private Transferrer transferrer;
     //This status is used to indicate the status of an individual download, and uses the same enum as the product download status
     private EDownloadStatus fileDownloadStatus;
@@ -63,6 +63,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
         this.setFileDownloadStatus(EDownloadStatus.NOT_STARTED);
     }
 
+    @Override
     public void run() {
         if(getFileDownloadStatus() == EDownloadStatus.NOT_STARTED) {
             setFileDownloadStatus(EDownloadStatus.RUNNING);
@@ -140,7 +141,6 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
                 LOGGER.error(DEAD_DOWNLOAD_THREAD, ex);
                 setFileDownloadStatus(EDownloadStatus.IN_ERROR);
                 productDownloadProgressMonitor.notifyOfFileStatusChange(getFileDownloadStatus(), ex.getLocalizedMessage());
-
             } catch (Exception ex) {
                 LOGGER.error(DEAD_DOWNLOAD_THREAD, ex);
                 setFileDownloadStatus(EDownloadStatus.IN_ERROR);
@@ -168,7 +168,7 @@ public class HttpFileDownloadRunnable implements Runnable, AbortableFileDownload
         return fileDownloadStatus;
     }
 
-    public synchronized void setFileDownloadStatus(EDownloadStatus fileDownloadStatus) {
+    public final synchronized void setFileDownloadStatus(EDownloadStatus fileDownloadStatus) {
         this.fileDownloadStatus = fileDownloadStatus;
     }
 

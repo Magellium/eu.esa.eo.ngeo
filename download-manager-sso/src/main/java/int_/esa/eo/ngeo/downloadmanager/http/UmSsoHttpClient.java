@@ -63,6 +63,7 @@ public class UmSsoHttpClient {
         
         try {
             sslIgnoreCertificatesSocketFactory = new SSLSocketFactory(new TrustStrategy() {
+                @Override
                 public boolean isTrusted(
                         final X509Certificate[] chain, String authType) throws CertificateException {
                     return true;
