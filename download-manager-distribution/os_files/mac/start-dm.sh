@@ -15,4 +15,4 @@ export DM_HOME=$DIR
 
 SYS_PROPS="-DDM_HOME=$DM_HOME -Djava.net.preferIPv4Stack=true -Djavax.net.ssl.trustStore=$DM_HOME/conf/download-manager-truststore.jks -Dlog4j.configuration=file:$DM_HOME/conf/log4j.xml"
 
-$DM_HOME/jre/jre1.7.0_21/bin/java $SYS_PROPS -jar "$DM_HOME/bin/download-manager-webapp.war" --headless --port $DM_PORT --contextPath /download-manager
+$DM_HOME/jre/jre1.7.0_21.jre/Contents/Home/bin/java $SYS_PROPS -jar "$DM_HOME/bin/download-manager-webapp.war" --headless --port $DM_PORT --contextPath /download-manager

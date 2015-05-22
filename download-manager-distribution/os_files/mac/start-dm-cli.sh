@@ -21,4 +21,4 @@ if [ -z "$1" ]
     export CMD_FILE="--cmdfile $1"
 fi
 
-$DM_HOME/jre/jre1.7.0_21/bin/java -DDM_HOME=$DM_HOME -DDM_WEBAPP_URL=$DM_WEBAPP_URL -jar "$DM_HOME/bin/download-manager-command-line.jar" $CMD_FILE
+$DM_HOME/jre/jre1.7.0_21.jre/Contents/Home/bin/java -DDM_HOME=$DM_HOME -DDM_WEBAPP_URL=$DM_WEBAPP_URL -jar "$DM_HOME/bin/download-manager-command-line.jar" $CMD_FILE
