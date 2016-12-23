@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Mit XMLSpy v2011 rel. 3 sp1 (x64) (http://www.altova.com) von Gerhard Triebnig (EOX IT Services GmbH) bearbeitet -->
-<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by Gerhard Triebnig (EOX IT Services GmbH) -->
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by abn (MAGELLIUM) -->
 <schema xmlns:ngeo="http://ngeo.eo.esa.int/iicd-d-ws/1.0" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ngeo.eo.esa.int/iicd-d-ws/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0.5">
 	<include schemaLocation="IF-ngEO-D-WS_common.xsd"/>
 	<element name="DataAccessMonitoring-Resp">
@@ -11,6 +11,14 @@
 			<choice>
 				<element ref="ngeo:error"/>
 				<sequence>
+					<element name="name">
+						<annotation>
+							<documentation>Friendly name for this DAR.	</documentation>
+						</annotation>
+						<simpleType>
+							<restriction base="string"/>
+						</simpleType>
+					</element>
 					<element name="MonitoringStatus">
 						<annotation>
 							<documentation>
@@ -50,7 +58,7 @@
 									<complexType>
 										<sequence>
 											<element ref="ngeo:ProductAccessURL"/>
-											<element name="ProductAccessStatus" type="ngeo:productAccessStatusType" />
+											<element name="ProductAccessStatus" type="ngeo:productAccessStatusType"/>
 											<element name="DownloadNotified" type="dateTime" minOccurs="0">
 												<annotation>
 													<documentation>This field indicates that completion of the download has been
